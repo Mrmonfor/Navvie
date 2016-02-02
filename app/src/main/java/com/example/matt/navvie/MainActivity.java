@@ -1,23 +1,38 @@
 package com.example.matt.navvie;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     private ImageButton loginButton, createButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        //this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+
+
+
         createButton =(ImageButton) findViewById(R.id.createButton);
         loginButton = (ImageButton) findViewById(R.id.loginButton);
+
+       // this.setContentView(R.layout.activity_main);
+
 
         loginButton.setOnClickListener(new buttonListener());
         createButton.setOnClickListener(new buttonListener());
@@ -34,7 +49,9 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                     break;
                 case R.id.createButton:
-
+                    Intent intent2 = new Intent(MainActivity.this, CreateAccount.class);
+                    startActivity(intent2);
+                    finish();
                     break;
             }
 

@@ -7,28 +7,23 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.Toast;
 
-public class LoginActivity extends Activity {
+public class CreateAccount extends Activity {
 
-    private Button Login2, CancelButton;
+    private Button SubmitButton, CancelButton2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_login);
-        //
-       // this.setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_create_account);
 
-        Login2 =(Button) findViewById(R.id.Login2);
-        CancelButton = (Button) findViewById(R.id.CancelButton);
+        SubmitButton =(Button) findViewById(R.id.SubmitButton);
+        CancelButton2 = (Button) findViewById(R.id.CancelButton2);
 
-        Login2.setOnClickListener(new buttonListener());
-        CancelButton.setOnClickListener(new buttonListener());
-
+        SubmitButton.setOnClickListener(new buttonListener());
+        CancelButton2.setOnClickListener(new buttonListener());
     }
 
     private class buttonListener implements View.OnClickListener{
@@ -36,13 +31,15 @@ public class LoginActivity extends Activity {
         @Override
         public void onClick(View v) {
             switch(v.getId()){
-                case R.id.Login2:
-                    Intent intent = new Intent(LoginActivity.this, LoginActivity.class);
+                case R.id.SubmitButton:
+                    Intent intent = new Intent(CreateAccount.this, MainActivity.class);
                     startActivity(intent);
                     finish();
+                    Toast toast = Toast.makeText(getApplicationContext(), "Please Check Your Email for Verification", Toast.LENGTH_LONG);
+                    toast.show();
                     break;
-                case R.id.CancelButton:
-                    Intent intent2 = new Intent(LoginActivity.this,MainActivity.class);
+                case R.id.CancelButton2:
+                    Intent intent2 = new Intent(CreateAccount.this,MainActivity.class);
                     startActivity(intent2);
                     finish();
                     break;
@@ -54,7 +51,7 @@ public class LoginActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_login, menu);
+        getMenuInflater().inflate(R.menu.menu_create_account, menu);
         return true;
     }
 
