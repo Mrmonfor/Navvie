@@ -37,12 +37,12 @@ public class LoginActivity extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.Login2:
-                    Intent intent = new Intent(LoginActivity.this, LoginActivity.class);
+                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
                     startActivity(intent);
                     finish();
                     break;
                 case R.id.CancelButton:
-                    Intent intent2 = new Intent(LoginActivity.this,MainActivity.class);
+                    Intent intent2 = new Intent(LoginActivity.this,EditProfile.class);
                     startActivity(intent2);
                     finish();
                     break;
