@@ -79,7 +79,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Holds cords of center of campus
         LatLng campus = new LatLng(36.066311, -79.808892);
         mMap.setBuildingsEnabled(true);
-        //This holds the markers name
+        //This holds the markers name////
         mMap.addMarker(new MarkerOptions().position(campus).title("UNCG"));
         //to add image icon
        // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));
