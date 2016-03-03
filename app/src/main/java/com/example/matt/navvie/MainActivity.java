@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity{
         loginButton = (ImageButton) findViewById(R.id.loginButton);
 
 
-       // this.setContentView(R.layout.activity_main);
+       // this.setContentView(R.layout.activity_main);////
 
 
         loginButton.setOnClickListener(new buttonListener());
