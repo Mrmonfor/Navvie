@@ -21,7 +21,8 @@
             android:ems="10"
             android:id="@+id/EnterFirst"
             android:layout_marginTop="150dp"
-            android:hint="First Name" />
+            android:hint="First Name"
+            android:background="@drawable/border_style"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -30,7 +31,9 @@
             android:ems="10"
             android:id="@+id/EnterLast"
             android:layout_gravity="center_horizontal"
-            android:hint="Last Name" />
+            android:hint="Last Name"
+            android:background="@drawable/border_style"
+            android:layout_marginTop="5dp" />
 
         <EditText
             android:layout_width="match_parent"
@@ -39,7 +42,9 @@
             android:ems="10"
             android:id="@+id/CreatePass"
             android:layout_gravity="center_horizontal"
-            android:hint="Create Password" />
+            android:hint="Create Password"
+            android:background="@drawable/border_style"
+            android:layout_marginTop="5dp" />
 
         <EditText
             android:layout_width="match_parent"
@@ -48,7 +53,9 @@
             android:ems="10"
             android:id="@+id/RetypePass"
             android:layout_gravity="center_horizontal"
-            android:hint="Re-Type Password" />
+            android:hint="Re-Type Password"
+            android:background="@drawable/border_style"
+            android:layout_marginTop="5dp" />
 
         <EditText
             android:layout_width="match_parent"
@@ -56,7 +63,9 @@
             android:inputType="textEmailAddress"
             android:ems="10"
             android:id="@+id/EnterEmail"
-            android:hint="Student/Staff Email" />
+            android:hint="Student/Staff Email"
+            android:background="@drawable/border_style"
+            android:layout_marginTop="5dp" />
 
         <Button
             android:layout_width="wrap_content"
