@@ -1,6 +1,14 @@
 package com.example.matt.navvie;
 
+import android.app.ActionBar;
+import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,9 +16,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Random;
 
 public class EditProfile extends AppCompatActivity {
     private Button subEditButton, cancelProfButton;
+    private ImageView image;
+    public static final int IMAGE_GALLERY_REQUEST = 3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -25,7 +43,11 @@ public class EditProfile extends AppCompatActivity {
 
         subEditButton =(Button) findViewById(R.id.submitProfileButton);
         cancelProfButton = (Button) findViewById(R.id.cancelProfileButton);
+        image = (ImageView) findViewById((R.id.profilePic));
+        //image.getLayoutParams().width=150;
 
+
+        image.setOnClickListener(new buttonListener());
         subEditButton.setOnClickListener(new buttonListener());
         cancelProfButton.setOnClickListener(new buttonListener());
 
@@ -43,6 +65,39 @@ public class EditProfile extends AppCompatActivity {
                     Intent intent2 = new Intent(EditProfile.this, MainActivity.class);
                     startActivity(intent2);
                     finish();
+                    break;
+                case R.id.profilePic:
+
+                    Intent photointent;
+
+                    if (Build.VERSION.SDK_INT < 19){
+                        intent = new Intent();
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, IMAGE_GALLERY_REQUEST);
+                    } else {
+                        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, IMAGE_GALLERY_REQUEST);
+                    }
+
+
+
+                    /*
+
+                    //involk the image gallary
+                    Intent photoIntent = new Intent(Intent.ACTION_PICK);
+                    //place we want to store picture
+                    File photo = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    String photoPath = photo.getPath();
+                    //get URI representation
+                    Uri data = Uri.parse(photoPath);
+                    //set the picture and type
+                    photoIntent.setDataAndType(data, "image/*");
+                    //Invoke this activity and get photo back from it
+                    startActivityForResult(photoIntent, 3);
+                    */
                     break;
             }
 
@@ -68,5 +123,32 @@ public class EditProfile extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onActivityResult(int reqCode, int resCode, Intent data) {
+        if (reqCode == IMAGE_GALLERY_REQUEST) {
+            //if here, heard back from image gallery
+            if (resCode == RESULT_OK) {
+                //if here, everything processes succesfully
+
+                // address of the photo in memory
+                Uri imageUri = data.getData();
+                // declare a stream to read image data from memory
+                InputStream inputStream;
+                //getting input stream based on Uri of image
+                try {
+                    inputStream = getContentResolver().openInputStream(imageUri);
+                    //get bitmap from stream
+                    Bitmap bitImage = BitmapFactory.decodeStream(inputStream);
+                    //show image to user.
+                    image.setImageBitmap(bitImage);
+
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this, "Unable to open image",Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }
     }
 }
