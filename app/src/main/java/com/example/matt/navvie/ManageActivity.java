@@ -1,0 +1,155 @@
+package com.example.matt.navvie;
+
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class ManageActivity extends AppCompatActivity {
+    private String[] friends,requests,curFriends;
+    private ArrayList<String> friendList, requestsList,curFriendsList;
+    private ArrayAdapter<String> friendAdapter, requestsAdapter,curFriendsAdapter;
+    private ListView friendListView,requestsListView, curFriendsListView;
+    private EditText searchText,curSearchText;
+    private Button cancelManageButton;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_manage);
+
+        cancelManageButton = (Button) findViewById(R.id.cancelManageButton);
+        cancelManageButton.setOnClickListener(new buttonListener());
+
+        friendListView = (ListView) findViewById(R.id.listView2);
+        searchText = (EditText) findViewById(R.id.searchFriendText);
+
+        requestsListView = (ListView) findViewById(R.id.listView1);
+        initRequestList(); /// creates request list
+
+        curFriendsListView = (ListView) findViewById(R.id.listView3);
+        curSearchText = (EditText) findViewById(R.id.manageFriendText);
+
+        curSearchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                initManageList();
+                if(s.toString().equals("")){
+                    //reset listview
+                    for(String item: curFriends) {
+                        curFriendsList.remove(item);
+                    }
+
+                }else{
+                    //search
+                    searchCurFriend(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+       // initList();
+        searchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                initList();
+                if(s.toString().equals("")){
+                   //reset listview
+                    for(String item: friends) {
+                        friendList.remove(item);
+                    }
+
+                }else{
+                    //search
+                    searchFriend(s.toString());
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+    }
+
+    public void searchFriend(String textToSearch){
+        initList();
+        for(String item: friends){
+            if(!item.contains(textToSearch)){
+                friendList.remove(item);
+            }
+        }
+        friendAdapter.notifyDataSetChanged();
+
+    }
+
+    public void searchCurFriend(String textToSearch){
+        initManageList();
+        for(String item: curFriends){
+            if(!item.contains(textToSearch)){
+                curFriendsList.remove(item);
+            }
+        }
+        curFriendsAdapter.notifyDataSetChanged();
+
+    }
+
+    public void initList(){
+        friends = new String[]{"Jane Doe","Adam Southgate", "Chase Patton"};
+        friendList = new ArrayList<>(Arrays.asList(friends));
+        friendAdapter = new ArrayAdapter<String>(this, R.layout.list_friends, R.id.friendItemText, friendList);
+        friendListView.setAdapter(friendAdapter);
+    }
+
+    public void initRequestList(){
+        requests = new String[]{"Daniel Hill","Cory Sabel", "Andrew Schaefer"};
+        requestsList = new ArrayList<>(Arrays.asList(requests));
+        requestsAdapter = new ArrayAdapter<String>(this, R.layout.list_requests, R.id.requestsText, requestsList);
+        requestsListView.setAdapter(requestsAdapter);
+    }
+
+    public void initManageList(){
+        curFriends = new String[]{"Anthony Lumpkins","Nick Hays", "Josh Queen"};
+        curFriendsList = new ArrayList<>(Arrays.asList(curFriends));
+        curFriendsAdapter = new ArrayAdapter<String>(this, R.layout.list_current_friends, R.id.manageText, curFriendsList);
+        curFriendsListView.setAdapter(curFriendsAdapter);
+    }
+
+    private class buttonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            switch(v.getId()) {
+                case R.id.cancelManageButton:
+                    Intent intent = new Intent(ManageActivity.this, MapsActivity.class);
+                    startActivity(intent);
+                    finish();
+                    break;
+            }
+        }
+    }
+}

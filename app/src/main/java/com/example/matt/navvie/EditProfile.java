@@ -11,12 +11,14 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -28,6 +30,7 @@ public class EditProfile extends AppCompatActivity {
     private Button subEditButton, cancelProfButton;
     private ImageView image;
     public static final int IMAGE_GALLERY_REQUEST = 3;
+    private TextView bioText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +48,8 @@ public class EditProfile extends AppCompatActivity {
         cancelProfButton = (Button) findViewById(R.id.cancelProfileButton);
         image = (ImageView) findViewById((R.id.profilePic));
         //image.getLayoutParams().width=150;
-
+         bioText = (TextView) findViewById(R.id.bioText);
+        bioText.setMovementMethod(new ScrollingMovementMethod());
 
         image.setOnClickListener(new buttonListener());
         subEditButton.setOnClickListener(new buttonListener());
@@ -57,12 +61,12 @@ public class EditProfile extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.submitProfileButton:
-                    Intent intent = new Intent(EditProfile.this, MainActivity.class);
+                    Intent intent = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent);
                     finish();
                     break;
                 case R.id.cancelProfileButton:
-                    Intent intent2 = new Intent(EditProfile.this, MainActivity.class);
+                    Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent2);
                     finish();
                     break;
