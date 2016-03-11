@@ -57,7 +57,7 @@ public class CreateAccount extends Activity {
                                     pword.getText().toString() + ", " +
                                     pword2.getText().toString() + ", " +
                                     email.getText().toString();
-
+                            //
                             byte[] buffer = output.getBytes();
                             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, server, servPort);
                             socket.send(packet);
