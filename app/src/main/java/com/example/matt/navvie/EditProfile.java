@@ -39,8 +39,7 @@ public class EditProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
-
+        ///LALALALALALAALLALALALALALAL
         setContentView(R.layout.activity_edit_profile);
 
 
