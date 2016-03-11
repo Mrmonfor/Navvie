@@ -19,13 +19,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accept"
-            android:id="@+id/acceptButton" />
+            android:id="@+id/acceptButton"
+            android:focusable="false"/>
 
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Decline"
-            android:id="@+id/declineButton" />
+            android:id="@+id/declineButton"
+            android:focusable="false"/>
     </LinearLayout>
 </LinearLayout>
