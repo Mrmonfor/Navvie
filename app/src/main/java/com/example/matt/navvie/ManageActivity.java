@@ -37,7 +37,7 @@ public class ManageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage);
 
         cancelManageButton = (Button) findViewById(R.id.cancelManageButton);
-
+        //LALALAAL
         cancelManageButton.setOnClickListener(new buttonListener());
 
 
