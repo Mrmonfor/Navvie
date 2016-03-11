@@ -2,221 +2,221 @@
 <items version="2" >
 
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-plus\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="1a78298e7724d5440d210bcb946b3493250d354d">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-a6d15a2dd773dc7b64a880e61b5ac997f337d7f6.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-drive\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="b36f30ac5ee5d5214f4b1e2ac49f11889d58e71a">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-8b51486883e154b5de0957919569a47754b8af04.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-analytics\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="1c9f35e952b212c843f7bd2c7eec8e82ad95602e">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-52b94b846b2f1e16fe2a723c79f7c3d359be4ffc.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-panorama\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="08d34b2d135c1cc96ab506fd8bf6916d1e2f391a">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-3d9fde519e1c14000589fc18daf000bed994ca71.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\libs\internal_impl-23.1.1.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="a4de9c81ae239414e1ed0f86441b02abaf29bca9">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\internal_impl-23.1.1-e455d235ba9fb9f3bafde61bb9f5dc1a91f8587a.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-games\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="3a364cc6b698d1b3b2d284f64618daaa7fe77ddf">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-e8665232955f0409e935e02b87a3156d9998a1c0.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-auth\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="966e5771a5a2ebfb31bf00d7cd6cd2546d245517">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-f47fca44bb9a8f552108d54bfb76b89b804ba4b9.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appindexing\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="65d086ee9daaf87b5af62ad24471edafa433354c">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-f211a9a990d5039bf8170facf51c5492c37f541c.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-vision\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="dfecc4d835cdabcdecf7e95f0d20a3ef1e9d8ef4">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-0272fb6ceda911f782ebe64978a6939d7cc60c2c.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-location\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="a8412b654dab86d57bf90683367488211c8a81f1">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-7d5bba1b366bfb58d88cf343764ef814eb183dc1.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appinvite\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="9fe026fb4c7fce21bc5142f6e1bdf844f28061ac">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-9f78d54535df0d3fe04d4fd7b7c36193af489505.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="8e673cdfadd8f2d98fdb2fda2285c30f6e449782">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-51f56603ad0cce53b978235aa7bff51e2979c0ad.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-identity\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="b82b8e847173c28efffcd291b2a0b1ae9ad17fa4">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-99e5347e6bdc5670f90a28ff83b13238de977c45.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.1.1\support-annotations-23.1.1.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="8d680ba5a623724d1fb0e81c36a790f023a6cede">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\support-annotations-23.1.1-1f0be003b8da540ca3219a4dd63c3d04136e3813.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="6cbc7773921fcfedbe55657578f0cbfe614778dc">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-51f45229fab56b445225f88d825aab07d96df024.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="04de44f90606c77f3b28cf44861f306290505aac">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-affa4f850fa7e7e021ae1ecb25cc2c287d1479bb.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="5c5699834e9722f1c288fea2de82725d078ba127">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-7b5d40bf659dc49e55d331473dcc920ea8b4f01d.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wearable\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="e167a34eaca0b31704212f43f9576ea84e05046f">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-3b817082ddda54554755e7e349144fa080cdd494.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-safetynet\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="0194a7409c40de94fb539d4ad9928ec5d47afeb7">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-1fc6a0f3e19c3689c2031e23d55a972162929dcf.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wallet\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="f2df436a8f02ce7e4d7d209671fc45f97c470f0e">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-340699ee8af3522372c70e602b4bdfc9bfafe9c0.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-fitness\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="c54246475c1bb64ac6857d1320364bfbfeda2c46">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-cb5fc68b1cb7383cc2796ec6ef17238f7bda8cfd.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.4.0\jars\classes.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-gcm\8.4.0\jars\classes.jar"
         jumboMode="false"
         revision="23.0.2"
         sha1="2d7fe76982677315c4dc4edfb459c8ca718a9d4c">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-4f339878708d62f11d175c0bcf27bfe94543c784.jar" />
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-50d4220ca6d22ea2154443e3df98621a165b2db0.jar" />
     </item>
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="d358b3dd49a7c67844622dcbc9cf4339e13952ce">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-2675ff93dcd68e99e26a094b3c2e33701559d653.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="b5e7892fb0708e792e0e933c4c0a0ca0ac7831fb">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-2acbb02bc771d750a39a617184c93a96fa28beb6.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-nearby\8.4.0\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="9cad249cf62751a323d9af568caf12284b7d6062">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-f161cacd0170bf6f634ba7f1f61a6abf6ade6c35.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.4.0\jars\classes.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-base\8.4.0\jars\classes.jar"
         jumboMode="false"
         revision="23.0.2"
         sha1="fef2b3e4b6b1b0e5fe7b69fa137a5fa55a3182ab">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-34e4808bcefa8fdcbff06df50ca84eb622422eb2.jar" />
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-55ce54924263fb7d32999b3c79575d527c2b475a.jar" />
     </item>
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-cast\8.4.0\jars\classes.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.1.1\jars\classes.jar"
         jumboMode="false"
         revision="23.0.2"
-        sha1="551e78f21acf69ebfb489c0e79647824c838013e">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-b615bacc4b16d8ad394e69480c15c21f38041550.jar" />
+        sha1="5c5699834e9722f1c288fea2de82725d078ba127">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-0cfa8094455a540ec1bfb1ceb1dea694b0607afa.jar" />
     </item>
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\design\23.1.1\jars\classes.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appindexing\8.4.0\jars\classes.jar"
         jumboMode="false"
         revision="23.0.2"
-        sha1="379471b2bd17d9737c050345c08e8c7d16589784">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-95b422df346a7ba02d1d3734c3dad077ac85b232.jar" />
+        sha1="65d086ee9daaf87b5af62ad24471edafa433354c">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-9ddec6c7dc00fbf70a6386321219c2e9680eab2b.jar" />
     </item>
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\jars\classes.jar"
-        jumboMode="false"
-        revision="23.0.2"
-        sha1="09c5e804bc67fc0580360043dff067df574a60d4">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-44792e761232c85d339401550184b6f84af1828e.jar" />
-    </item>
-    <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\libs\internal_impl-23.0.0.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\libs\internal_impl-23.0.0.jar"
         jumboMode="false"
         revision="23.0.2"
         sha1="03d38bb042efe3e5ce27ba66b729a9523c36d8fe">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.0-7d13fb265942f42faca29fb811669a80347949c6.jar" />
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.0-ee70e834fa214af2203b5abb76eb6956fc1b5c36.jar" />
     </item>
     <item
-        jar="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.4.0\jars\classes.jar"
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-plus\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="1a78298e7724d5440d210bcb946b3493250d354d">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-b586791c702a094e4fd44ac7a4b678d1fcd7d964.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-panorama\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="08d34b2d135c1cc96ab506fd8bf6916d1e2f391a">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-9bd2d85d921965077925deebe8c4c6e298405ba2.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-nearby\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="9cad249cf62751a323d9af568caf12284b7d6062">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-5562591d9110fdaa3726efddbd71548b3285436a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-measurement\8.4.0\jars\classes.jar"
         jumboMode="false"
         revision="23.0.2"
         sha1="613298b7aa012f121ce542881c0a599ebd8078f2">
-        <dex dex="C:\Users\Matt\Desktop\CSC490\Navvie\app\build\intermediates\pre-dexed\debug\classes-ab9fd92b56c27a580285d73f8ee846d131560d68.jar" />
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-a0344cfb5549806fd2c3d26da2610acc09faf1db.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-cast\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="551e78f21acf69ebfb489c0e79647824c838013e">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-7b92737fcc9a11e3a2a5c69c9ec2d4a96bda35f4.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-auth\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="966e5771a5a2ebfb31bf00d7cd6cd2546d245517">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-29d1e957b4cc0d46618acf7e633c99b84b4e082f.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="6cbc7773921fcfedbe55657578f0cbfe614778dc">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-b3b6e4e08bb55269d5a302fcad030929f4d43c46.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-fitness\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="c54246475c1bb64ac6857d1320364bfbfeda2c46">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-ebcc8c457ac29a69adb683103bb82a287d5fa148.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\mediarouter-v7\23.0.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="d358b3dd49a7c67844622dcbc9cf4339e13952ce">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-98261e44545102ceae748806ce2e401651ca3631.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-games\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="3a364cc6b698d1b3b2d284f64618daaa7fe77ddf">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-cc2bb9905dcf82cd657032c52ab11abf6a986901.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-maps\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="04de44f90606c77f3b28cf44861f306290505aac">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-42095892595ce487c8afdf325becdc37a238b1fe.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="09c5e804bc67fc0580360043dff067df574a60d4">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-b530ee03c091544d9e48948edb80f7d8b412ed05.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-basement\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8e673cdfadd8f2d98fdb2fda2285c30f6e449782">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-23a0b617c255d236ff97c6e8bd0a50e17a34cd82.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-safetynet\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="0194a7409c40de94fb539d4ad9928ec5d47afeb7">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-f4ce8d960dfa7e6b876b706f055aff3f7f482a60.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-ads\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="b5e7892fb0708e792e0e933c4c0a0ca0ac7831fb">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-1e95281e6524770807fdb9b548160cc1e5745d60.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\design\23.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="379471b2bd17d9737c050345c08e8c7d16589784">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-f7881e093758152e1a34703f7682cd5c29d28990.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-vision\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="dfecc4d835cdabcdecf7e95f0d20a3ef1e9d8ef4">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-4e9fb7701aa14307c276b3f588c4fc55a3ac854d.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-appinvite\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="9fe026fb4c7fce21bc5142f6e1bdf844f28061ac">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-a3f54cf6937015f439ddc2ae306283f505909b4b.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-identity\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="b82b8e847173c28efffcd291b2a0b1ae9ad17fa4">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-a80646859ae55509bc03506cf030e45b26059bbd.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-drive\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="b36f30ac5ee5d5214f4b1e2ac49f11889d58e71a">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-bd4cbff6c97769f30f04a8899dd8ad5173d9cb90.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.1.1\support-annotations-23.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="8d680ba5a623724d1fb0e81c36a790f023a6cede">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\support-annotations-23.1.1-8440633f764129bdee0a5110b1c60c8a3e2c0653.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.1.1\jars\libs\internal_impl-23.1.1.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="a4de9c81ae239414e1ed0f86441b02abaf29bca9">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\internal_impl-23.1.1-8f023ba63ab9a60e4c6eee533a115326bc631a88.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wallet\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="f2df436a8f02ce7e4d7d209671fc45f97c470f0e">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-75c40189adb79a9cdfe0b471fe0baae828aed107.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-wearable\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="e167a34eaca0b31704212f43f9576ea84e05046f">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-16456572a6999e25922fc0ea8b561758d0231d9c.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-location\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="a8412b654dab86d57bf90683367488211c8a81f1">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-d72cab6cc8193bcbd21b0a3d312a02d7a00be6c3.jar" />
+    </item>
+    <item
+        jar="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\exploded-aar\com.google.android.gms\play-services-analytics\8.4.0\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.2"
+        sha1="1c9f35e952b212c843f7bd2c7eec8e82ad95602e">
+        <dex dex="C:\Users\Adam\Documents\AndroidStudioProjects\Navvie\app\build\intermediates\pre-dexed\debug\classes-c996af75753a8531c97054316c7f67fd5346a9a9.jar" />
     </item>
 
 </items>

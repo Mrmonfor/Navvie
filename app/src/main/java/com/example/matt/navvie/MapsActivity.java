@@ -156,7 +156,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     finish();
                     break;
                 case R.id.buildings:
-                    Intent intent3 = new Intent(MapsActivity.this, MainActivity.class);
+                    Intent intent3 = new Intent(MapsActivity.this, BuildingActivity.class);
                     startActivity(intent3);
                     finish();
                     break;
