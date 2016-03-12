@@ -30,7 +30,7 @@
 
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/searchFriendText"
             android:hint="Search/Add Friends"
@@ -44,7 +44,7 @@
         </ListView>
 
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/manageFriendText"
             android:hint="Manage Current Friends"
