@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,11 +39,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         setUpMap();
 
-        options =(Button) findViewById(R.id.optionsButton);
-        editProfileButton =(Button) findViewById(R.id.editProfile);
-        logoutButton =(Button) findViewById(R.id.logout);
-        manageButton =(Button) findViewById(R.id.manage);
-        buildingButton =(Button) findViewById(R.id.buildings);
+        options = (Button) findViewById(R.id.optionsButton);
+        editProfileButton = (Button) findViewById(R.id.editProfile);
+        logoutButton = (Button) findViewById(R.id.logout);
+        manageButton = (Button) findViewById(R.id.manage);
+        buildingButton = (Button) findViewById(R.id.buildings);
 
         editProfileButton.setOnClickListener(new buttonListener());
         logoutButton.setOnClickListener(new buttonListener());
@@ -78,6 +79,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
+        return false;
+    }
 
 
     /**
@@ -104,11 +118,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //This holds the markers name////
         mMap.addMarker(new MarkerOptions().position(campus).title("UNCG"));
-       //this will find your current location.
+        //this will find your current location.
 
         mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title(yourName));
 
-
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
 
         //to add image icon
        // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));

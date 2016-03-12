@@ -12,6 +12,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,10 @@ public class EditProfile extends AppCompatActivity {
     private ImageView image;
     public static final int IMAGE_GALLERY_REQUEST = 3;
     private TextView bioText;
+    private Bitmap bitImage;
+    private InputStream inputStream;
+    private Uri imageUri;
+    private Intent photoIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,31 +63,32 @@ public class EditProfile extends AppCompatActivity {
     private class buttonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
+            onBackPressed();
             switch(v.getId()){
                 case R.id.submitProfileButton:
                     Intent intent = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent);
-                    finish();
+                   // finish();
                     break;
                 case R.id.cancelProfileButton:
                     Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent2);
-                    finish();
+                   // finish();
                     break;
                 case R.id.profilePic:
 
-                    Intent photointent;
+
 
                     if (Build.VERSION.SDK_INT < 19){
-                        intent = new Intent();
-                        intent.setAction(Intent.ACTION_GET_CONTENT);
-                        intent.setType("image/*");
-                        startActivityForResult(intent, IMAGE_GALLERY_REQUEST);
+                        photoIntent = new Intent();
+                        photoIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        photoIntent.setType("image/*");
+                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
                     } else {
-                        intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        intent.setType("image/*");
-                        startActivityForResult(intent, IMAGE_GALLERY_REQUEST);
+                        photoIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        photoIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                        photoIntent.setType("image/*");
+                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
                     }
 
 
@@ -105,6 +111,19 @@ public class EditProfile extends AppCompatActivity {
             }
 
         }
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
+        return false;
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -135,14 +154,14 @@ public class EditProfile extends AppCompatActivity {
                 //if here, everything processes succesfully
 
                 // address of the photo in memory
-                Uri imageUri = data.getData();
+                 imageUri = data.getData();
                 // declare a stream to read image data from memory
-                InputStream inputStream;
+
                 //getting input stream based on Uri of image
                 try {
                     inputStream = getContentResolver().openInputStream(imageUri);
                     //get bitmap from stream
-                    Bitmap bitImage = BitmapFactory.decodeStream(inputStream);
+                    bitImage = BitmapFactory.decodeStream(inputStream);
                     //show image to user.
                     image.setImageBitmap(bitImage);
 
