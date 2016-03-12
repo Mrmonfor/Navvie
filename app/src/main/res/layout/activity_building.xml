@@ -10,14 +10,29 @@
     tools:context="com.example.matt.navvie.BuildingActivity"
     android:orientation="vertical"
     android:background="@drawable/mainactivitybg">
-
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="100">
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/searchBuildingText"
         android:hint="Search Buildings"
         android:background="@drawable/border_style"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:layout_weight="90"/>
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/cancelBuildingButton"
+        android:layout_weight="10"
+        />
+    </LinearLayout>
     <ListView
         android:id="@+id/listViewBuilding"
         android:layout_width="wrap_content"
