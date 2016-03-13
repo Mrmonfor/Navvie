@@ -31,7 +31,7 @@ public class BuildingActivity extends AppCompatActivity {
     private String[] buildingNames;
     private ArrayList<String> buildingList;
     private ArrayAdapter<String>buildingNameAdapter;
-    ///////
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_building);
@@ -80,8 +80,13 @@ public class BuildingActivity extends AppCompatActivity {
     }
 
     public void initList(){
-        buildingNames = new String[]{"Bryan Building BRYN","Curry Building CURY", "Eberhart Building EBER"};
-        buildings = new Integer[]{R.drawable.bryanpic,R.drawable.currypic,R.drawable.eberhartpic};
+        buildingNames = new String[]{"Bryan Building BRYN","Curry Building CURY", "Eberhart Building EBER", "Elliot University Center (EUC) ELLT", "Foust Building FOUS",
+        "Ferguson Building FERG", "Graham Building GRAM", "Jackson Library LIBR", "McIver Building MCVR", "Moore Building (Nursing) NMOR", "Moore Humanities and Research Administration MHRA",
+        "Mossman Building (Administration)", "Music Building MUSI", "Petty Science Building PETT", "School of Education Building SOEB", "Stone Building STON", "Sullivan Science Building SULV",
+        "Weatherspoon Art Museum"};
+        buildings = new Integer[]{R.drawable.bryanpic,R.drawable.currypic,R.drawable.eberhartpic,R.drawable.eucpic,R.drawable.foustpic,R.drawable.fergusonpic,R.drawable.grahampic,R.drawable.librarypic,
+        R.drawable.mciverpic,R.drawable.nursingpic,R.drawable.mhrapic,R.drawable.adminpic,R.drawable.musicpic,R.drawable.pettypic,R.drawable.soebpic,R.drawable.stonepic,R.drawable.sullivanpic,
+        R.drawable.museumpic};
         buildingList = new ArrayList<>(Arrays.asList(buildingNames));
         buildingNameAdapter = new MyListAdapter2(this, R.layout.list_buildings, buildingList, buildings);
         buildingView.setAdapter(buildingNameAdapter);
