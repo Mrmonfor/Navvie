@@ -61,13 +61,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double mLatitude=0;
     double mLongitude=0;
     LatLng origin,dest,startPoint;
-    MapView mapView;
+    static final double MAXLEFT=-79.816136,MAXRIGHT=-79.804061,MAXUP=36.074605,MAXDOWN =36.060645;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         setUpMap();
+
 
         options = (Button) findViewById(R.id.optionsButton);
         editProfileButton = (Button) findViewById(R.id.editProfile);
@@ -153,11 +156,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLngBounds bounds = new LatLngBounds(southBound, northBound);
 
         //Holds cords of center of campus
-        LatLng campus = new LatLng(36.066311, -79.808892);
+        final LatLng campus = new LatLng(36.066311, -79.808892);
         LatLng campus2 = new LatLng(36.071407, -79.811010);
 
         //This holds the markers name////
-        mMap.addMarker(new MarkerOptions().position(campus).title("UNCG"));
+        mMap.addMarker(new MarkerOptions().position(campus).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+       // options2 = new MarkerOptions();
+       //options2.position(campus);
+        //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
         mMap.addMarker(new MarkerOptions().position(campus2));
         mMarkerPoints.add(campus);
 
@@ -247,13 +254,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public boolean onMarkerClick(Marker marker) {
 
-                    Toast toast = Toast.makeText(getApplicationContext(), "You clicked marker", Toast.LENGTH_SHORT);
-                    toast.show();
-                    mMarkerPoints.clear();
-                    mMap.clear();
+                    if(marker.getPosition()!=mMarkerPoints.get(0)){
+                        refreshMap();
+                        drawMarker(marker.getPosition());
+                        origin = mMarkerPoints.get(0);
+                        dest = mMarkerPoints.get(1);
 
-                    if (mMarkerPoints.contains(marker)) {
-                        mMarkerPoints.remove(marker);
+                        // Getting URL to the Google Directions API
+                        String url = getDirectionsUrl(origin, dest);
+
+                        DownloadTask downloadTask = new DownloadTask();
+
+                        // Start downloading json data from Google Directions API
+                        downloadTask.execute(url);
                     }
 
                     return false;
@@ -263,53 +276,79 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onMapLongClick(LatLng point) {
+                    if(point.longitude>MAXLEFT&& point.longitude<MAXRIGHT && point.latitude>MAXDOWN && point.latitude<MAXUP){//longitude/latitudes may be reversed
 
-                    // Already map contain destination location
-                    if (mMarkerPoints.size() > 1) {
 
-                        FragmentManager fm = getSupportFragmentManager();
-                        mMarkerPoints.clear();
-                        mMap.clear();
-                        startPoint = new LatLng(mLatitude, mLongitude);
+                        // Already map contain destination location
+                        if (mMarkerPoints.size() > 1) {
 
-                        // draw the marker at the current position
-                        drawMarker(startPoint);
-                    }
+                            FragmentManager fm = getSupportFragmentManager();
+                            refreshMap();
+                        }
 
-                    // draws the marker at the currently touched location
-                    drawMarker(point);
+                        // draws the marker at the currently touched location
+                        drawMarker(point);
 
-                    // Checks, whether start and end locations are captured
-                    if (mMarkerPoints.size() == 2) {
-                         origin = mMarkerPoints.get(0);
-                         dest = mMarkerPoints.get(1);
+                        // Checks, whether start and end locations are captured
+                        if (mMarkerPoints.size() == 2) {
+                            origin = mMarkerPoints.get(0);
+                            dest = mMarkerPoints.get(1);
 
-                        // Getting URL to the Google Directions API
-                        String url = getDirectionsUrl(origin, dest);
+                            // Getting URL to the Google Directions API
+                            String url = getDirectionsUrl(origin, dest);
 
-                        DownloadTask downloadTask = new DownloadTask();
+                            DownloadTask downloadTask = new DownloadTask();
 
-                        // Start downloading json data from Google Directions API
-                        downloadTask.execute(url);
-                        //mMarkerPoints.set(2,null);
+                            // Start downloading json data from Google Directions API
+                            downloadTask.execute(url);
+                            //mMarkerPoints.set(2,null);
 
-                    }
-                    if (mMarkerPoints.size() > 2) {
-                        dest = mMarkerPoints.get(1);
-                        String url = getDirectionsUrl(origin, dest);
+                        }
+                        if (mMarkerPoints.size() > 2) {
+                            dest = mMarkerPoints.get(1);
+                            String url = getDirectionsUrl(origin, dest);
 
-                        DownloadTask downloadTask = new DownloadTask();
+                            DownloadTask downloadTask = new DownloadTask();
 
-                        // Start downloading json data from Google Directions API
-                        downloadTask.execute(url);
+                            // Start downloading json data from Google Directions API
+                            downloadTask.execute(url);
+                        }
+                    }else{
+                         Toast.makeText(getApplicationContext(), "Error: Location out of bounds!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
 
 
         }
-    }
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            double lon = extras.getDouble("long");
+            double lat = extras.getDouble("lat");
+            refreshMap();
+            drawMarker(new LatLng(lat, lon));
+            origin = mMarkerPoints.get(0);
+            dest = mMarkerPoints.get(1);
 
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(origin, dest);
+
+            DownloadTask downloadTask = new DownloadTask();
+
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+
+
+        }
+    }
+    public void refreshMap(){
+        //clears map and array, adds a default point to map, adds current position to array and map
+        mMarkerPoints.clear();
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        drawMarker(new LatLng(36.066311, -79.808892));//campus
+
+    }
     private String getDirectionsUrl(LatLng origin,LatLng dest){
 
         // Origin of route
