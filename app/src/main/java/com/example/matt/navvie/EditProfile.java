@@ -54,7 +54,6 @@ public class EditProfile extends AppCompatActivity {
         //image.getLayoutParams().width=150;
          bioText = (TextView) findViewById(R.id.bioText);
         bioText.setMovementMethod(new ScrollingMovementMethod());
-
         image.setOnClickListener(new buttonListener());
         subEditButton.setOnClickListener(new buttonListener());
         cancelProfButton.setOnClickListener(new buttonListener());
@@ -63,17 +62,17 @@ public class EditProfile extends AppCompatActivity {
     private class buttonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            onBackPressed();
+
             switch(v.getId()){
                 case R.id.submitProfileButton:
                     Intent intent = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent);
-                   // finish();
+                    finish();
                     break;
                 case R.id.cancelProfileButton:
                     Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
                     startActivity(intent2);
-                   // finish();
+                   finish();
                     break;
                 case R.id.profilePic:
 
@@ -112,6 +111,7 @@ public class EditProfile extends AppCompatActivity {
 
         }
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
@@ -125,6 +125,7 @@ public class EditProfile extends AppCompatActivity {
         }
         return false;
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
