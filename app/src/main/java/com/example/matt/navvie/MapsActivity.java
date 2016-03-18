@@ -62,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     double mLongitude=0;
     LatLng origin,dest,startPoint;
     static final double MAXLEFT=-79.816136,MAXRIGHT=-79.804061,MAXUP=36.074605,MAXDOWN =36.060645;
+    static Location location;
 
 
 
@@ -87,6 +88,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
        //mapView = (MapView) findViewById(R.id.map);
         //mapView.onCreate(savedInstanceState);
+        mMarkerPoints = new ArrayList<LatLng>();
+        mMarkerPoints.add(new LatLng (0,0));
     }
 
 
@@ -146,9 +149,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initializing
 
-        mMarkerPoints = new ArrayList<LatLng>();
-        // turns off scrolling
-        mMap.getUiSettings().setScrollGesturesEnabled(false);
+
+        // turns on scrolling
+        mMap.getUiSettings().setScrollGesturesEnabled(true);
 
         // Holds boundaries of mapView
         LatLng northBound = new LatLng(36.073995, -79.804514);
@@ -159,14 +162,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final LatLng campus = new LatLng(36.066311, -79.808892);
         LatLng campus2 = new LatLng(36.071407, -79.811010);
 
-        //This holds the markers name////
-        mMap.addMarker(new MarkerOptions().position(campus).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-       // options2 = new MarkerOptions();
-       //options2.position(campus);
-        //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-        mMap.addMarker(new MarkerOptions().position(campus2));
-        mMarkerPoints.add(campus);
 
         //this will find your current location.
 
@@ -182,7 +178,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mMap.setMyLocationEnabled(true);
 
         //to add image icon
        // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));
@@ -218,11 +213,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap = fm.getMap();
 
             // Enable MyLocation Button in the Map
-            mMap.setMyLocationEnabled(true);
+            //blue dot on map
+            //mMap.setMyLocationEnabled(true);
 
             // Getting LocationManager object from System Service LOCATION_SERVICE
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
             // Creating a criteria object to retrieve provider
             Criteria criteria = new Criteria();
 
@@ -240,13 +235,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            Location location = locationManager.getLastKnownLocation(provider);
 
+            location = locationManager.getLastKnownLocation(provider);
+
+            //updates location to next point whenever senses a change
             if(location!=null){
                 onLocationChanged(location);
             }
 
-            locationManager.requestLocationUpdates(provider, 20000, 0, this);
+            locationManager.requestLocationUpdates(provider, 10000, 5, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,this);
+
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
+
+           // LatLng currLoc = new LatLng(location.getLatitude(), location.getLongitude());
+            refreshMap();
+            //This holds the markers name////
+            //mMap.addMarker(new MarkerOptions().position(currLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            // options2 = new MarkerOptions();
+            //options2.position(campus);
+            //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+            //mMap.addMarker(new MarkerOptions().position(campus2));
+            //mMarkerPoints.add(campus);
 
             // Setting onclick event listener for the map
 
@@ -254,7 +265,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public boolean onMarkerClick(Marker marker) {
 
-                    if(marker.getPosition()!=mMarkerPoints.get(0)){
+                    if (marker.getPosition() != mMarkerPoints.get(0)) {
                         refreshMap();
                         drawMarker(marker.getPosition());
                         origin = mMarkerPoints.get(0);
@@ -346,7 +357,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMarkerPoints.clear();
         mMap.clear();
         mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
-        drawMarker(new LatLng(36.066311, -79.808892));//campus
+        //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
+        drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));//current location
 
     }
     private String getDirectionsUrl(LatLng origin,LatLng dest){
@@ -581,18 +593,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        // Draw the marker, if destination location is not set
-        if(mMarkerPoints.size() < 2){
 
-            mLatitude = location.getLatitude();
-            mLongitude = location.getLongitude();
-            LatLng point = new LatLng(mLatitude, mLongitude);
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        mMarkerPoints.set(0, new LatLng(location.getLatitude(),location.getLongitude()));
+        for (int i =0;i<mMarkerPoints.size();i++){
+            // Creating MarkerOptions
+            MarkerOptions options = new MarkerOptions();
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            // Setting the position of the marker
+            options.position(mMarkerPoints.get(i));
 
-            drawMarker(point);
+            /**
+             * For the start location, the color of marker is GREEN and
+             * for the end location, the color of marker is RED.
+             */
+            if(i==0){
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }else {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            }
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
         }
+        if (mMarkerPoints.size()==2){
+            origin = mMarkerPoints.get(0);
+            dest = mMarkerPoints.get(1);
+
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(origin, dest);
+
+            DownloadTask downloadTask = new DownloadTask();
+
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+            //mMarkerPoints.set(2,null);
+
+        }
+
     }
 
     @Override
