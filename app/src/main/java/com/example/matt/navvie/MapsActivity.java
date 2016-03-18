@@ -63,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng origin,dest,startPoint;
     static final double MAXLEFT=-79.816136,MAXRIGHT=-79.804061,MAXUP=36.074605,MAXDOWN =36.060645;
     static Location location;
+    ArrayList<FriendObject> yourFriends=new ArrayList<>();
 
 
 
@@ -70,6 +71,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
+        FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu",36.068321,-79.807677, "Stone/STN", "Im in Class","i have 3 classes this semester",true,null);
+        FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu",36.065875,-79.812076, "MHRA?", "doing stuff","i graduate this semester",true,null);
+        yourFriends.add(Adam);
+        yourFriends.add(Chase);
         setUpMap();
 
 
@@ -241,6 +248,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //updates location to next point whenever senses a change
             if(location!=null){
                 onLocationChanged(location);
+
+
+
             }
 
             locationManager.requestLocationUpdates(provider, 10000, 5, this);
@@ -356,7 +366,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //clears map and array, adds a default point to map, adds current position to array and map
         mMarkerPoints.clear();
         mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        for(int z = 0; z<yourFriends.size(); z++){
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc).title(yourFriends.get(z).getFname());
+
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options).showInfoWindow();
+        }
+       // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
         //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
         drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));//current location
 
@@ -595,7 +615,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
 
         mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        for(int z = 0; z<yourFriends.size(); z++){
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc);
+            options.title(yourFriends.get(z).getFname());
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options).showInfoWindow();
+
+        }
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
         mMarkerPoints.set(0, new LatLng(location.getLatitude(),location.getLongitude()));
         for (int i =0;i<mMarkerPoints.size();i++){
             // Creating MarkerOptions
