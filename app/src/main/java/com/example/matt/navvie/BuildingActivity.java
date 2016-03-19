@@ -178,7 +178,111 @@ public class BuildingActivity extends AppCompatActivity {
                              startActivity(buildingIntent);
                              finish();
                              break;
-
+                         case 3:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.067503);
+                             buildingIntent.putExtra("long", -79.810162);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 4:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.067085);
+                             buildingIntent.putExtra("long", -79.807923);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 5:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.065897);
+                             buildingIntent.putExtra("long",-79.807604);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 6:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.066084);
+                             buildingIntent.putExtra("long",  -79.806734);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 7:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat",36.068200);
+                             buildingIntent.putExtra("long",  -79.809213);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 8:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.067568);
+                             buildingIntent.putExtra("long", -79.807299);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 9:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.069298);
+                             buildingIntent.putExtra("long", -79.807192);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 10:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.065683);
+                             buildingIntent.putExtra("long", -79.809808);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 11:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.066558);
+                             buildingIntent.putExtra("long",  -79.810786);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 12:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.072603);
+                             buildingIntent.putExtra("long", -79.807034);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 13:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.069273);
+                             buildingIntent.putExtra("long", -79.807826);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 14:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.065985);
+                             buildingIntent.putExtra("long", -79.811724);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 15:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.068365);
+                             buildingIntent.putExtra("long", -79.807697);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 16:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.069878);
+                             buildingIntent.putExtra("long", -79.806560);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+                         case 17:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.066189);
+                             buildingIntent.putExtra("long", -79.805842);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
                      }
 
                  }

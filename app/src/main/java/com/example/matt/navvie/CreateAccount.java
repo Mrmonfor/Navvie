@@ -18,6 +18,7 @@ import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 public class CreateAccount extends Activity {
@@ -44,20 +45,23 @@ public class CreateAccount extends Activity {
         Thread udpThread = new Thread(new Runnable() {
             @Override
             public void run(){
+
                 while(true){
                     //maybe sleep(100)
                     if(send == true){
+
                         try {
+
                             InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
                             int servPort = 3020; //server port
                             Log.d("UDP","Connection...");
                             DatagramSocket socket = new DatagramSocket(); //client socket
 
-                            String output = fName.getText().toString() + ", " +
-                                    lName.getText().toString() + ", " +
-                                    pword.getText().toString() + ", " +
-                                    pword2.getText().toString() + ", " +
-                                    email.getText().toString();
+                            String output = ",createuser,"+fName.getText().toString() + "," +
+                                    lName.getText().toString() + "," +
+                                    pword.getText().toString() + "," +
+                                    pword2.getText().toString() + "," +
+                                    email.getText().toString()+",";
                             //
                             byte[] buffer = output.getBytes();
                             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, server, servPort);
