@@ -161,7 +161,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //This holds the markers name////
         mMap.addMarker(new MarkerOptions().position(campus).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
        // options2 = new MarkerOptions();
+
        //options2.position(campus);
         //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
@@ -182,14 +184,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        mMap.setMyLocationEnabled(true);
+        //mMap.setMyLocationEnabled(true);
 
         //to add image icon
        // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));
 
         //sets default marker location and how zoomed in
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
+
         //mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, -10));
 
 
@@ -243,7 +245,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Location location = locationManager.getLastKnownLocation(provider);
 
             if(location!=null){
-                onLocationChanged(location);
+               // onLocationChanged(location);******************************************************************************this apearently updates last current location?
             }
 
             locationManager.requestLocationUpdates(provider, 20000, 0, this);

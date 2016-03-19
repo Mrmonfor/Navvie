@@ -13,6 +13,14 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:background="@drawable/logo2"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal" />
 
         <EditText
             android:layout_width="match_parent"
@@ -20,7 +28,6 @@
             android:inputType="textPersonName"
             android:ems="10"
             android:id="@+id/EnterFirst"
-            android:layout_marginTop="150dp"
             android:hint="First Name"
             android:background="@drawable/border_style"/>
 
@@ -73,7 +80,8 @@
             android:text="Submit"
             android:id="@+id/SubmitButton"
             android:layout_gravity="center_horizontal"
-            android:width="135dp" />
+            android:width="135dp"
+            android:background="@drawable/smallbutton" />
 
         <Button
             android:layout_width="wrap_content"
@@ -81,6 +89,7 @@
             android:text="Cancel"
             android:id="@+id/CancelButton2"
             android:layout_gravity="center_horizontal"
-            android:width="135dp" />
+            android:width="135dp"
+            android:background="@drawable/smallbutton" />
     </LinearLayout>
 </RelativeLayout>

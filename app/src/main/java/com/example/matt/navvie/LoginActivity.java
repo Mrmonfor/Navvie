@@ -43,7 +43,7 @@ public class LoginActivity extends Activity {
                     finish();
                     break;
                 case R.id.CancelButton:
-                    Intent intent2 = new Intent(LoginActivity.this,EditProfile.class);
+                    Intent intent2 = new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(intent2);
                     finish();
                     break;

@@ -47,7 +47,8 @@
             android:layout_toEndOf="@+id/profilePic"
             android:layout_marginLeft="15dp"
             android:layout_marginStart="55dp"
-            android:textSize="25sp" />
+            android:textSize="25sp"
+            android:textColor="#d69642" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,7 +60,8 @@
             android:layout_alignLeft="@+id/nameText"
             android:layout_alignStart="@+id/nameText"
             android:layout_marginLeft="15dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#d69642" />
 
         <TextView
             android:layout_width="match_parent"
@@ -72,7 +74,8 @@
             android:layout_alignStart="@+id/emailText"
             android:textSize="15sp"
             android:layout_marginLeft="15dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#d69642" />
 
         </LinearLayout>
 
@@ -114,7 +117,9 @@
             android:layout_below="@+id/bioText"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:textColorHint="#d69642"
+            android:textColor="#d69642" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -131,7 +136,8 @@
             android:layout_alignParentStart="true"
             android:textIsSelectable="false"
             android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#d69642" />
 
         <EditText
             android:layout_width="wrap_content"
@@ -162,7 +168,8 @@
             android:layout_alignParentStart="true"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:textColor="#d69642" />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -195,7 +202,8 @@
             android:textSize="12sp"
             android:textIsSelectable="false"
             android:textStyle="bold"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:textColor="#d69642" />
         <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -221,7 +229,8 @@
         android:layout_below="@+id/locationText"
         android:layout_alignLeft="@+id/locationText"
         android:layout_alignStart="@+id/locationText"
-        android:layout_marginLeft="5dp" />
+        android:layout_marginLeft="5dp"
+        android:textColor="#d69642" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -236,7 +245,8 @@
             android:layout_below="@+id/retypeText"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:background="@drawable/smallbutton" />
 
         <Button
             android:layout_width="wrap_content"
@@ -247,7 +257,8 @@
             android:layout_below="@+id/retypeText"
             android:layout_toRightOf="@+id/oldPassText"
             android:layout_toEndOf="@+id/oldPassText"
-            android:layout_centerInParent="true"/>
+            android:layout_centerInParent="true"
+            android:background="@drawable/smallbutton" />
     </LinearLayout>
 
 </LinearLayout>
