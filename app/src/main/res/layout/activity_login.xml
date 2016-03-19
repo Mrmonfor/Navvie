@@ -13,6 +13,14 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:background="@drawable/logo2"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal" />
 
         <EditText
             android:layout_width="match_parent"
@@ -20,7 +28,6 @@
             android:ems="10"
             android:id="@+id/LoginEmail"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="200dp"
             android:hint="Enter Email"
             android:background="@drawable/border_style"
             android:inputType="textEmailAddress" />
@@ -54,7 +61,9 @@
             android:text="Login"
             android:id="@+id/Login2"
             android:width="135dp"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/create_button"
+            android:allowUndo="true" />
 
         <Button
             android:layout_width="wrap_content"
@@ -62,7 +71,8 @@
             android:text="Cancel"
             android:id="@+id/CancelButton"
             android:layout_gravity="center_horizontal"
-            android:width="135dp" />
+            android:width="135dp"
+            android:background="@drawable/create_button" />
 
     </LinearLayout>
 

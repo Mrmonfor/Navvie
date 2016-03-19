@@ -17,7 +17,7 @@ import android.widget.ImageButton;
 
 public class MainActivity extends AppCompatActivity{
 
-    private ImageButton loginButton, createButton;
+    private Button loginButton, createButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -35,8 +35,8 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
 
-        createButton =(ImageButton) findViewById(R.id.createButton);
-        loginButton = (ImageButton) findViewById(R.id.loginButton);
+        createButton =(Button) findViewById(R.id.createButton);
+        loginButton = (Button) findViewById(R.id.loginButton);
 
 
        // this.setContentView(R.layout.activity_main);////
