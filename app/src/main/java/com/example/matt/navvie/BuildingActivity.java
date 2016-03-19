@@ -18,6 +18,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +33,8 @@ public class BuildingActivity extends AppCompatActivity {
     private String[] buildingNames;
     private ArrayList<String> buildingList;
     private ArrayAdapter<String>buildingNameAdapter;
-    ///////
+    private Intent buildingIntent;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_building);
@@ -80,8 +83,13 @@ public class BuildingActivity extends AppCompatActivity {
     }
 
     public void initList(){
-        buildingNames = new String[]{"Bryan Building BRYN","Curry Building CURY", "Eberhart Building EBER"};
-        buildings = new Integer[]{R.drawable.bryanpic,R.drawable.currypic,R.drawable.eberhartpic};
+        buildingNames = new String[]{"Bryan/BRYN","Curry/CURY", "Eberhart/EBER", "Elliot University Center (EUC) ELLT", "Foust/FOUS",
+        "Ferguson/FERG", "Graham/GRAM", "Jackson Library/LIBR", "McIver/MCVR", "Moore(Nursing)/NMOR", "Moore Humanities and Research Administration/MHRA",
+        "Mossman(Administration)", "Music/MUSI", "Petty Science/PETT", "School of Education/SOEB", "Stone/STON", "Sullivan Science/SULV",
+        "Weatherspoon Art Museum"};
+        buildings = new Integer[]{R.drawable.bryanpic,R.drawable.currypic,R.drawable.eberhartpic,R.drawable.eucpic,R.drawable.foustpic,R.drawable.fergusonpic,R.drawable.grahampic,R.drawable.librarypic,
+        R.drawable.mciverpic,R.drawable.nursingpic,R.drawable.mhrapic,R.drawable.adminpic,R.drawable.musicpic,R.drawable.pettypic,R.drawable.soebpic,R.drawable.stonepic,R.drawable.sullivanpic,
+        R.drawable.museumpic};
         buildingList = new ArrayList<>(Arrays.asList(buildingNames));
         buildingNameAdapter = new MyListAdapter2(this, R.layout.list_buildings, buildingList, buildings);
         buildingView.setAdapter(buildingNameAdapter);
@@ -146,7 +154,33 @@ public class BuildingActivity extends AppCompatActivity {
              mainViewholder.buildingButton.setOnClickListener(new View.OnClickListener() {
                  @Override
                  public void onClick(View v) {
-                     Toast.makeText(getContext(), "Find button was clicked for list item " + position, Toast.LENGTH_SHORT).show();
+                     Toast.makeText(getContext(), "Now Routing to  " +buildingNames[position], Toast.LENGTH_SHORT).show();
+                     switch (position) {
+                         case 0:
+
+                         buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                         buildingIntent.putExtra("lat", 36.066510);
+                         buildingIntent.putExtra("long", -79.811846);
+                         startActivity(buildingIntent);
+                         finish();
+                          break;
+                         case 1:
+                          buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                          buildingIntent.putExtra("lat", 36.065742);
+                          buildingIntent.putExtra("long", -79.808544);
+                          startActivity(buildingIntent);
+                          finish();
+                          break;
+                         case 2:
+                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                             buildingIntent.putExtra("lat", 36.0688775);
+                             buildingIntent.putExtra("long", -79.806691);
+                             startActivity(buildingIntent);
+                             finish();
+                             break;
+
+                     }
+
                  }
              });
              mainViewholder.buildingName.setText(getItem(position).toString());

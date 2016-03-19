@@ -19,13 +19,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="View"
-            android:id="@+id/viewButton" />
+            android:id="@+id/viewButton"
+            android:background="@drawable/smallbutton" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Remove"
-            android:id="@+id/removeButton" />
+            android:id="@+id/removeButton"
+            android:background="@drawable/smallbutton" />
     </LinearLayout>
 </LinearLayout>

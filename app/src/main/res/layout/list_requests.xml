@@ -20,7 +20,8 @@
             android:layout_height="wrap_content"
             android:text="Accept"
             android:id="@+id/acceptButton"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:background="@drawable/smallbutton" />
 
         <Button
             style="?android:attr/buttonStyleSmall"
@@ -28,6 +29,7 @@
             android:layout_height="wrap_content"
             android:text="Decline"
             android:id="@+id/declineButton"
-            android:focusable="false"/>
+            android:focusable="false"
+            android:background="@drawable/smallbutton" />
     </LinearLayout>
 </LinearLayout>
