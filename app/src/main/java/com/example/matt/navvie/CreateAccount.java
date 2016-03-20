@@ -42,13 +42,13 @@ public class CreateAccount extends Activity {
         SubmitButton.setOnClickListener(new buttonListener());
         CancelButton2.setOnClickListener(new buttonListener());
 
-        Thread udpThread = new Thread(new Runnable() {
+        final Thread udpThread = new Thread(new Runnable() {
             @Override
             public void run(){
 
                 while(true){
                     //maybe sleep(100)
-                    if(send == true){
+                    if(send){
 
                         try {
 
@@ -65,25 +65,31 @@ public class CreateAccount extends Activity {
                             //
                             byte[] buffer = output.getBytes();
                             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, server, servPort);
+                            
                             socket.send(packet);
-                            DatagramPacket reply = packet; //make another packet for the reply to be stored in.
-                            //DatagramSocket rSock = new DatagramSocket(servPort);
+
+                            packet.setData(new byte[500]); //this needs to be set to some other value probably
                             while(true){
-                                socket.receive(reply);
-                                if(reply.getData()!=packet.getData()){
-                                    buffer = packet.getData();
-                                    Log.d("UDP", "blah"); //might not be right
-                                    break;
-                                }
-                                else{
-                                    Log.d("UDP", "No Reply so far.");
+                                Thread.sleep(1);
+                                try {
+                                    socket.receive(packet);
+                                    String incomingData = new String(packet.getData());
+                                    if(incomingData.compareTo(output)!=0){
+                                        Log.d("UDP", incomingData); //might not be right
+                                        break;
+                                    }
+                                    else{
+                                        Log.d("UDP", "No Reply so far.");
+                                    }
+                                } catch(Exception e){
+                                    Log.d("UDP", "Socket Receive Error");
                                 }
                                 //we might need to start some sort of counter to break out of this loop if a response is not received
                                 //by a certain amount of time
                             }
                             socket.close();
                             send = false; //break out of loop
-
+                            Log.d("UDP", "COMPLETED!");
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
