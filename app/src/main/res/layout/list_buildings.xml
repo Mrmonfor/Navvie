@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:text="Find"
             android:id="@+id/findBuildingButton"
-            />
+            android:background="@drawable/smallbutton" />
 
     </LinearLayout>
     <ImageView
