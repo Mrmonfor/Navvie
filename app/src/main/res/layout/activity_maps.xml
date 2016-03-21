@@ -36,6 +36,10 @@
         android:id="@+id/optionsButton"
         android:layout_gravity="right" />
 </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -43,7 +47,40 @@
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="363dp"
     android:layout_height="535dp"
-    tools:context="com.example.matt.navvie.MapsActivity" />
+    tools:context="com.example.matt.navvie.MapsActivity"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/linearLayout">
+
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Route To"
+            android:id="@+id/routeToButton"
+            android:textSize="20sp"
+            android:background="@drawable/smallbutton"
+            android:layout_alignBaseline="@+id/cancelFriendButton"
+            android:layout_alignBottom="@+id/cancelFriendButton"
+            android:layout_toRightOf="@+id/linearLayout"
+            android:layout_toEndOf="@+id/linearLayout"
+            android:visibility="invisible" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:id="@+id/cancelFriendButton"
+            android:textSize="20sp"
+            android:background="@drawable/smallbutton"
+            android:layout_alignBottom="@+id/map"
+            android:layout_centerHorizontal="true"
+            android:visibility="invisible" />
+    </RelativeLayout>
 </LinearLayout>
     <fragment
         android:id="@+id/fragment_navigation_drawer"
