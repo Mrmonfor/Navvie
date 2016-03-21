@@ -1,0 +1,115 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="300dp"
+    tools:context="com.example.matt.navvie.ViewProfileFrag"
+    android:background="@drawable/mainactivitybg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:id="@+id/friendPic"
+            android:src="@drawable/anonymous"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="@drawable/border_style"
+            android:clickable="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Chase Patton"
+                android:id="@+id/friendNameText"
+                android:layout_alignTop="@+id/friendPic"
+                android:layout_toRightOf="@+id/friendPic"
+                android:layout_toEndOf="@+id/friendPic"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="55dp"
+                android:textSize="25sp"
+                android:textColor="#d69642"
+                android:layout_marginTop="10dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="scpatton@uncg.edu"
+                android:id="@+id/friendEmailText"
+                android:textSize="15sp"
+                android:layout_below="@+id/friendNameText"
+                android:layout_alignLeft="@+id/friendNameText"
+                android:layout_alignStart="@+id/friendNameText"
+                android:layout_marginLeft="15dp"
+                android:textStyle="bold"
+                android:textColor="#d69642" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Location: Petty Building"
+                android:id="@+id/friendLocationText"
+                android:layout_below="@+id/friendEmailTextt"
+                android:layout_alignLeft="@+id/friendEmailText"
+                android:layout_alignStart="@+id/friendEmailText"
+                android:textSize="15sp"
+                android:layout_marginLeft="15dp"
+                android:textStyle="bold"
+                android:textColor="#d69642" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/friendStatusText"
+                android:text="&quot;I hate school&quot;"
+                android:textColor="#d69642"
+                android:textIsSelectable="true"
+                android:layout_marginLeft="15dp" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hide Location"
+                android:id="@+id/friendToggleLocation"
+                android:textSize="15sp"
+                android:layout_below="@+id/locationText"
+                android:layout_alignLeft="@+id/locationText"
+                android:layout_alignStart="@+id/locationText"
+                android:layout_marginLeft="5dp"
+                android:textColor="#d69642" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="293dp"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:ems="30"
+        android:maxLength="200"
+        android:id="@+id/friendBioText"
+        android:textSize="15sp"
+        android:textColor="#d69642"
+        android:layout_below="@+id/statusText"
+        android:layout_centerHorizontal="true"
+        android:text="Put Bio Information here dfgjhsgkfdghsdfjghkdsfghkdsfgjkdsfgkjdsfghdsfghkdsfhgkdfsgkjfdgkfdsgdfsgfdsghkfdsgkjsfd"
+        android:scrollbars = "vertical"
+        android:background="@drawable/border_style"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="left|center_vertical" />
+
+
+</LinearLayout>

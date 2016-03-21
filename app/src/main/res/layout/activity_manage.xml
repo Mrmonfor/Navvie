@@ -19,7 +19,8 @@
             android:text="Current Requests:"
             android:id="@+id/requestText"
             android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#d69642" />
 
         <ListView
         android:id="@+id/listView1"

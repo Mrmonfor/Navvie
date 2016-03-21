@@ -2,6 +2,8 @@ package com.example.matt.navvie;
 
 import android.Manifest;
 import android.app.Dialog;
+
+import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -12,8 +14,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -52,16 +57,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMarkerClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
 
     private GoogleMap mMap;
     ArrayList<LatLng> mMarkerPoints;
     private String yourName = "Matt Monfort";
-    private Button options, editProfileButton, logoutButton, manageButton, buildingButton;
+    private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
     double mLatitude=0;
     double mLongitude=0;
     LatLng origin,dest,startPoint;
     static final double MAXLEFT=-79.816136,MAXRIGHT=-79.804061,MAXUP=36.074605,MAXDOWN =36.060645;
+    static Location location;
+    ArrayList<FriendObject> yourFriends=new ArrayList<>();
+    boolean state = false;
+    private Marker marker;
+    FragmentManager fragmentManager = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    ViewProfileFrag f1 = new ViewProfileFrag();
 
 
 
@@ -69,6 +81,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+
+        FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu",36.068321,-79.807677, "Stone/STN", "Im in Class","i have 3 classes this semester",true,null);
+        FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu",36.065875,-79.812076, "MHRA?", "doing stuff","i graduate this semester",true,null);
+        yourFriends.add(Adam);
+        yourFriends.add(Chase);
         setUpMap();
 
 
@@ -77,16 +95,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         logoutButton = (Button) findViewById(R.id.logout);
         manageButton = (Button) findViewById(R.id.manage);
         buildingButton = (Button) findViewById(R.id.buildings);
+        routeButton = (Button) findViewById(R.id.routeToButton);
+        cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
 
         editProfileButton.setOnClickListener(new buttonListener());
         logoutButton.setOnClickListener(new buttonListener());
         manageButton.setOnClickListener(new buttonListener());
         buildingButton.setOnClickListener(new buttonListener());
+        routeButton.setOnClickListener(new buttonListener());
+        cancelViewButton.setOnClickListener(new buttonListener());
+
 
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
        //mapView = (MapView) findViewById(R.id.map);
         //mapView.onCreate(savedInstanceState);
+        mMarkerPoints = new ArrayList<LatLng>();
+        mMarkerPoints.add(new LatLng (0,0));
     }
 
 
@@ -146,9 +171,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Initializing
 
-        mMarkerPoints = new ArrayList<LatLng>();
-        // turns off scrolling
-        mMap.getUiSettings().setScrollGesturesEnabled(false);
+
+        // turns on scrolling
+        mMap.getUiSettings().setScrollGesturesEnabled(true);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
 
         // Holds boundaries of mapView
         LatLng northBound = new LatLng(36.073995, -79.804514);
@@ -159,16 +185,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final LatLng campus = new LatLng(36.066311, -79.808892);
         LatLng campus2 = new LatLng(36.071407, -79.811010);
 
-        //This holds the markers name////
-        mMap.addMarker(new MarkerOptions().position(campus).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
-       // options2 = new MarkerOptions();
 
-       //options2.position(campus);
-        //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-
-        mMap.addMarker(new MarkerOptions().position(campus2));
-        mMarkerPoints.add(campus);
 
         //this will find your current location.
 
@@ -184,14 +201,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        //mMap.setMyLocationEnabled(true);
 
         //to add image icon
        // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));
 
         //sets default marker location and how zoomed in
 
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
         //mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, -10));
 
 
@@ -220,11 +236,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap = fm.getMap();
 
             // Enable MyLocation Button in the Map
-            mMap.setMyLocationEnabled(true);
+            //blue dot on map
+            //mMap.setMyLocationEnabled(true);
 
             // Getting LocationManager object from System Service LOCATION_SERVICE
             LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
             // Creating a criteria object to retrieve provider
             Criteria criteria = new Criteria();
 
@@ -242,34 +258,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            Location location = locationManager.getLastKnownLocation(provider);
 
+            location = locationManager.getLastKnownLocation(provider);
+
+            //updates location to next point whenever senses a change
             if(location!=null){
-               // onLocationChanged(location);******************************************************************************this apearently updates last current location?
+                onLocationChanged(location);
+
+
+
             }
 
-            locationManager.requestLocationUpdates(provider, 20000, 0, this);
+            locationManager.requestLocationUpdates(provider, 10000, 5, this);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,this);
+
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
+
+           // LatLng currLoc = new LatLng(location.getLatitude(), location.getLongitude());
+            refreshMap();
+            //This holds the markers name////
+            //mMap.addMarker(new MarkerOptions().position(currLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+            // options2 = new MarkerOptions();
+            //options2.position(campus);
+            //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
+            //mMap.addMarker(new MarkerOptions().position(campus2));
+            //mMarkerPoints.add(campus);
 
             // Setting onclick event listener for the map
 
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
-                public boolean onMarkerClick(Marker marker) {
+                public boolean onMarkerClick(Marker marker1) {
+                    marker=marker1;
+                    if(!state){
 
-                    if(marker.getPosition()!=mMarkerPoints.get(0)){
-                        refreshMap();
-                        drawMarker(marker.getPosition());
-                        origin = mMarkerPoints.get(0);
-                        dest = mMarkerPoints.get(1);
+                        //fragmentTransaction.add(R.id.map, f1);
+                        fragmentTransaction.addToBackStack(null);
+                        getSupportFragmentManager().beginTransaction().add(R.id.map, f1).commit();
+                        state=true;
+                        routeButton.setVisibility(View.VISIBLE);
+                        cancelViewButton.setVisibility(View.VISIBLE);
 
-                        // Getting URL to the Google Directions API
-                        String url = getDirectionsUrl(origin, dest);
-
-                        DownloadTask downloadTask = new DownloadTask();
-
-                        // Start downloading json data from Google Directions API
-                        downloadTask.execute(url);
                     }
+
+
+
+
+
+
+
 
                     return false;
                 }
@@ -347,8 +385,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //clears map and array, adds a default point to map, adds current position to array and map
         mMarkerPoints.clear();
         mMap.clear();
-        mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
-        drawMarker(new LatLng(36.066311, -79.808892));//campus
+        for(int z = 0; z<yourFriends.size(); z++){
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc).title(yourFriends.get(z).getFname());
+
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
+        }
+       // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
+        drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));//current location
 
     }
     private String getDirectionsUrl(LatLng origin,LatLng dest){
@@ -426,6 +475,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMarkerPoints.remove(marker);
         }
         return false;
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 
 
@@ -553,6 +607,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     startActivity(intent4);
                     finish();
                     break;
+                case R.id.routeToButton:
+                    if (marker.getPosition() != mMarkerPoints.get(0)) {
+                        refreshMap();
+                        drawMarker(marker.getPosition());
+                        origin = mMarkerPoints.get(0);
+                        dest = mMarkerPoints.get(1);
+
+                        // Getting URL to the Google Directions API
+                        String url = getDirectionsUrl(origin, dest);
+
+                        DownloadTask downloadTask = new DownloadTask();
+
+                        // Start downloading json data from Google Directions API
+                        downloadTask.execute(url);
+                    }
+                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
+                    routeButton.setVisibility(View.INVISIBLE);
+                    cancelViewButton.setVisibility(View.INVISIBLE);
+                    state=false;
+
+                    break;
+                case R.id.cancelFriendButton:
+                    //fragmentTransaction.remove(f1).commit();
+                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
+                    routeButton.setVisibility(View.INVISIBLE);
+                    cancelViewButton.setVisibility(View.INVISIBLE);
+                    state=false;
+
+                    break;
 
             }
         }
@@ -583,18 +666,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onLocationChanged(Location location) {
-        // Draw the marker, if destination location is not set
-        if(mMarkerPoints.size() < 2){
 
-            mLatitude = location.getLatitude();
-            mLongitude = location.getLongitude();
-            LatLng point = new LatLng(mLatitude, mLongitude);
+        mMap.clear();
+        for(int z = 0; z<yourFriends.size(); z++){
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc);
+            options.title(yourFriends.get(z).getFname());
 
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(12));
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
 
-            drawMarker(point);
         }
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        mMarkerPoints.set(0, new LatLng(location.getLatitude(),location.getLongitude()));
+        for (int i =0;i<mMarkerPoints.size();i++){
+            // Creating MarkerOptions
+            MarkerOptions options = new MarkerOptions();
+
+            // Setting the position of the marker
+            options.position(mMarkerPoints.get(i));
+
+            /**
+             * For the start location, the color of marker is GREEN and
+             * for the end location, the color of marker is RED.
+             */
+            if(i==0){
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }else {
+                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            }
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
+        }
+        if (mMarkerPoints.size()==2){
+            origin = mMarkerPoints.get(0);
+            dest = mMarkerPoints.get(1);
+
+            // Getting URL to the Google Directions API
+            String url = getDirectionsUrl(origin, dest);
+
+            DownloadTask downloadTask = new DownloadTask();
+
+            // Start downloading json data from Google Directions API
+            downloadTask.execute(url);
+            //mMarkerPoints.set(2,null);
+
+        }
+
     }
 
     @Override
@@ -611,4 +732,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
     }
+
+
 }
