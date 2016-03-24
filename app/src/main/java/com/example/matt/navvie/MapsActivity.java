@@ -28,10 +28,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -57,38 +61,55 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
+public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
 
     private GoogleMap mMap;
-    ArrayList<LatLng> mMarkerPoints;
+    private ArrayList<LatLng> mMarkerPoints;
     private String yourName = "Matt Monfort";
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
-    double mLatitude=0;
-    double mLongitude=0;
-    LatLng origin,dest,startPoint;
-    static final double MAXLEFT=-79.816136,MAXRIGHT=-79.804061,MAXUP=36.074605,MAXDOWN =36.060645;
+    LatLng origin, dest;
+    static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
     static Location location;
-    ArrayList<FriendObject> yourFriends=new ArrayList<>();
-    boolean state = false;
+    private Location curLocation;
+    ArrayList<FriendObject> yourFriends = new ArrayList<>();
+    boolean state = false, bundleFlag=true;
     private Marker marker;
-    FragmentManager fragmentManager = getSupportFragmentManager();
-    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-    ViewProfileFrag f1 = new ViewProfileFrag();
+    private FragmentManager fragmentManager = getSupportFragmentManager();
+    private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    private ViewProfileFrag f1 = new ViewProfileFrag();
+    private static final int GPS_ERRORDIALOG_REQUEST = 9001;
+    private GoogleApiClient mLocationClient;
+    final LatLng campus = new LatLng(36.066311, -79.808892);
+    LatLng campus2 = new LatLng(36.071407, -79.811010);
+
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        if (servicesOK()) {
+            setContentView(R.layout.activity_maps);
+            FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, null);
+            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.065875, -79.812076, "MHRA?", "doing stuff", "i graduate this semester", true, null);
+            yourFriends.add(Adam);
+            yourFriends.add(Chase);
+        } else {
+            setContentView(R.layout.activity_maps);
+            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
+        }
 
+        if (setUpMap()) {
+            mLocationClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+            mLocationClient.connect();
+            // Toast.makeText(this, "Ready to Map", Toast.LENGTH_SHORT).show();
 
-        FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu",36.068321,-79.807677, "Stone/STN", "Im in Class","i have 3 classes this semester",true,null);
-        FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu",36.065875,-79.812076, "MHRA?", "doing stuff","i graduate this semester",true,null);
-        yourFriends.add(Adam);
-        yourFriends.add(Chase);
-        setUpMap();
+        } else {
+            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
+        }
 
+        mMarkerPoints = new ArrayList<LatLng>();
+        mMarkerPoints.add(new LatLng(0, 0));
 
         options = (Button) findViewById(R.id.optionsButton);
         editProfileButton = (Button) findViewById(R.id.editProfile);
@@ -97,6 +118,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         buildingButton = (Button) findViewById(R.id.buildings);
         routeButton = (Button) findViewById(R.id.routeToButton);
         cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
+
+
 
         editProfileButton.setOnClickListener(new buttonListener());
         logoutButton.setOnClickListener(new buttonListener());
@@ -108,10 +131,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
-       //mapView = (MapView) findViewById(R.id.map);
-        //mapView.onCreate(savedInstanceState);
-        mMarkerPoints = new ArrayList<LatLng>();
-        mMarkerPoints.add(new LatLng (0,0));
+    }
+
+    public boolean servicesOK() {
+        int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+
+        if (isAvailable == ConnectionResult.SUCCESS) {
+            return true;
+        } else if (GooglePlayServicesUtil.isUserRecoverableError(isAvailable)) {
+            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, GPS_ERRORDIALOG_REQUEST);
+            dialog.show();
+        } else {
+            Toast.makeText(this, "Can't connet to Google Play", Toast.LENGTH_SHORT).show();
+        }
+        return false;
     }
 
 
@@ -121,194 +154,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setUpMap();
     }
 
+    //initMap
+    private boolean setUpMap() {
+        if (mMap == null) {
+            // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+            SupportMapFragment mapFrag = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            //mapFragment.getMapAsync(this);
+            mMap = mapFrag.getMap();
 
-    private void setUpMap() {
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
-
-    public void onSearch(View view) {
-        EditText searchBar = (EditText) findViewById(R.id.searchLocation);
-        CharSequence place = searchBar.getText().toString();
-
-        if (place != null || !place.equals("")) {
-
-        }
-
-    }
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
-        if(keyCode == KeyEvent.KEYCODE_BACK)
-        {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
-        mMap = googleMap;
-       // mMap = mapView.getMap();
-
-
-        // Initializing
-
-
-        // turns on scrolling
-        mMap.getUiSettings().setScrollGesturesEnabled(true);
-        mMap.getUiSettings().setMapToolbarEnabled(false);
-
-        // Holds boundaries of mapView
-        LatLng northBound = new LatLng(36.073995, -79.804514);
-        LatLng southBound = new LatLng(36.060396, -79.816273);
-        LatLngBounds bounds = new LatLngBounds(southBound, northBound);
-
-        //Holds cords of center of campus
-        final LatLng campus = new LatLng(36.066311, -79.808892);
-        LatLng campus2 = new LatLng(36.071407, -79.811010);
-
-
-
-        //this will find your current location.
-
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title(yourName));
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-
-        //to add image icon
-       // mMap.addMarker(new MarkerOptions().position(campus).title("UNCG").icon(BitmapDescriptorFactory.fromResource(R.drawable.mapicon)));
-
-        //sets default marker location and how zoomed in
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, -10));
-
-
-        //Makes screen not scrollable so users cannot view outside campus.
-
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-
-        /**************************************************NEW STUFF********************************************************************/
-
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getBaseContext());
-
-        if (status != ConnectionResult.SUCCESS) { // Google Play Services are not available
-
-            int requestCode = 10;
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, this, requestCode);
-            dialog.show();
-
-        } else { // Google Play Services are available
-
-
-
-            // Getting reference to SupportMapFragment of the activity_main
-            SupportMapFragment fm = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
-            // Getting Map for the SupportMapFragment
-            mMap = fm.getMap();
-
-            // Enable MyLocation Button in the Map
-            //blue dot on map
-            //mMap.setMyLocationEnabled(true);
-
-            // Getting LocationManager object from System Service LOCATION_SERVICE
-            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            // Creating a criteria object to retrieve provider
-            Criteria criteria = new Criteria();
-
-            // Getting the name of the best provider
-            String provider = locationManager.getBestProvider(criteria, true);
-
-            // Getting Current Location From GPS
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-
-            location = locationManager.getLastKnownLocation(provider);
-
-            //updates location to next point whenever senses a change
-            if(location!=null){
-                onLocationChanged(location);
-
-
-
-            }
-
-            locationManager.requestLocationUpdates(provider, 10000, 5, this);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,this);
-
-            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom((campus), 15.0f));
-
-           // LatLng currLoc = new LatLng(location.getLatitude(), location.getLongitude());
-            refreshMap();
-            //This holds the markers name////
-            //mMap.addMarker(new MarkerOptions().position(currLoc).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            // options2 = new MarkerOptions();
-            //options2.position(campus);
-            //options2.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-
-            //mMap.addMarker(new MarkerOptions().position(campus2));
-            //mMarkerPoints.add(campus);
-
-            // Setting onclick event listener for the map
 
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
-                    marker=marker1;
-                    if(!state){
+                    marker = marker1;
+                    if (!state) {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelableArrayList("myData", yourFriends);
+                        int index=0;
+                        for(int z = 0; z<yourFriends.size(); z++){
+                            if(marker1.getTitle().equalsIgnoreCase(yourFriends.get(z).getFname() + yourFriends.get(z).getLname())){
+                                index = z;
+                                break;
+                            }
+                        }
 
+
+
+                        bundle.putInt("index",index);
+                        f1.setArguments(bundle);
                         //fragmentTransaction.add(R.id.map, f1);
                         fragmentTransaction.addToBackStack(null);
                         getSupportFragmentManager().beginTransaction().add(R.id.map, f1).commit();
-                        state=true;
+                        state = true;
                         routeButton.setVisibility(View.VISIBLE);
                         cancelViewButton.setVisibility(View.VISIBLE);
 
+
                     }
-
-
-
-
-
-
-
-
                     return false;
                 }
             });
@@ -316,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onMapLongClick(LatLng point) {
-                    if(point.longitude>MAXLEFT&& point.longitude<MAXRIGHT && point.latitude>MAXDOWN && point.latitude<MAXUP){//longitude/latitudes may be reversed
+                    if (point.longitude > MAXLEFT && point.longitude < MAXRIGHT && point.latitude > MAXDOWN && point.latitude < MAXUP) {//longitude/latitudes may be reversed
 
 
                         // Already map contain destination location
@@ -353,60 +236,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             // Start downloading json data from Google Directions API
                             downloadTask.execute(url);
                         }
-                    }else{
-                         Toast.makeText(getApplicationContext(), "Error: Location out of bounds!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Error: Location out of bounds!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
 
 
         }
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            double lon = extras.getDouble("long");
-            double lat = extras.getDouble("lat");
-            refreshMap();
-            drawMarker(new LatLng(lat, lon));
-            origin = mMarkerPoints.get(0);
-            dest = mMarkerPoints.get(1);
-
-            // Getting URL to the Google Directions API
-            String url = getDirectionsUrl(origin, dest);
-
-            DownloadTask downloadTask = new DownloadTask();
-
-            // Start downloading json data from Google Directions API
-            downloadTask.execute(url);
-
-
-        }
-    }
-    public void refreshMap(){
-        //clears map and array, adds a default point to map, adds current position to array and map
-        mMarkerPoints.clear();
-        mMap.clear();
-        for(int z = 0; z<yourFriends.size(); z++){
-            MarkerOptions options = new MarkerOptions();
-            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
-            // Setting the position of the marker
-            options.position(loc).title(yourFriends.get(z).getFname());
-
-
-            // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options);
-        }
-       // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
-        //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
-        drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));//current location
+        return (mMap != null);
 
     }
-    private String getDirectionsUrl(LatLng origin,LatLng dest){
+
+    //This method will be used to use the search bar to find people/buildings. We will work on this more later
+    public void geoLocate(View v) throws IOException {
+        EditText searchBar = (EditText) findViewById(R.id.searchLocation);
+        CharSequence location = searchBar.getText().toString();
+
+        Geocoder gc = new Geocoder(this);
+        List<Address> list = gc.getFromLocationName(location.toString(), 1, MAXDOWN, MAXLEFT, MAXUP, MAXRIGHT);
+        if (list != null) {
+            Address add = list.get(0);
+            String locality = add.getLocality();
+            Toast.makeText(this, locality, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Location Out of Bounds", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
+        return false;
+    }
+
+
+
+
+
+    private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
         // Origin of route
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
         // Destination of route
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         // Sensor enabled
         String sensor = "sensor=false";
@@ -415,27 +296,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String mode = "mode=walking";
 
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor+ "&" +
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" +
                 mode;
 
         // Output format
         String output = "json";
 
 
-
-
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
 
         return url;
     }
 
     /** A method to download json data from url */
-    private String downloadUrl(String strUrl) throws IOException{
+    private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
-        try{
+        try {
             URL url = new URL(strUrl);
 
             // Creating an http connection to communicate with url
@@ -449,10 +328,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
 
-            StringBuffer sb  = new StringBuffer();
+            StringBuffer sb = new StringBuffer();
 
             String line = "";
-            while( ( line = br.readLine())  != null){
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
 
@@ -460,9 +339,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             br.close();
 
-        }catch(Exception e){
+        } catch (Exception e) {
             //Log.d("Exception while downloading url", e.toString());
-        }finally{
+        } finally {
             iStream.close();
             urlConnection.disconnect();
         }
@@ -471,7 +350,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (mMarkerPoints.contains(marker)){
+        if (mMarkerPoints.contains(marker)) {
             mMarkerPoints.remove(marker);
         }
         return false;
@@ -479,6 +358,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        //Toast.makeText(this, "Connected to Location Services", Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
+        if(currentLocation==null){
+            Toast.makeText(this, "Current Location isnt available", Toast.LENGTH_SHORT).show();
+        }else{
+            Toast.makeText(this, "Current Location is available", Toast.LENGTH_SHORT).show();
+            LatLng ll = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+
+            LocationRequest request = LocationRequest.create();
+            request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            request.setInterval(5000); //updates location every 5 secs.
+            request.setFastestInterval(1000);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, request,this);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
@@ -609,10 +519,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     break;
                 case R.id.routeToButton:
                     if (marker.getPosition() != mMarkerPoints.get(0)) {
-                        refreshMap();
+                        refreshMap2();
                         drawMarker(marker.getPosition());
                         origin = mMarkerPoints.get(0);
-                        dest = mMarkerPoints.get(1);
+                        dest =mMarkerPoints.get(1);
 
                         // Getting URL to the Google Directions API
                         String url = getDirectionsUrl(origin, dest);
@@ -641,8 +551,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+    public void refreshMap() {
+        //clears map and array, adds a default point to map, adds current position to array and map
+
+        mMarkerPoints.clear();
+        mMap.clear();
+        if(curLocation!=null){
+        mMarkerPoints.add(new LatLng(curLocation.getLatitude(),curLocation.getLongitude()));
+        }
+        for (int z = 0; z < yourFriends.size(); z++) {
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc).title(yourFriends.get(z).getFname());
+
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
+        }
+        // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
+        if (location == null) {
+
+            //drawMarker(new LatLng(36.071407, -79.811010));//current location
+        } else {
+            drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
+
+    }
+
+    public void refreshMap2() {
+        //clears map and array, adds a default point to map, adds current position to array and map
+
+
+        mMap.clear();
+        mMarkerPoints.clear();
+        mMarkerPoints.add(new LatLng(curLocation.getLatitude(), curLocation.getLongitude()));
+        mMarkerPoints.add(marker.getPosition());
+        for (int z = 0; z < yourFriends.size(); z++) {
+            MarkerOptions options = new MarkerOptions();
+            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            // Setting the position of the marker
+            options.position(loc).title(yourFriends.get(z).getFname());
+
+
+            // Add new marker to the Google Map Android API V2
+            mMap.addMarker(options);
+        }
+        // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
+        //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
+        if (location == null) {
+
+            //drawMarker(new LatLng(36.071407, -79.811010));//current location
+        } else {
+          //  drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
+
+    }
     private void drawMarker(LatLng point){
-        mMarkerPoints.add(point);
+
+       if(mMarkerPoints.size()<2)
+       { mMarkerPoints.add(point);}
 
         // Creating MarkerOptions
         MarkerOptions options = new MarkerOptions();
@@ -667,13 +636,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
 
+        String msg = "Location: " + location.getLatitude() + "," +location.getLongitude();
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        curLocation=location;
+
         mMap.clear();
         for(int z = 0; z<yourFriends.size(); z++){
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
             // Setting the position of the marker
             options.position(loc);
-            options.title(yourFriends.get(z).getFname());
+            options.title(yourFriends.get(z).getFname() +yourFriends.get(z).getLname());
 
             // Add new marker to the Google Map Android API V2
             mMap.addMarker(options);
@@ -715,23 +688,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //mMarkerPoints.set(2,null);
 
         }
+        if(bundleFlag==true) {
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
 
+                double lon = extras.getDouble("long");
+                double lat = extras.getDouble("lat");
+                refreshMap();
+                drawMarker(new LatLng(lat, lon));
+                //mMarkerPoints.add(new LatLng(lat, lon));
+                origin = mMarkerPoints.get(0);
+                dest = mMarkerPoints.get(1);
+
+                // Getting URL to the Google Directions API
+                String url = getDirectionsUrl(origin, dest);
+
+                DownloadTask downloadTask = new DownloadTask();
+
+                // Start downloading json data from Google Directions API
+                downloadTask.execute(url);
+                extras = null;
+                bundleFlag=false;
+            }
+        }
     }
 
-    @Override
-    public void onProviderDisabled(String provider) {
-        // TODO Auto-generated method stub
-    }
 
-    @Override
-    public void onProviderEnabled(String provider) {
-        // TODO Auto-generated method stub
-    }
-
-   @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-        // TODO Auto-generated method stub
-    }
 
 
 }

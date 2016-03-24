@@ -1,12 +1,16 @@
 package com.example.matt.navvie;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.ArrayList;
 
 
 /**
@@ -26,6 +30,10 @@ public class ViewProfileFrag extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    private TextView fnameText, emailText, locText, stateText, bioText;
+    private FriendObject info;
+
+    private ArrayList<FriendObject> localities = new ArrayList<FriendObject>();
 
     private OnFragmentInteractionListener mListener;
 
@@ -59,13 +67,31 @@ public class ViewProfileFrag extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
 
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_view_profile, container, false);
+
+
+        View view = inflater.inflate(R.layout.fragment_view_profile, container, false);
+        //info = (FriendObject) b.get("myData");
+        localities =this.getArguments().getParcelableArrayList("myData");
+        int i = this.getArguments().getInt("index");
+        fnameText = (TextView)view.findViewById(R.id.friendNameText);
+        emailText = (TextView)view.findViewById(R.id.friendEmailText);
+        locText = (TextView)view.findViewById(R.id.friendLocationText);
+        stateText = (TextView)view.findViewById(R.id.friendStatusText);
+        bioText = (TextView)view.findViewById(R.id.friendBioText);
+        info = localities.get(i);
+        fnameText.setText(info.getFname() + info.getLname());
+        locText.setText("Location:" +info.getLocname());
+        emailText.setText(info.getEmail());
+        stateText.setText("Status:" +info.getStatus());
+        bioText.setText(info.getBio());
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

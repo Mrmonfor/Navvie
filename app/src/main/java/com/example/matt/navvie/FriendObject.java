@@ -1,11 +1,13 @@
 package com.example.matt.navvie;
 
 import android.media.Image;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /**
  * Created by Matt on 3/18/2016.
  */
-public class FriendObject {
+public class FriendObject implements Parcelable {
     private String fname,lname,email,locname,bio,status;
     private double longc, latc;
     private Boolean toggle;
@@ -27,6 +29,30 @@ public class FriendObject {
 
     }
 
+    protected FriendObject(Parcel in) {
+        fname = in.readString();
+        lname = in.readString();
+        email = in.readString();
+        locname = in.readString();
+        bio = in.readString();
+        status = in.readString();
+        longc = in.readDouble();
+        latc = in.readDouble();
+
+    }
+
+    public static final Creator<FriendObject> CREATOR = new Creator<FriendObject>() {
+        @Override
+        public FriendObject createFromParcel(Parcel in) {
+            return new FriendObject(in);
+        }
+
+        @Override
+        public FriendObject[] newArray(int size) {
+            return new FriendObject[size];
+        }
+    };
+
     public void setFname(String fn){
         fname = fn;
     }
@@ -37,7 +63,7 @@ public class FriendObject {
 
     public void setEmail(String e){email =e; }
 
-    public void setStatus(String s){status=s;}
+    public void setStatus(String si){status=si;}
 
     public void setBio(String b){bio=b;}
 
@@ -98,4 +124,24 @@ public class FriendObject {
     public double getLatc(){
         return latc;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
+        dest.writeString(fname);
+        dest.writeString(lname);
+        dest.writeString(email);
+        dest.writeString(locname);
+        dest.writeString(bio);
+        dest.writeString(status);
+        dest.writeDouble(longc);
+        dest.writeDouble(latc);
+    }
+
+
 }
