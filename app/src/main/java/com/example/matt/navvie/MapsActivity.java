@@ -1,8 +1,14 @@
 package com.example.matt.navvie;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -23,11 +29,15 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -520,7 +530,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 case R.id.routeToButton:
                     if (marker.getPosition() != mMarkerPoints.get(0)) {
                         refreshMap2();
-                        drawMarker(marker.getPosition());
+                        mMarkerPoints.set(1, marker.getPosition());
+                        //drawMarker(marker.getPosition());
                         origin = mMarkerPoints.get(0);
                         dest =mMarkerPoints.get(1);
 
@@ -563,7 +574,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
             // Setting the position of the marker
-            options.position(loc).title(yourFriends.get(z).getFname());
+            options.position(loc).title(yourFriends.get(z).getFname()+yourFriends.get(z).getLname());
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1));
 
 
             // Add new marker to the Google Map Android API V2
@@ -592,7 +604,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
             // Setting the position of the marker
-            options.position(loc).title(yourFriends.get(z).getFname());
+            options.position(loc).title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
+            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1));
 
 
             // Add new marker to the Google Map Android API V2
@@ -625,6 +638,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
          */
         if(mMarkerPoints.size()==1){
             options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+
         }else if(mMarkerPoints.size()>1){
             options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
@@ -632,13 +646,27 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         // Add new marker to the Google Map Android API V2
         mMap.addMarker(options);
     }
+    public static Bitmap createDrawableFromView(Context context, View view) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+
+        return bitmap;
+    }
     @Override
     public void onLocationChanged(Location location) {
 
         String msg = "Location: " + location.getLatitude() + "," +location.getLongitude();
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         curLocation=location;
+        View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
 
         mMap.clear();
         for(int z = 0; z<yourFriends.size(); z++){
@@ -646,7 +674,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
             // Setting the position of the marker
             options.position(loc);
-            options.title(yourFriends.get(z).getFname() +yourFriends.get(z).getLname());
+            options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
+            ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
+            //profile.setImageBitmap();
+            options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this,marker)));
+            //options.infoWindowAnchor(40,40);
 
             // Add new marker to the Google Map Android API V2
             mMap.addMarker(options);
@@ -667,12 +699,24 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
              */
             if(i==0){
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            }else {
-                options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                mMap.addMarker(options);
+            }else {//dont drop new marker if dest is a friend
+                boolean drop =true;
+                for(int z = 0; z<yourFriends.size(); z++) {
+                    LatLng temp = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+                    LatLng temp2 = new LatLng(mMarkerPoints.get(1).latitude, mMarkerPoints.get(1).longitude);
+                    if (temp.equals(temp2) ) {
+                        drop=false;
+                    }
+                }
+                if(drop){
+                    options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    mMap.addMarker(options);
+                }
             }
 
             // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options);
+            //mMap.addMarker(options);
         }
         if (mMarkerPoints.size()==2){
             origin = mMarkerPoints.get(0);
