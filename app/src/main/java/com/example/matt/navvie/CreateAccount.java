@@ -90,6 +90,9 @@ public class CreateAccount extends Activity {
                             socket.close();
                             send = false; //break out of loop
                             Log.d("UDP", "COMPLETED!");
+                            Intent intent = new Intent(CreateAccount.this, MainActivity.class);
+                            startActivity(intent);
+                            finish();
                         } catch(Exception e) {
                             e.printStackTrace();
                         }
@@ -108,9 +111,6 @@ public class CreateAccount extends Activity {
             switch(v.getId()){
                 case R.id.SubmitButton:
                     send=true;
-                    Intent intent = new Intent(CreateAccount.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
                     Toast toast = Toast.makeText(getApplicationContext(), "Please Check Your Email for Verification", Toast.LENGTH_LONG);
                     toast.show();
                     break;
