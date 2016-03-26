@@ -57,10 +57,10 @@ public class CreateAccount extends Activity {
                             Log.d("UDP","Connection...");
                             DatagramSocket socket = new DatagramSocket(); //client socket
 
-                            String output = ",createuser,"+fName.getText().toString() + "," +
+                            //createuser -> test
+                            String output = ",test,"+fName.getText().toString() + "," +
                                     lName.getText().toString() + "," +
                                     pword.getText().toString() + "," +
-                                    pword2.getText().toString() + "," +
                                     email.getText().toString()+",";
                             //
                             byte[] buffer = output.getBytes();
@@ -110,9 +110,15 @@ public class CreateAccount extends Activity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.SubmitButton:
-                    send=true;
-                    Toast toast = Toast.makeText(getApplicationContext(), "Please Check Your Email for Verification", Toast.LENGTH_LONG);
-                    toast.show();
+                    if(pword.getText().toString().equals(pword2.getText().toString())) {
+                        send = true;
+                        Toast toast = Toast.makeText(getApplicationContext(), "Wait for a response from the server", Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else{
+                        Toast toast = Toast.makeText(getApplicationContext(), "The passwords don't match.", Toast.LENGTH_LONG);
+                        toast.show();
+                    }
                     break;
                 case R.id.CancelButton2:
                     Intent intent2 = new Intent(CreateAccount.this,MainActivity.class);
