@@ -62,9 +62,9 @@ public class CreateAccount extends Activity {
                             int servPort = 3020; //server port
                             Log.d("UDP","Connection...");
                             socket = new DatagramSocket(); //client socket
-                            //createuser -> ,test,
+                            //createuser -> test
                             int localPort = socket.getLocalPort();
-                            String output = "test,"+fName.getText().toString() + "," +
+                            String output = "createuser,"+fName.getText().toString() + "," +
                                     lName.getText().toString() + "," +
                                     pword.getText().toString() + "," +
                                     email.getText().toString()+",";
