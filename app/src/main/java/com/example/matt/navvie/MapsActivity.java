@@ -91,6 +91,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     private GoogleApiClient mLocationClient;
     final LatLng campus = new LatLng(36.066311, -79.808892);
     LatLng campus2 = new LatLng(36.071407, -79.811010);
+    LocationRequest request;
 
 
 
@@ -100,8 +101,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         super.onCreate(savedInstanceState);
         if (servicesOK()) {
             setContentView(R.layout.activity_maps);
-            FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, null);
-            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.065875, -79.812076, "MHRA?", "doing stuff", "i graduate this semester", true, null);
+            FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
+                    R.drawable.mypic));
+            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.065875, -79.812076, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(),R.drawable.mypic2));
             yourFriends.add(Adam);
             yourFriends.add(Chase);
         } else {
@@ -152,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             Dialog dialog = GooglePlayServicesUtil.getErrorDialog(isAvailable, this, GPS_ERRORDIALOG_REQUEST);
             dialog.show();
         } else {
-            Toast.makeText(this, "Can't connet to Google Play", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Can't connect to Google Play", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
@@ -162,6 +164,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onResume() {
         super.onResume();
         setUpMap();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        request.setInterval(60000);
     }
 
     //initMap
@@ -384,7 +392,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             Toast.makeText(this, "Current Location is available", Toast.LENGTH_SHORT).show();
             LatLng ll = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
 
-            LocationRequest request = LocationRequest.create();
+            request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             request.setInterval(5000); //updates location every 5 secs.
             request.setFastestInterval(1000);
@@ -676,9 +684,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             options.position(loc);
             options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
             ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
-            //profile.setImageBitmap();
+            profile.setImageBitmap(yourFriends.get(z).getPicture());
             options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this,marker)));
-            //options.infoWindowAnchor(40,40);
 
             // Add new marker to the Google Map Android API V2
             mMap.addMarker(options);

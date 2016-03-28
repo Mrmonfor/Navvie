@@ -1,5 +1,6 @@
 package com.example.matt.navvie;
 
+import android.graphics.Bitmap;
 import android.media.Image;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,10 +12,10 @@ public class FriendObject implements Parcelable {
     private String fname,lname,email,locname,bio,status;
     private double longc, latc;
     private Boolean toggle;
-    private Image picture;
+    private Bitmap picture;
 
     public FriendObject(String FN, String LN,String e,double latCord, double longCord
-                        ,String locName, String s, String b, Boolean locToggle,Image pic){
+                        ,String locName, String s, String b, Boolean locToggle,Bitmap pic){
         fname=FN;
         lname=LN;
         status=s;
@@ -81,7 +82,7 @@ public class FriendObject implements Parcelable {
         toggle =t;
     }
 
-    public void setPicture(Image i){
+    public void setPicture(Bitmap i){
         picture=i;
     }
 
@@ -113,7 +114,7 @@ public class FriendObject implements Parcelable {
         return locname;
     }
 
-    public Image getPicture(){
+    public Bitmap getPicture(){
         return picture;
     }
 
