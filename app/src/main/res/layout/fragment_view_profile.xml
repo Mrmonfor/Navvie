@@ -75,7 +75,6 @@
                 android:id="@+id/friendStatusText"
                 android:text="I hate school"
                 android:textColor="#d69642"
-                android:textIsSelectable="true"
                 android:layout_marginLeft="15dp"
                 android:textSize="15sp"
                 android:textStyle="bold" />

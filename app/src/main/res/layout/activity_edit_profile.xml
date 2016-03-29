@@ -93,7 +93,7 @@
 
     <EditText
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:inputType="textMultiLine"
             android:ems="30"
             android:maxLength="200"
@@ -101,10 +101,11 @@
             android:textSize="15sp"
             android:layout_below="@+id/statusText"
             android:layout_centerHorizontal="true"
-            android:hint="Put Bio Information here dfgjhsgkfdghsdfjghkdsfghkdsfgjkdsfgkjdsfghdsfghkdsfhgkdfsgkjfdgkfdsgdfsgfdsghkfdsgkjsfd"
+            android:hint="Put Bio Information here"
             android:scrollbars = "vertical"
             android:background="@drawable/border_style"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+        android:gravity="top|left"/>
 
         <TextView
             android:layout_width="wrap_content"

@@ -26,7 +26,8 @@
         android:id="@+id/searchLocation"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="5dp"
-        android:hint="Search Friend/Location" />
+        android:hint="Search Friend/Location"
+        android:background="@drawable/border_style"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -81,7 +82,7 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="Ok"
             android:id="@+id/cancelFriendButton"
             android:textSize="20sp"
             android:background="@drawable/smallbutton"

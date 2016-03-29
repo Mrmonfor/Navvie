@@ -36,7 +36,8 @@
             android:id="@+id/searchFriendText"
             android:hint="Search/Add Friends"
             android:background="@drawable/border_style"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:inputType="textCapWords"/>
         <ListView
             android:id="@+id/listView2"
             android:layout_width="wrap_content"
@@ -50,7 +51,8 @@
             android:id="@+id/manageFriendText"
             android:hint="Manage Current Friends"
             android:background="@drawable/border_style"
-            android:layout_marginTop="5dp" />
+            android:layout_marginTop="5dp"
+            android:inputType="textCapWords"/>
         <ListView
             android:id="@+id/listView3"
             android:layout_width="wrap_content"

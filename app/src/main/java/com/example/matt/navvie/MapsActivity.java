@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -82,7 +83,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     static Location location;
     private Location curLocation;
     ArrayList<FriendObject> yourFriends = new ArrayList<>();
-    boolean state = false, bundleFlag=true;
+    boolean state = false, bundleFlag = true;
     private Marker marker;
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -94,8 +95,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     LocationRequest request;
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +102,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             setContentView(R.layout.activity_maps);
             FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
                     R.drawable.mypic));
-            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.065875, -79.812076, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(),R.drawable.mypic2));
+            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
             yourFriends.add(Adam);
             yourFriends.add(Chase);
         } else {
@@ -130,7 +129,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         buildingButton = (Button) findViewById(R.id.buildings);
         routeButton = (Button) findViewById(R.id.routeToButton);
         cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
-
 
 
         editProfileButton.setOnClickListener(new buttonListener());
@@ -185,30 +183,31 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
-                    marker = marker1;
-                    if (!state) {
-                        Bundle bundle = new Bundle();
-                        bundle.putParcelableArrayList("myData", yourFriends);
-                        int index=0;
-                        for(int z = 0; z<yourFriends.size(); z++){
-                            if(marker1.getTitle().equalsIgnoreCase(yourFriends.get(z).getFname() + yourFriends.get(z).getLname())){
-                                index = z;
-                                break;
+                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle()!=null)  {
+                        marker = marker1;
+                        if (!state) {
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("myData", yourFriends);
+                            int index = 0;
+                            for (int z = 0; z < yourFriends.size(); z++) {
+                                if (marker1.getTitle().equalsIgnoreCase(yourFriends.get(z).getFname() + yourFriends.get(z).getLname())) {
+                                    index = z;
+                                    break;
+                                }
                             }
+
+
+                            bundle.putInt("index", index);
+                            f1.setArguments(bundle);
+                            //fragmentTransaction.add(R.id.map, f1);
+                            fragmentTransaction.addToBackStack(null);
+                            getSupportFragmentManager().beginTransaction().add(R.id.map, f1).commit();
+                            state = true;
+                            routeButton.setVisibility(View.VISIBLE);
+                            cancelViewButton.setVisibility(View.VISIBLE);
+
+
                         }
-
-
-
-                        bundle.putInt("index",index);
-                        f1.setArguments(bundle);
-                        //fragmentTransaction.add(R.id.map, f1);
-                        fragmentTransaction.addToBackStack(null);
-                        getSupportFragmentManager().beginTransaction().add(R.id.map, f1).commit();
-                        state = true;
-                        routeButton.setVisibility(View.VISIBLE);
-                        cancelViewButton.setVisibility(View.VISIBLE);
-
-
                     }
                     return false;
                 }
@@ -296,9 +295,6 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-
-
-
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
         // Origin of route
@@ -327,7 +323,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         return url;
     }
 
-    /** A method to download json data from url */
+    /**
+     * A method to download json data from url
+     */
     private String downloadUrl(String strUrl) throws IOException {
         String data = "";
         InputStream iStream = null;
@@ -386,17 +384,17 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             return;
         }
         Location currentLocation = LocationServices.FusedLocationApi.getLastLocation(mLocationClient);
-        if(currentLocation==null){
+        if (currentLocation == null) {
             Toast.makeText(this, "Current Location isnt available", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, "Current Location is available", Toast.LENGTH_SHORT).show();
-            LatLng ll = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+            LatLng ll = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
 
             request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             request.setInterval(5000); //updates location every 5 secs.
             request.setFastestInterval(1000);
-            LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, request,this);
+            LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, request, this);
         }
     }
 
@@ -411,7 +409,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     }
 
 
-    /** A class to download data from Google Directions URL */
+    /**
+     * A class to download data from Google Directions URL
+     */
     private class DownloadTask extends AsyncTask<String, Void, String> {
 
         // Downloading data in non-ui thread
@@ -421,18 +421,18 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             // For storing data from web service
             String data = "";
 
-            try{
+            try {
                 // Fetching the data from web service
                 data = downloadUrl(url[0]);
-            }catch(Exception e){
-                Log.d("Background Task",e.toString());
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
             }
             return data;
         }
 
         // Executes in UI thread, after the execution of
         // doInBackground()
-       @Override
+        @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
@@ -444,8 +444,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     }
 
-    /** A class to parse the Google Directions in JSON format */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+    /**
+     * A class to parse the Google Directions in JSON format
+     */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         // Parsing the data in non-ui thread
         @Override
@@ -454,13 +456,13 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
 
-            try{
+            try {
                 jObject = new JSONObject(jsonData[0]);
                 DirectionsJSONParser parser = new DirectionsJSONParser();
 
                 // Starts parsing data
                 routes = parser.parse(jObject);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return routes;
@@ -473,7 +475,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             PolylineOptions lineOptions = null;
 
             // Traversing through all the routes
-            for(int i=0;i<result.size();i++){
+            for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
@@ -481,8 +483,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 List<HashMap<String, String>> path = result.get(i);
 
                 // Fetching all the points in i-th route
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
 
                     double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
@@ -498,9 +500,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
             // Drawing polyline in the Google Map for the i-th route
-           if(mMarkerPoints.size()>1) {
-               mMap.addPolyline(lineOptions);
-           }
+            if (mMarkerPoints.size() > 1) {
+                mMap.addPolyline(lineOptions);
+            }
         }
 
 
@@ -511,10 +513,11 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         if (position.zoom > maxZoom)
             mMap.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
     }
+
     private class buttonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            switch(v.getId()){
+            switch (v.getId()) {
                 case R.id.editProfile:
                     Intent intent = new Intent(MapsActivity.this, EditProfile.class);
                     startActivity(intent);
@@ -541,7 +544,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         mMarkerPoints.set(1, marker.getPosition());
                         //drawMarker(marker.getPosition());
                         origin = mMarkerPoints.get(0);
-                        dest =mMarkerPoints.get(1);
+                        dest = mMarkerPoints.get(1);
 
                         // Getting URL to the Google Directions API
                         String url = getDirectionsUrl(origin, dest);
@@ -554,7 +557,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     getSupportFragmentManager().beginTransaction().remove(f1).commit();
                     routeButton.setVisibility(View.INVISIBLE);
                     cancelViewButton.setVisibility(View.INVISIBLE);
-                    state=false;
+                    state = false;
 
                     break;
                 case R.id.cancelFriendButton:
@@ -562,7 +565,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     getSupportFragmentManager().beginTransaction().remove(f1).commit();
                     routeButton.setVisibility(View.INVISIBLE);
                     cancelViewButton.setVisibility(View.INVISIBLE);
-                    state=false;
+                    state = false;
+
 
                     break;
 
@@ -570,33 +574,24 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         }
 
     }
+
     public void refreshMap() {
         //clears map and array, adds a default point to map, adds current position to array and map
 
         mMarkerPoints.clear();
         mMap.clear();
-        if(curLocation!=null){
-        mMarkerPoints.add(new LatLng(curLocation.getLatitude(),curLocation.getLongitude()));
-        }
-        for (int z = 0; z < yourFriends.size(); z++) {
+        if (curLocation != null) {
+            mMarkerPoints.add(new LatLng(curLocation.getLatitude(), curLocation.getLongitude()));
             MarkerOptions options = new MarkerOptions();
-            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
             // Setting the position of the marker
-            options.position(loc).title(yourFriends.get(z).getFname()+yourFriends.get(z).getLname());
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1));
-
-
-            // Add new marker to the Google Map Android API V2
+            options.position(mMarkerPoints.get(0));
+            options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
             mMap.addMarker(options);
         }
+        refreshFriendArray();
         // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
         //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
-        if (location == null) {
 
-            //drawMarker(new LatLng(36.071407, -79.811010));//current location
-        } else {
-            drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));
-        }
 
     }
 
@@ -608,31 +603,25 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         mMarkerPoints.clear();
         mMarkerPoints.add(new LatLng(curLocation.getLatitude(), curLocation.getLongitude()));
         mMarkerPoints.add(marker.getPosition());
-        for (int z = 0; z < yourFriends.size(); z++) {
-            MarkerOptions options = new MarkerOptions();
-            LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
-            // Setting the position of the marker
-            options.position(loc).title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
-            options.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker1));
 
+        MarkerOptions options = new MarkerOptions();
+        // Setting the position of the marker
+        options.position(mMarkerPoints.get(0));
+        options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+        mMap.addMarker(options);
 
-            // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options);
-        }
+        refreshFriendArray();
         // mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
         //drawMarker(new LatLng (mMap.getMyLocation().getLatitude(),mMap.getMyLocation().getLongitude()));
-        if (location == null) {
 
-            //drawMarker(new LatLng(36.071407, -79.811010));//current location
-        } else {
-          //  drawMarker(new LatLng(location.getLatitude(), location.getLongitude()));
-        }
 
     }
-    private void drawMarker(LatLng point){
 
-       if(mMarkerPoints.size()<2)
-       { mMarkerPoints.add(point);}
+    private void drawMarker(LatLng point) {
+
+        if (mMarkerPoints.size() < 2) {
+            mMarkerPoints.add(point);
+        }
 
         // Creating MarkerOptions
         MarkerOptions options = new MarkerOptions();
@@ -644,16 +633,17 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
          * For the start location, the color of marker is GREEN and
          * for the end location, the color of marker is RED.
          */
-        if(mMarkerPoints.size()==1){
+        if (mMarkerPoints.size() == 1) {
             options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
 
-        }else if(mMarkerPoints.size()>1){
+        } else if (mMarkerPoints.size() > 1) {
             options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
 
         // Add new marker to the Google Map Android API V2
         mMap.addMarker(options);
     }
+
     public static Bitmap createDrawableFromView(Context context, View view) {
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -661,39 +651,57 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
         view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
         view.buildDrawingCache();
+        //Bitmap bitmap = Bitmap.createScaledBitmap()
         Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
 
         return bitmap;
     }
-    @Override
-    public void onLocationChanged(Location location) {
 
-        String msg = "Location: " + location.getLatitude() + "," +location.getLongitude();
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-        curLocation=location;
+    public void refreshFriendArray() {
         View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
-
-        mMap.clear();
-        for(int z = 0; z<yourFriends.size(); z++){
+        for (int z = 0; z < yourFriends.size(); z++) {
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+
+            if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && yourFriends.get(z).getToggle()) {
+
+
+
             // Setting the position of the marker
             options.position(loc);
             options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
             ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
-            profile.setImageBitmap(yourFriends.get(z).getPicture());
-            options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this,marker)));
+                Bitmap bitmap;
+                if(yourFriends.get(z).getPicture()!=null){
+                    bitmap = yourFriends.get(z).getPicture();
 
-            // Add new marker to the Google Map Android API V2
-            mMap.addMarker(options);
-
+                }else{
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);;
+                }
+                bitmap = Bitmap.createScaledBitmap(bitmap,34,23,false);
+                profile.setImageBitmap(bitmap);
+                options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, marker)));
+                // Add new marker to the Google Map Android API V2
+                mMap.addMarker(options);
+            }
         }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
+        String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        curLocation = location;
+        //View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
+
+        mMap.clear();
+        refreshFriendArray();
         //mMap.addMarker(new MarkerOptions().position(new LatLng(36.071407, -79.811010)));//campus2
-        mMarkerPoints.set(0, new LatLng(location.getLatitude(),location.getLongitude()));
-        for (int i =0;i<mMarkerPoints.size();i++){
+        mMarkerPoints.set(0, new LatLng(location.getLatitude(), location.getLongitude()));
+        for (int i = 0; i < mMarkerPoints.size(); i++) {
             // Creating MarkerOptions
             MarkerOptions options = new MarkerOptions();
 
@@ -704,19 +712,19 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
              * For the start location, the color of marker is GREEN and
              * for the end location, the color of marker is RED.
              */
-            if(i==0){
+            if (i == 0) {
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 mMap.addMarker(options);
-            }else {//dont drop new marker if dest is a friend
-                boolean drop =true;
-                for(int z = 0; z<yourFriends.size(); z++) {
+            } else {//dont drop new marker if dest is a friend
+                boolean drop = true;
+                for (int z = 0; z < yourFriends.size(); z++) {
                     LatLng temp = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
                     LatLng temp2 = new LatLng(mMarkerPoints.get(1).latitude, mMarkerPoints.get(1).longitude);
-                    if (temp.equals(temp2) ) {
-                        drop=false;
+                    if (temp.equals(temp2)) {
+                        drop = false;
                     }
                 }
-                if(drop){
+                if (drop) {
                     options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                     mMap.addMarker(options);
                 }
@@ -725,7 +733,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             // Add new marker to the Google Map Android API V2
             //mMap.addMarker(options);
         }
-        if (mMarkerPoints.size()==2){
+        if (mMarkerPoints.size() == 2) {
             origin = mMarkerPoints.get(0);
             dest = mMarkerPoints.get(1);
 
@@ -739,7 +747,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             //mMarkerPoints.set(2,null);
 
         }
-        if(bundleFlag==true) {
+        if (bundleFlag == true) {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
 
@@ -759,12 +767,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 // Start downloading json data from Google Directions API
                 downloadTask.execute(url);
                 extras = null;
-                bundleFlag=false;
+                bundleFlag = false;
             }
         }
     }
-
-
 
 
 }

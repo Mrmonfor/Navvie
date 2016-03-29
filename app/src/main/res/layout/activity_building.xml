@@ -23,6 +23,7 @@
         android:id="@+id/searchBuildingText"
         android:hint="Search Buildings"
         android:background="@drawable/border_style"
+            android:inputType="textCapSentences"
             android:layout_weight="90"/>
 
     <Button
