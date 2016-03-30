@@ -76,7 +76,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
-    private String yourName = "Matt Monfort";
+    private String yourEmail = "Matt Monfort";
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
     LatLng origin, dest;
     static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
@@ -94,12 +94,14 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     LatLng campus2 = new LatLng(36.071407, -79.811010);
     LocationRequest request;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (servicesOK()) {
             setContentView(R.layout.activity_maps);
+            Intent i = getIntent();
+            yourEmail = i.getStringExtra("key");
+
             FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
                     R.drawable.mypic));
             FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
