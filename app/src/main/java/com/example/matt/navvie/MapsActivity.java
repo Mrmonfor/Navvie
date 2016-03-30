@@ -500,7 +500,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1) {
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude!=0) {
                 mMap.addPolyline(lineOptions);
             }
         }
