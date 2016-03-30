@@ -69,6 +69,11 @@ public class CreateAccount extends Activity {
                                     pword.getText().toString() + "," +
                                     email.getText().toString()+",";
                             //
+                            String password = pword.getText().toString();
+                            if(password.equals("")){
+                                threadIsFinished = true;
+                                break;
+                            }
                             byte[] buffer = output.getBytes();
                             DatagramPacket packet = new DatagramPacket(buffer,buffer.length, server, servPort);
                             socket.send(packet);
