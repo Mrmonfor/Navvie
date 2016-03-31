@@ -10,6 +10,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -66,7 +68,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,7 +81,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
-    private String yourName = "Matt Monfort";
+    private String yourEmail = "Matt Monfort";
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
     LatLng origin, dest;
     static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
@@ -94,12 +99,100 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     LatLng campus2 = new LatLng(36.071407, -79.811010);
     LocationRequest request;
     private static float logicalDensity;
+    private boolean friendsRetreived = false;
+    String friendData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (servicesOK()) {
             setContentView(R.layout.activity_maps);
+            Intent i = getIntent();
+            yourEmail = i.getStringExtra("key");
+            final Thread friendDataThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    DatagramSocket socket;
+                    try {
+                        InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                        int servPort = 3020; //server port
+                        Log.d("UDP", "Connection...");
+                        socket = new DatagramSocket(); //client socket
+                        int localPort = socket.getLocalPort();
+                        //getfriends,email.uncg.edu,
+                        String output = "getFriends," + yourEmail + ",";
+                        byte[] buffer = output.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                        socket.send(packet);
+
+                        packet.setData(new byte[200]); //this needs to be set to some other value probably
+                        String incomingData2 = "";
+                        String incomingData = "";
+                        //response 1
+                        while (true) {
+                            //Thread.sleep(1000);
+                            try {
+                                socket.receive(packet);
+                                incomingData = new String(packet.getData());
+                                if (incomingData.compareTo(output) != 0) {
+                                    Log.d("UDP", incomingData); //might not be right
+                                    break;
+                                } else {
+                                    Log.d("UDP", "No Reply so far.");
+                                }
+                            } catch (Exception e) {
+                                Log.d("UDP", "Socket Receive Error");
+                            }
+                            //we might need to start some sort of counter to break out of this loop if a response is not received
+                            //by a certain amount of time
+                        }
+                        socket.close();
+                        //response 2
+                        socket = new DatagramSocket(localPort);
+                        String port = incomingData.substring(0, 4);
+                        packet.setPort(Integer.parseInt(port));
+                        socket.send(packet);
+                        while (true) {
+                            try {
+                                //wait(2000);
+                                socket.receive(packet);
+                                incomingData2 = new String(packet.getData());
+                                if (incomingData2.compareTo(incomingData) != 0) {
+                                    Log.d("UDP loop 2", incomingData2);
+                                    //do something with incomingData2
+                                    for (int i = 0; i < incomingData2.length(); i++) {
+                                        //when the null char is found
+                                        if (incomingData2.charAt(i) == 0) {
+                                            break;
+                                        }
+                                        friendData += incomingData2.charAt(i);
+                                    }
+                                    friendsRetreived = true;
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        socket.close();
+                        Log.d("UDP", "COMPLETED!");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            friendDataThread.start();
+            //How long does this handler need to wait for a response from the server?
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    if (friendsRetreived) {
+                        //take friendData and make friendObjects from that.
+                    }
+                }
+            }, 1000);
             FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
                     R.drawable.mypic));
             FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
@@ -185,7 +278,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
-                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle()!=null)  {
+                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle() != null) {
                         marker = marker1;
                         if (!state) {
                             Bundle bundle = new Bundle();
@@ -502,7 +595,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1) {
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0) {
                 mMap.addPolyline(lineOptions);
             }
         }
@@ -670,21 +763,21 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && yourFriends.get(z).getToggle()) {
 
 
-
-            // Setting the position of the marker
-            options.position(loc);
-            options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
-            ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
+                // Setting the position of the marker
+                options.position(loc);
+                options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
+                ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
                 Bitmap bitmap;
-                if(yourFriends.get(z).getPicture()!=null){
+                if (yourFriends.get(z).getPicture() != null) {
                     bitmap = yourFriends.get(z).getPicture();
 
-                }else{
-                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);;
+                } else {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
+                    ;
                 }
                 int px = (int) Math.ceil(34 * logicalDensity);
                 int px2 = (int) Math.ceil(23 * logicalDensity);
-                bitmap = Bitmap.createScaledBitmap(bitmap,px,px2,false);
+                bitmap = Bitmap.createScaledBitmap(bitmap, px, px2, false);
                 profile.setImageBitmap(bitmap);
                 options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, marker)));
                 // Add new marker to the Google Map Android API V2
