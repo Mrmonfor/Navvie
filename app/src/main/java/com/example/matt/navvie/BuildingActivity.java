@@ -32,8 +32,11 @@ public class BuildingActivity extends AppCompatActivity {
     private Integer[] buildings;
     private String[] buildingNames;
     private ArrayList<String> buildingList;
-    private ArrayAdapter<String>buildingNameAdapter;
+    private ArrayAdapter<String> buildingNameAdapter;
+    private ArrayList<Integer> buildingPicsList;
+    private ArrayAdapter<Integer> buildingPicsAdapter;
     private Intent buildingIntent;
+    private static int searchNum = -1;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +71,10 @@ public class BuildingActivity extends AppCompatActivity {
             }
         });
     }
+
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
-        if(keyCode == KeyEvent.KEYCODE_BACK)
-        {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -82,216 +84,242 @@ public class BuildingActivity extends AppCompatActivity {
         return false;
     }
 
-    public void initList(){
-        buildingNames = new String[]{"Bryan/BRYN","Curry/CURY", "Eberhart/EBER", "Elliot University Center (EUC) ELLT", "Foust/FOUS",
-        "Ferguson/FERG", "Graham/GRAM", "Jackson Library/LIBR", "McIver/MCVR", "Moore(Nursing)/NMOR", "Moore Humanities and Research Administration/MHRA",
-        "Mossman(Administration)", "Music/MUSI", "Petty Science/PETT", "School of Education/SOEB", "Stone/STON", "Sullivan Science/SULV",
-        "Weatherspoon Art Museum"};
-        buildings = new Integer[]{R.drawable.bryanpic,R.drawable.currypic,R.drawable.eberhartpic,R.drawable.eucpic,R.drawable.foustpic,R.drawable.fergusonpic,R.drawable.grahampic,R.drawable.librarypic,
-        R.drawable.mciverpic,R.drawable.nursingpic,R.drawable.mhrapic,R.drawable.adminpic,R.drawable.musicpic,R.drawable.pettypic,R.drawable.soebpic,R.drawable.stonepic,R.drawable.sullivanpic,
-        R.drawable.museumpic};
+    public void initList() {
+        buildingNames = new String[]{"Bryan/BRYN", "Curry/CURY", "Eberhart/EBER", "Elliot University Center (EUC) ELLT", "Foust/FOUS",
+                "Ferguson/FERG", "Graham/GRAM", "Jackson Library/LIBR", "McIver/MCVR", "Moore(Nursing)/NMOR", "Moore Humanities and Research Administration/MHRA",
+                "Mossman(Administration)", "Music/MUSI", "Petty Science/PETT", "School of Education/SOEB", "Stone/STON", "Sullivan Science/SULV",
+                "Weatherspoon Art Museum"};
+        buildings = new Integer[]{R.drawable.bryanpic, R.drawable.currypic, R.drawable.eberhartpic, R.drawable.eucpic, R.drawable.foustpic, R.drawable.fergusonpic, R.drawable.grahampic, R.drawable.librarypic,
+                R.drawable.mciverpic, R.drawable.nursingpic, R.drawable.mhrapic, R.drawable.adminpic, R.drawable.musicpic, R.drawable.pettypic, R.drawable.soebpic, R.drawable.stonepic, R.drawable.sullivanpic,
+                R.drawable.museumpic};
         buildingList = new ArrayList<>(Arrays.asList(buildingNames));
-        buildingNameAdapter = new MyListAdapter2(this, R.layout.list_buildings, buildingList, buildings);
+        buildingPicsList = new ArrayList<>(Arrays.asList(buildings));
+        buildingNameAdapter = new MyListAdapter2(this, R.layout.list_buildings, buildingList, buildingPicsList);
         buildingView.setAdapter(buildingNameAdapter);
+        searchNum = -1;
 
 
     }
+
     private class buttonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            switch(v.getId()){
+            switch (v.getId()) {
                 case R.id.cancelBuildingButton:
                     Intent intent = new Intent(BuildingActivity.this, MapsActivity.class);
                     startActivity(intent);
                     finish();
-                    break;}
+                    break;
+            }
         }
     }
 
-    public void searchBuildings(String textToSearch){
+    public void searchBuildings(String textToSearch) {
         initList();
-        for(String item: buildingNames){
-            if(!item.contains(textToSearch)){
+        for (String item : buildingNames) {
+
+            if (!item.contains(textToSearch)) {
                 buildingList.remove(item);
             }
         }
         buildingNameAdapter.notifyDataSetChanged();
 
-}
+        if (buildingList.size() == 1) {//Search only works when narrowed down to 1 possibility
+            String search;
+            search = buildingList.get(0).toString();
+            for (int i = 0; i < buildingNames.length; i++) {
+                if (search.equalsIgnoreCase(buildingNames[i])) {
+                    buildingPicsList.clear();
+                    buildingPicsList.add(buildings[i]);
+                    searchNum = i;
+                }
+            }
+        }
 
-
-      class BuildingHolder {
-              public TextView buildingName;
-              public ImageView buildingImage;
-              public Button buildingButton;
     }
-     class MyListAdapter2 extends ArrayAdapter {
-         private int layout;
-         private ArrayList mObjects;
-         private Integer[] images2;
 
-         public MyListAdapter2(Context context, int resource, ArrayList<String> names, Integer[] images) {
-             super(context, R.layout.list_buildings, names);
 
-             mObjects = names;
-             images2 = images;
-         }
+    class BuildingHolder {
+        public TextView buildingName;
+        public ImageView buildingImage;
+        public Button buildingButton;
+    }
 
-         @Override
-         public View getView(final int position, View convertView, ViewGroup parent) {
-             BuildingHolder mainViewholder = null;
-             if (convertView == null) {
-                 LayoutInflater inflater = LayoutInflater.from(getContext());
-                 convertView = inflater.inflate(R.layout.list_buildings, parent, false);
-                 BuildingHolder viewHolder = new BuildingHolder();
+    class MyListAdapter2 extends ArrayAdapter {
+        private int layout;
+        private ArrayList mObjects;
+        private ArrayList<Integer> images2;
 
-                 viewHolder.buildingName = (TextView) convertView.findViewById(R.id.BuildingItemText);
-                 viewHolder.buildingImage = (ImageView) convertView.findViewById(R.id.buildingImage);
-                 viewHolder.buildingButton = (Button) convertView.findViewById(R.id.findBuildingButton);
-                 convertView.setTag(viewHolder);
-             }
-             mainViewholder = (BuildingHolder) convertView.getTag();
-             mainViewholder.buildingButton.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     Toast.makeText(getContext(), "Now Routing to  " +buildingNames[position], Toast.LENGTH_SHORT).show();
-                     switch (position) {
-                         case 0:
+        public MyListAdapter2(Context context, int resource, ArrayList<String> names, ArrayList<Integer> images) {
+            super(context, R.layout.list_buildings, names);
 
-                         buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                         buildingIntent.putExtra("lat", 36.066510);
-                         buildingIntent.putExtra("long", -79.811846);
-                         startActivity(buildingIntent);
-                         finish();
-                          break;
-                         case 1:
-                          buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                          buildingIntent.putExtra("lat", 36.065742);
-                          buildingIntent.putExtra("long", -79.808544);
-                          startActivity(buildingIntent);
-                          finish();
-                          break;
-                         case 2:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.0688775);
-                             buildingIntent.putExtra("long", -79.806691);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 3:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.067503);
-                             buildingIntent.putExtra("long", -79.810162);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 4:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.067085);
-                             buildingIntent.putExtra("long", -79.807923);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 5:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.065897);
-                             buildingIntent.putExtra("long",-79.807604);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 6:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.066084);
-                             buildingIntent.putExtra("long",  -79.806734);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 7:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat",36.068200);
-                             buildingIntent.putExtra("long",  -79.809213);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 8:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.067568);
-                             buildingIntent.putExtra("long", -79.807299);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 9:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.069298);
-                             buildingIntent.putExtra("long", -79.807192);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 10:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.065683);
-                             buildingIntent.putExtra("long", -79.809808);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 11:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.066558);
-                             buildingIntent.putExtra("long",  -79.810786);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 12:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.072603);
-                             buildingIntent.putExtra("long", -79.807034);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 13:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.069273);
-                             buildingIntent.putExtra("long", -79.807826);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 14:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.065985);
-                             buildingIntent.putExtra("long", -79.811724);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 15:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.068365);
-                             buildingIntent.putExtra("long", -79.807697);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 16:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.069878);
-                             buildingIntent.putExtra("long", -79.806560);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                         case 17:
-                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
-                             buildingIntent.putExtra("lat", 36.066189);
-                             buildingIntent.putExtra("long", -79.805842);
-                             startActivity(buildingIntent);
-                             finish();
-                             break;
-                     }
+            mObjects = names;
+            images2 = images;
+        }
 
-                 }
-             });
-             mainViewholder.buildingName.setText(getItem(position).toString());
-             mainViewholder.buildingImage.setImageResource((int) images2[position]);
-             //mainViewholder.buildingImage.
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+            BuildingHolder mainViewholder = null;
+            if (convertView == null) {
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                convertView = inflater.inflate(R.layout.list_buildings, parent, false);
+                BuildingHolder viewHolder = new BuildingHolder();
 
-             return convertView;
-         }
+                viewHolder.buildingName = (TextView) convertView.findViewById(R.id.BuildingItemText);
+                viewHolder.buildingImage = (ImageView) convertView.findViewById(R.id.buildingImage);
+                viewHolder.buildingButton = (Button) convertView.findViewById(R.id.findBuildingButton);
+                convertView.setTag(viewHolder);
+            }
+            mainViewholder = (BuildingHolder) convertView.getTag();
+            mainViewholder.buildingButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int p = 0;
+                    if (searchNum != -1) {
+                        p = searchNum;
+                    } else {
+                        p = position;
+                    }
 
-     }}
+                    Toast.makeText(getContext(), "Now Routing to  " + buildingNames[p], Toast.LENGTH_SHORT).show();
+                    switch (p) {
+                        case 0:
+
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.066510);
+                            buildingIntent.putExtra("long", -79.811846);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 1:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.065742);
+                            buildingIntent.putExtra("long", -79.808544);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 2:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.0688775);
+                            buildingIntent.putExtra("long", -79.806691);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 3:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.067503);
+                            buildingIntent.putExtra("long", -79.810162);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 4:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.067085);
+                            buildingIntent.putExtra("long", -79.807923);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 5:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.065897);
+                            buildingIntent.putExtra("long", -79.807604);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 6:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.066084);
+                            buildingIntent.putExtra("long", -79.806734);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 7:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.068200);
+                            buildingIntent.putExtra("long", -79.809213);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 8:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.067568);
+                            buildingIntent.putExtra("long", -79.807299);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 9:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.069298);
+                            buildingIntent.putExtra("long", -79.807192);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 10:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.065683);
+                            buildingIntent.putExtra("long", -79.809808);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 11:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.066558);
+                            buildingIntent.putExtra("long", -79.810786);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 12:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.072603);
+                            buildingIntent.putExtra("long", -79.807034);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 13:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.069273);
+                            buildingIntent.putExtra("long", -79.807826);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 14:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.065985);
+                            buildingIntent.putExtra("long", -79.811724);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 15:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.068365);
+                            buildingIntent.putExtra("long", -79.807697);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 16:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.069878);
+                            buildingIntent.putExtra("long", -79.806560);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                        case 17:
+                            buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
+                            buildingIntent.putExtra("lat", 36.066189);
+                            buildingIntent.putExtra("long", -79.805842);
+                            startActivity(buildingIntent);
+                            finish();
+                            break;
+                    }
+
+                }
+            });
+            mainViewholder.buildingName.setText(getItem(position).toString());
+            mainViewholder.buildingImage.setImageResource((int) images2.get(position));
+            //mainViewholder.buildingImage.
+
+            return convertView;
+        }
+
+    }
+}

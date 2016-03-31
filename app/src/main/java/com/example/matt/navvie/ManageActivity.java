@@ -2,6 +2,8 @@ package com.example.matt.navvie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ManageActivity extends AppCompatActivity {
+public class ManageActivity extends FragmentActivity implements ViewProfileFrag.OnFragmentInteractionListener {
     private String[] friends,requests,curFriends;
     private ArrayList<String> friendList, requestsList,curFriendsList;
     private ArrayAdapter<String> friendAdapter, requestsAdapter,curFriendsAdapter;
@@ -36,6 +38,7 @@ public class ManageActivity extends AppCompatActivity {
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     private ViewProfileFrag f1 = new ViewProfileFrag();
+    private boolean lock= true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,7 @@ public class ManageActivity extends AppCompatActivity {
                     //search
                     searchCurFriend(s.toString());
                 }
+                lock = false;
             }
 
             @Override
@@ -185,6 +189,11 @@ public class ManageActivity extends AppCompatActivity {
         curFriendsListView.setAdapter(new MyListAdapter(this,R.layout.list_current_friends, curFriendsList));
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        
+    }
+
     private class buttonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -250,8 +259,9 @@ public class ManageActivity extends AppCompatActivity {
                     getSupportFragmentManager().beginTransaction().add(f1, "tag").commit();
                 }
             });}
+            if(lock == true) {
                 mainViewholder.title.setText(getItem(position));
-
+            }
             return convertView;
         }
 
