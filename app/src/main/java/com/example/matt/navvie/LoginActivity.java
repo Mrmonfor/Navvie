@@ -21,6 +21,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import android.os.Handler;
+
 public class LoginActivity extends Activity {
 
     private Button Login2, CancelButton;
@@ -28,6 +30,7 @@ public class LoginActivity extends Activity {
     private boolean threadIsFinished = false;
     private EditText emailInput, passInput;
     private boolean correctCredentials;
+    private boolean finishThread = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +51,10 @@ public class LoginActivity extends Activity {
             @Override
             public void run() {
                 Looper.prepare();
-                DatagramSocket socket;
+
                 while (true) {
                     //maybe sleep(100)
+                    DatagramSocket socket;
                     if (send) {
                         threadIsFinished = false;
                         try {
@@ -102,12 +106,9 @@ public class LoginActivity extends Activity {
                                         //do something with incomingData2
                                         if (incomingData2.substring(0, 7).equals("success")) {
                                             correctCredentials = true;
-                                        }
-                                        else{
+                                        } else {
                                             correctCredentials = false;
                                         }
-                                        threadIsFinished = true;
-                                        wait(500);
                                         break;
                                     }
                                 } catch (IOException e) {
@@ -121,6 +122,10 @@ public class LoginActivity extends Activity {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
+                        threadIsFinished = true;
+                    }
+                    if (finishThread) {
+                        break;
                     }
                 }
             }
@@ -135,18 +140,37 @@ public class LoginActivity extends Activity {
             switch (v.getId()) {
                 case R.id.Login2:
                     send = true;
-                    while (!threadIsFinished) {
+                    while (!threadIsFinished) ;
 
-                    }
                     if (correctCredentials) {
+                        finishThread = true;
                         Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-                        intent.putExtra("key",emailInput.getText().toString());
+                        intent.putExtra("key", emailInput.getText().toString());
                         startActivity(intent);
                         finish();
                     } else {
-                        passInput.setText("");
-                        Toast toast = Toast.makeText(getApplicationContext(), "Check your details.", Toast.LENGTH_SHORT); //check email?
-                        toast.show();
+                        send = false;
+
+                        /*
+                            This delays the check for 250ms. It's needed because the ui thread
+                            and the udpthread are asyncronous and UI tends to get ahead.
+                        */
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                if (correctCredentials) {
+                                    finishThread = true;
+                                    Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
+                                    intent.putExtra("key", emailInput.getText().toString());
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    passInput.setText("");
+                                    Toast toast = Toast.makeText(getApplicationContext(), "Check your details.", Toast.LENGTH_SHORT); //check email?
+                                    toast.show();
+                                }
+                            }
+                        }, 250);
                     }
                     break;
                 case R.id.CancelButton:
