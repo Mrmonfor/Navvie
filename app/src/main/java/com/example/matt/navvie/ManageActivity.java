@@ -2,6 +2,8 @@ package com.example.matt.navvie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
@@ -30,7 +32,10 @@ public class ManageActivity extends AppCompatActivity {
     private ArrayAdapter<String> friendAdapter, requestsAdapter,curFriendsAdapter;
     private ListView friendListView,requestsListView, curFriendsListView;
     private EditText searchText,curSearchText;
-    private Button cancelManageButton;
+    private Button cancelManageButton, viewButton;
+    private FragmentManager fragmentManager = getSupportFragmentManager();
+    private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+    private ViewProfileFrag f1 = new ViewProfileFrag();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class ManageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage);
 
         cancelManageButton = (Button) findViewById(R.id.cancelManageButton);
+
         //LALALAAL
         cancelManageButton.setOnClickListener(new buttonListener());
 
@@ -175,7 +181,8 @@ public class ManageActivity extends AppCompatActivity {
         curFriends = new String[]{"Anthony Lumpkins","Nick Hays", "Josh Queen"};
         curFriendsList = new ArrayList<>(Arrays.asList(curFriends));
         curFriendsAdapter = new ArrayAdapter<String>(this, R.layout.list_current_friends, R.id.manageText, curFriendsList);
-        curFriendsListView.setAdapter(curFriendsAdapter);
+        //curFriendsListView.setAdapter(curFriendsAdapter);
+        curFriendsListView.setAdapter(new MyListAdapter(this,R.layout.list_current_friends, curFriendsList));
     }
 
     private class buttonListener implements View.OnClickListener {
@@ -213,9 +220,11 @@ public class ManageActivity extends AppCompatActivity {
                 viewHolder.title = (TextView) convertView.findViewById(R.id.requestsText);
                 viewHolder.accButton = (Button) convertView.findViewById(R.id.acceptButton);
                 viewHolder.decButton = (Button) convertView.findViewById(R.id.declineButton);
+                viewHolder.vButton = (Button) convertView.findViewById(R.id.viewButton);
                 convertView.setTag(viewHolder);
             }
             mainViewholder = (ViewHolder) convertView.getTag();
+            if(mainViewholder.accButton!=null){
             mainViewholder.accButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -223,7 +232,8 @@ public class ManageActivity extends AppCompatActivity {
                     requestsList.remove(position);
                     requestsAdapter.notifyDataSetChanged();
                 }
-            });
+            });}
+            if(mainViewholder.decButton!=null){
             mainViewholder.decButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -231,8 +241,16 @@ public class ManageActivity extends AppCompatActivity {
                     requestsList.remove(position);
                     requestsAdapter.notifyDataSetChanged();
                 }
-            });
-            mainViewholder.title.setText(getItem(position));
+            });}
+            if(mainViewholder.vButton!=null){
+            mainViewholder.vButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fragmentTransaction.addToBackStack(null);
+                    getSupportFragmentManager().beginTransaction().add(f1, "tag").commit();
+                }
+            });}
+                mainViewholder.title.setText(getItem(position));
 
             return convertView;
         }
@@ -242,6 +260,7 @@ public class ManageActivity extends AppCompatActivity {
         TextView title;
         Button accButton;
         Button decButton;
+        Button vButton;
     }
     }
 

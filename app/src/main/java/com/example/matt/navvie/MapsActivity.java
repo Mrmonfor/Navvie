@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     final LatLng campus = new LatLng(36.066311, -79.808892);
     LatLng campus2 = new LatLng(36.071407, -79.811010);
     LocationRequest request;
-
+    private static float logicalDensity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -178,7 +178,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                     .findFragmentById(R.id.map);
             //mapFragment.getMapAsync(this);
             mMap = mapFrag.getMap();
-
+            DisplayMetrics metrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(metrics);
+            logicalDensity = metrics.density;
 
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
@@ -680,7 +682,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                 }else{
                     bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);;
                 }
-                bitmap = Bitmap.createScaledBitmap(bitmap,34,23,false);
+                int px = (int) Math.ceil(34 * logicalDensity);
+                int px2 = (int) Math.ceil(23 * logicalDensity);
+                bitmap = Bitmap.createScaledBitmap(bitmap,px,px2,false);
                 profile.setImageBitmap(bitmap);
                 options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, marker)));
                 // Add new marker to the Google Map Android API V2
