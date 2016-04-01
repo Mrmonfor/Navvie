@@ -68,6 +68,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
@@ -100,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     LocationRequest request;
     private static float logicalDensity;
     private boolean friendsRetreived = false;
-    String friendData;
+    String friendData="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,7 +127,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                         DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
                         socket.send(packet);
 
-                        packet.setData(new byte[200]); //this needs to be set to some other value probably
+                        packet.setData(new byte[2000]); //this needs to be set to some other value probably
                         String incomingData2 = "";
                         String incomingData = "";
                         //response 1
@@ -189,15 +190,76 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             handler.postDelayed(new Runnable() {
                 public void run() {
                     if (friendsRetreived) {
+                        //if friendData.equals("failure"){ dont set any friends}
                         //take friendData and make friendObjects from that.
+                        String friendFirst, friendLast, friendemail, friendLocationName, friendStatus, friendBio, friendToggle;
+                        Double friendlat, friendlong;
+                        boolean friendLocationToggle;
+                        ArrayList friendStuff = new ArrayList();
+                        //Bitmap friendImage;
+                        int endOfLast = 0;
+                        boolean finishedParsing = false;
+                        while (!finishedParsing) {
+                            for (int i = 0; i < friendData.length(); i++) {
+                                if (friendData.charAt(i) == ',') {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    endOfLast = i + 1;
+                                }
+                                if (i == friendData.length() - 1) {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    finishedParsing = true;
+                                    break;
+                                }
+                                if (friendData.charAt(i) == '|') {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    endOfLast = i + 1;
+                                    break;
+                                }
+                            }
+                            friendFirst = (String) friendStuff.get(0);
+                            friendLast = (String) friendStuff.get(1);
+                            friendemail = (String) friendStuff.get(2);
+                            String friendlatstring = (String) friendStuff.get(3);
+                            if (!friendlatstring.equals(" ")) {
+                                friendlat = Double.parseDouble(friendlatstring);
+                            } else {
+                                friendlat = 0.0;
+                            }
+                            String friendlongstring = (String) friendStuff.get(4);
+
+                            if (!friendlongstring.equals(" ")) {
+                                friendlong = Double.parseDouble(friendlongstring);
+                            } else {
+                                friendlong = 0.0;
+                            }
+                            friendLocationName = (String) friendStuff.get(5);
+                            friendStatus = (String) friendStuff.get(6);
+                            friendBio = (String) friendStuff.get(7);
+                            String friendLocationToggleint = (String) friendStuff.get(8);
+                            if (Integer.parseInt(friendLocationToggleint) == 1) {
+                                friendLocationToggle = true;
+                            } else {
+                                friendLocationToggle = false;
+                            }
+                            String friendImageString = (String) friendStuff.get(9);
+                            /*
+                                Transform friendImageString into bitmap
+                             */
+
+                            //bitmap is incorrect.
+                            FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, null);
+                            yourFriends.add(friend);
+
+                            friendStuff = new ArrayList();
+                        }
                     }
                 }
             }, 1000);
-            FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
-                    R.drawable.mypic));
-            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
-            yourFriends.add(Adam);
-            yourFriends.add(Chase);
+            //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
+            //        R.drawable.mypic));
+            //FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
+            //yourFriends.add(Adam);
+            //yourFriends.add(Chase);
         } else {
             setContentView(R.layout.activity_maps);
             Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
@@ -789,8 +851,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     @Override
     public void onLocationChanged(Location location) {
 
-        String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         curLocation = location;
         //View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
 
