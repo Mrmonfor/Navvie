@@ -14,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.os.Looper;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -72,7 +73,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,7 +87,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
-    private String yourName = "Matt Monfort";
+    private String yourEmail = "Matt Monfort";
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
     LatLng origin, dest;
     static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
@@ -110,8 +114,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private static final double SHAKES=.0000009;
     private float previousX=0;
     private Handler handler;
-    boolean flg = false, isHandlerLive=false, designTrade = false;
-
+    boolean flg = false;
+    boolean isHandlerLive=false;
+    boolean designTrade = false;
+    boolean friendsRetreived =false;
+    String friendData="";
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -128,12 +135,158 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         if (servicesOK()) {
             setContentView(R.layout.activity_maps);
+            Intent i = getIntent();
+            yourEmail = i.getStringExtra("key");
+            final Thread friendDataThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Looper.prepare();
+                    DatagramSocket socket;
+                    try {
+                        InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                        int servPort = 3020; //server port
+                        Log.d("UDP", "Connection...");
+                        socket = new DatagramSocket(); //client socket
+                        int localPort = socket.getLocalPort();
+                        //getfriends,email.uncg.edu,
+                        String output = "getFriends," + yourEmail + ",";
+                        byte[] buffer = output.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                        socket.send(packet);
 
-            FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
-                    R.drawable.mypic));
-            FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
-            yourFriends.add(Adam);
-            yourFriends.add(Chase);
+                        packet.setData(new byte[2000]); //this needs to be set to some other value probably
+                        String incomingData2 = "";
+                        String incomingData = "";
+                        //response 1
+                        while (true) {
+                            //Thread.sleep(1000);
+                            try {
+                                socket.receive(packet);
+                                incomingData = new String(packet.getData());
+                                if (incomingData.compareTo(output) != 0) {
+                                    Log.d("UDP", incomingData); //might not be right
+                                    break;
+                                } else {
+                                    Log.d("UDP", "No Reply so far.");
+                                }
+                            } catch (Exception e) {
+                                Log.d("UDP", "Socket Receive Error");
+                            }
+                            //we might need to start some sort of counter to break out of this loop if a response is not received
+                            //by a certain amount of time
+                        }
+                        socket.close();
+                        //response 2
+                        socket = new DatagramSocket(localPort);
+                        String port = incomingData.substring(0, 4);
+                        packet.setPort(Integer.parseInt(port));
+                        socket.send(packet);
+                        while (true) {
+                            try {
+                                //wait(2000);
+                                socket.receive(packet);
+                                incomingData2 = new String(packet.getData());
+                                if (incomingData2.compareTo(incomingData) != 0) {
+                                    Log.d("UDP loop 2", incomingData2);
+                                    //do something with incomingData2
+                                    for (int i = 0; i < incomingData2.length(); i++) {
+                                        //when the null char is found
+                                        if (incomingData2.charAt(i) == 0) {
+                                            break;
+                                        }
+                                        friendData += incomingData2.charAt(i);
+                                    }
+                                    friendsRetreived = true;
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        socket.close();
+                        Log.d("UDP", "COMPLETED!");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            friendDataThread.start();
+            //How long does this handler need to wait for a response from the server?
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                public void run() {
+                    if (friendsRetreived) {
+                        //if friendData.equals("failure"){ dont set any friends}
+                        //take friendData and make friendObjects from that.
+                        String friendFirst, friendLast, friendemail, friendLocationName, friendStatus, friendBio, friendToggle;
+                        Double friendlat, friendlong;
+                        boolean friendLocationToggle;
+                        ArrayList friendStuff = new ArrayList();
+                        //Bitmap friendImage;
+                        int endOfLast = 0;
+                        boolean finishedParsing = false;
+                        while (!finishedParsing) {
+                            for (int i = 0; i < friendData.length(); i++) {
+                                if (friendData.charAt(i) == ',') {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    endOfLast = i + 1;
+                                }
+                                if (i == friendData.length() - 1) {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    finishedParsing = true;
+                                    break;
+                                }
+                                if (friendData.charAt(i) == '|') {
+                                    friendStuff.add(friendData.substring(endOfLast, i));
+                                    endOfLast = i + 1;
+                                    break;
+                                }
+                            }
+                            friendFirst = (String) friendStuff.get(0);
+                            friendLast = (String) friendStuff.get(1);
+                            friendemail = (String) friendStuff.get(2);
+                            String friendlatstring = (String) friendStuff.get(3);
+                            if (!friendlatstring.equals(" ")) {
+                                friendlat = Double.parseDouble(friendlatstring);
+                            } else {
+                                friendlat = 0.0;
+                            }
+                            String friendlongstring = (String) friendStuff.get(4);
+
+                            if (!friendlongstring.equals(" ")) {
+                                friendlong = Double.parseDouble(friendlongstring);
+                            } else {
+                                friendlong = 0.0;
+                            }
+                            friendLocationName = (String) friendStuff.get(5);
+                            friendStatus = (String) friendStuff.get(6);
+                            friendBio = (String) friendStuff.get(7);
+                            String friendLocationToggleint = (String) friendStuff.get(8);
+                            if (Integer.parseInt(friendLocationToggleint) == 1) {
+                                friendLocationToggle = true;
+                            } else {
+                                friendLocationToggle = false;
+                            }
+                            String friendImageString = (String) friendStuff.get(9);
+                            /*
+                                Transform friendImageString into bitmap
+                             */
+
+                            //bitmap is incorrect.
+                            FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, null);
+                            yourFriends.add(friend);
+
+                            friendStuff = new ArrayList();
+                        }
+                    }
+                }
+            }, 1000);
+            //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
+            //        R.drawable.mypic));
+            //FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
+            //yourFriends.add(Adam);
+            //yourFriends.add(Chase);
         } else {
             setContentView(R.layout.activity_maps);
             Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
