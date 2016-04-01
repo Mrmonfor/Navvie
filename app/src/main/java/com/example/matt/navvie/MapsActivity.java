@@ -9,6 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
@@ -31,6 +35,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -41,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Handler;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -72,7 +78,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
+
+public class MapsActivity extends FragmentActivity implements SensorEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
 
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
@@ -94,12 +101,34 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     LatLng campus2 = new LatLng(36.071407, -79.811010);
     LocationRequest request;
     private static float logicalDensity;
+    private float[] mGravity;
+    private float mAccel;
+    private float mAccelCurrent;
+    private float mAccelLast;
+    private SensorManager sm;
+    private Sensor accel;
+    private static final double SHAKES=.0000009;
+    private float previousX=0;
+    private Handler handler;
+    boolean flg = false, isHandlerLive=false, designTrade = false;
+
+    /* FOR DESIGN TRADE OFF********************************************************************/
+    private final Runnable processSensor = new Runnable() {
+        @Override
+        public void run() {
+            flg = true;
+            handler.postDelayed(this, 20000);
+        }
+    };
+    /* FOR DESIGN TRADE OFF********************************************************************/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (servicesOK()) {
             setContentView(R.layout.activity_maps);
+
             FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
                     R.drawable.mypic));
             FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
@@ -118,6 +147,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         } else {
             Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
         }
+        handler = new Handler();
+        sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);/* FOR DESIGN TRADE OFF********************************************************************/
+        accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);/* FOR DESIGN TRADE OFF********************************************************************/
+
 
         mMarkerPoints = new ArrayList<LatLng>();
         mMarkerPoints.add(new LatLng(0, 0));
@@ -129,6 +162,10 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         buildingButton = (Button) findViewById(R.id.buildings);
         routeButton = (Button) findViewById(R.id.routeToButton);
         cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
+        SensorManager sensorManager;
+        Sensor sen;
+
+
 
 
         editProfileButton.setOnClickListener(new buttonListener());
@@ -142,6 +179,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
     }
+
+
 
     public boolean servicesOK() {
         int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
@@ -162,6 +201,16 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     protected void onResume() {
         super.onResume();
         setUpMap();
+      if(designTrade==true) {
+          sm.registerListener(this, accel,/* FOR DESIGN TRADE OFF********************************************************************/
+                  SensorManager.SENSOR_DELAY_UI);/* FOR DESIGN TRADE OFF********************************************************************/
+          handler.post(processSensor);/* FOR DESIGN TRADE OFF********************************************************************/
+      }
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+       // sm.unregisterListener(this);
     }
 
     @Override
@@ -409,6 +458,38 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+    /* FOR DESIGN TRADE OFF********************************************************************/
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(flg){
+        if(event.sensor == accel){
+            float dx = event.values[0];
+            float dy = event.values[1];
+            float dz = event.values[2];
+            TextView tv;
+            float lastx = dx;
+            float lasty = dy;
+            float lastz = dz;
+           // previousX = dx;
+
+            float shake = Math.abs(dx + dy + dz - lastx - lasty - lastz);
+
+            if(dx >previousX || dx < previousX){
+                //tv = (TextView) findViewById(R.id.textView12);
+               // tv.setText("SHAKE SHAKE SHAKE");
+                Toast.makeText(this, "shake detected", Toast.LENGTH_SHORT).show();
+                previousX = dx;
+
+            }
+            flg =false;
+        }
+           // sm.unregisterListener(this);
+    }}
+    /* FOR DESIGN TRADE OFF********************************************************************/
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
 
 
     /**
@@ -469,6 +550,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             }
             return routes;
         }
+
 
         // Executes in UI thread, after the parsing process
         @Override
@@ -697,7 +779,7 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
     public void onLocationChanged(Location location) {
 
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         curLocation = location;
         //View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
 
