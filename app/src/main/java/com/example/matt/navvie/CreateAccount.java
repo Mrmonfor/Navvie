@@ -103,7 +103,7 @@ public class CreateAccount extends Activity {
                             socket.close();
                             //response 2
                             socket = new DatagramSocket(localPort);
-                            String port = incomingData.substring(0, 4);
+                            String port = incomingData.substring(0, 5);
                             packet.setPort(Integer.parseInt(port));
                             socket.send(packet);
                             while (true) {

@@ -220,7 +220,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         socket.close();
                         //response 2
                         socket = new DatagramSocket(localPort);
-                        String port = incomingData.substring(0, 4);
+                        String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);
                         while (true) {
@@ -596,8 +596,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
             request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            request.setInterval(5000); //updates location every 5 secs.
-            request.setFastestInterval(1000);
+            request.setInterval(10000); //updates location every 10 secs.
+            request.setFastestInterval(10000);
             LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, request, this);
         }
     }
@@ -941,7 +941,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             public void run() {
                 getFriendData();
             }
-        }, 2500);
+        }, 5000);
         refreshFriendArray();
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
@@ -1064,7 +1064,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     socket.close();
                     //response 2
                     socket = new DatagramSocket(localPort);
-                    String port = incomingData.substring(0, 4);
+                    String port = incomingData.substring(0, 5);
                     packet.setPort(Integer.parseInt(port));
                     socket.send(packet);
                     while (true) {
