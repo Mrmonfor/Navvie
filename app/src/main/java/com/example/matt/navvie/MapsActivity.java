@@ -111,14 +111,15 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private float mAccelLast;
     private SensorManager sm;
     private Sensor accel;
-    private static final double SHAKES=.0000009;
-    private float previousX=0;
+    private static final double SHAKES = .0000009;
+    private float previousX = 0;
     private Handler handler;
-    boolean flg = false;
-    boolean isHandlerLive=false;
-    boolean designTrade = false;
-    boolean friendsRetreived =false;
-    String friendData="";
+    private boolean flg = false;
+    private boolean isHandlerLive = false;
+    private boolean designTrade = false;
+    private boolean friendsRetreived = false;
+    private String friendData = "";
+    private boolean firstRun;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -140,74 +141,80 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Looper.prepare();
-                    DatagramSocket socket;
-                    try {
-                        InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
-                        int servPort = 3020; //server port
-                        Log.d("UDP", "Connection...");
-                        socket = new DatagramSocket(); //client socket
-                        int localPort = socket.getLocalPort();
-                        //getfriends,email.uncg.edu,
-                        String output = "getFriends," + yourEmail + ",";
-                        byte[] buffer = output.getBytes();
-                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
-                        socket.send(packet);
+                    firstRun = true;
+                    while (true) {
+                        Looper.prepare();
+                        if (firstRun) {
+                            DatagramSocket socket;
+                            try {
+                                InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                                int servPort = 3020; //server port
+                                Log.d("UDP", "Connection...");
+                                socket = new DatagramSocket(); //client socket
+                                int localPort = socket.getLocalPort();
+                                //getfriends,email.uncg.edu,
+                                String output = "getFriends," + yourEmail + ",";
+                                byte[] buffer = output.getBytes();
+                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                                socket.send(packet);
 
-                        packet.setData(new byte[2000]); //this needs to be set to some other value probably
-                        String incomingData2 = "";
-                        String incomingData = "";
-                        //response 1
-                        while (true) {
-                            //Thread.sleep(1000);
-                            try {
-                                socket.receive(packet);
-                                incomingData = new String(packet.getData());
-                                if (incomingData.compareTo(output) != 0) {
-                                    Log.d("UDP", incomingData); //might not be right
-                                    break;
-                                } else {
-                                    Log.d("UDP", "No Reply so far.");
+                                packet.setData(new byte[2000]); //this needs to be set to some other value probably
+                                String incomingData2 = "";
+                                String incomingData = "";
+                                //response 1
+                                while (true) {
+                                    //Thread.sleep(1000);
+                                    try {
+                                        socket.receive(packet);
+                                        incomingData = new String(packet.getData());
+                                        if (incomingData.compareTo(output) != 0) {
+                                            Log.d("UDP", incomingData); //might not be right
+                                            break;
+                                        } else {
+                                            Log.d("UDP", "No Reply so far.");
+                                        }
+                                    } catch (Exception e) {
+                                        Log.d("UDP", "Socket Receive Error");
+                                    }
+                                    //we might need to start some sort of counter to break out of this loop if a response is not received
+                                    //by a certain amount of time
                                 }
-                            } catch (Exception e) {
-                                Log.d("UDP", "Socket Receive Error");
-                            }
-                            //we might need to start some sort of counter to break out of this loop if a response is not received
-                            //by a certain amount of time
-                        }
-                        socket.close();
-                        //response 2
-                        socket = new DatagramSocket(localPort);
-                        String port = incomingData.substring(0, 4);
-                        packet.setPort(Integer.parseInt(port));
-                        socket.send(packet);
-                        while (true) {
-                            try {
-                                //wait(2000);
-                                socket.receive(packet);
-                                incomingData2 = new String(packet.getData());
-                                if (incomingData2.compareTo(incomingData) != 0) {
-                                    Log.d("UDP loop 2", incomingData2);
-                                    //do something with incomingData2
-                                    for (int i = 0; i < incomingData2.length(); i++) {
-                                        //when the null char is found
-                                        if (incomingData2.charAt(i) == 0) {
+                                socket.close();
+                                //response 2
+                                socket = new DatagramSocket(localPort);
+                                String port = incomingData.substring(0, 4);
+                                packet.setPort(Integer.parseInt(port));
+                                socket.send(packet);
+                                while (true) {
+                                    try {
+                                        //wait(2000);
+                                        socket.receive(packet);
+                                        incomingData2 = new String(packet.getData());
+                                        if (incomingData2.compareTo(incomingData) != 0) {
+                                            Log.d("UDP loop 2", incomingData2);
+                                            //do something with incomingData2
+                                            for (int i = 0; i < incomingData2.length(); i++) {
+                                                //when the null char is found
+                                                if (incomingData2.charAt(i) == 0) {
+                                                    break;
+                                                }
+                                                friendData += incomingData2.charAt(i);
+                                            }
+                                            friendsRetreived = true;
                                             break;
                                         }
-                                        friendData += incomingData2.charAt(i);
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
                                     }
-                                    friendsRetreived = true;
-                                    break;
                                 }
-                            } catch (IOException e) {
+                                socket.close();
+                                Log.d("UDP", "COMPLETED!");
+
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                        }
-                        socket.close();
-                        Log.d("UDP", "COMPLETED!");
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                            firstRun = false;
+                        }//end firstRun
                     }
                 }
             });
@@ -301,7 +308,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
         }
         handler = new Handler();
-        sm = (SensorManager)getSystemService(Context.SENSOR_SERVICE);/* FOR DESIGN TRADE OFF********************************************************************/
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);/* FOR DESIGN TRADE OFF********************************************************************/
         accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);/* FOR DESIGN TRADE OFF********************************************************************/
 
 
@@ -319,8 +326,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         Sensor sen;
 
 
-
-
         editProfileButton.setOnClickListener(new buttonListener());
         logoutButton.setOnClickListener(new buttonListener());
         manageButton.setOnClickListener(new buttonListener());
@@ -332,7 +337,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
     }
-
 
 
     public boolean servicesOK() {
@@ -354,16 +358,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     protected void onResume() {
         super.onResume();
         setUpMap();
-      if(designTrade==true) {
-          sm.registerListener(this, accel,/* FOR DESIGN TRADE OFF********************************************************************/
-                  SensorManager.SENSOR_DELAY_UI);/* FOR DESIGN TRADE OFF********************************************************************/
-          handler.post(processSensor);/* FOR DESIGN TRADE OFF********************************************************************/
-      }
+        if (designTrade == true) {
+            sm.registerListener(this, accel,/* FOR DESIGN TRADE OFF********************************************************************/
+                    SensorManager.SENSOR_DELAY_UI);/* FOR DESIGN TRADE OFF********************************************************************/
+            handler.post(processSensor);/* FOR DESIGN TRADE OFF********************************************************************/
+        }
+
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-       // sm.unregisterListener(this);
+        // sm.unregisterListener(this);
     }
 
     @Override
@@ -387,7 +393,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
-                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle()!=null)  {
+                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle() != null) {
                         marker = marker1;
                         if (!state) {
                             Bundle bundle = new Bundle();
@@ -611,33 +617,36 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
+
     /* FOR DESIGN TRADE OFF********************************************************************/
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if(flg){
-        if(event.sensor == accel){
-            float dx = event.values[0];
-            float dy = event.values[1];
-            float dz = event.values[2];
-            TextView tv;
-            float lastx = dx;
-            float lasty = dy;
-            float lastz = dz;
-           // previousX = dx;
+        if (flg) {
+            if (event.sensor == accel) {
+                float dx = event.values[0];
+                float dy = event.values[1];
+                float dz = event.values[2];
+                TextView tv;
+                float lastx = dx;
+                float lasty = dy;
+                float lastz = dz;
+                // previousX = dx;
 
-            float shake = Math.abs(dx + dy + dz - lastx - lasty - lastz);
+                float shake = Math.abs(dx + dy + dz - lastx - lasty - lastz);
 
-            if(dx >previousX || dx < previousX){
-                //tv = (TextView) findViewById(R.id.textView12);
-               // tv.setText("SHAKE SHAKE SHAKE");
-                Toast.makeText(this, "shake detected", Toast.LENGTH_SHORT).show();
-                previousX = dx;
+                if (dx > previousX || dx < previousX) {
+                    //tv = (TextView) findViewById(R.id.textView12);
+                    // tv.setText("SHAKE SHAKE SHAKE");
+                    Toast.makeText(this, "shake detected", Toast.LENGTH_SHORT).show();
+                    previousX = dx;
 
+                }
+                flg = false;
             }
-            flg =false;
+            // sm.unregisterListener(this);
         }
-           // sm.unregisterListener(this);
-    }}
+    }
+
     /* FOR DESIGN TRADE OFF********************************************************************/
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -737,7 +746,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude!=0) {
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0) {
                 mMap.addPolyline(lineOptions);
             }
         }
@@ -905,21 +914,21 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && yourFriends.get(z).getToggle()) {
 
 
-
-            // Setting the position of the marker
-            options.position(loc);
-            options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
-            ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
+                // Setting the position of the marker
+                options.position(loc);
+                options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
+                ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
                 Bitmap bitmap;
-                if(yourFriends.get(z).getPicture()!=null){
+                if (yourFriends.get(z).getPicture() != null) {
                     bitmap = yourFriends.get(z).getPicture();
 
-                }else{
-                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);;
+                } else {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
+                    ;
                 }
                 int px = (int) Math.ceil(34 * logicalDensity);
                 int px2 = (int) Math.ceil(23 * logicalDensity);
-                bitmap = Bitmap.createScaledBitmap(bitmap,px,px2,false);
+                bitmap = Bitmap.createScaledBitmap(bitmap, px, px2, false);
                 profile.setImageBitmap(bitmap);
                 options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, marker)));
                 // Add new marker to the Google Map Android API V2
