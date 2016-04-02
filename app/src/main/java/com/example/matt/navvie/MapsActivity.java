@@ -8,35 +8,26 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.os.Looper;
 import android.support.v4.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.AsyncTask;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.DisplayMetrics;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -56,13 +47,10 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -119,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private boolean designTrade = false;
     private boolean friendsRetreived = false;
     private String friendData = "";
-    private boolean firstRun;
+    private boolean retreivingFriendData;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -138,85 +126,134 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             setContentView(R.layout.activity_maps);
             Intent i = getIntent();
             yourEmail = i.getStringExtra("key");
+            getFriendData();
+            //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
+            //        R.drawable.mypic));
+            //FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
+            //yourFriends.add(Adam);
+            //yourFriends.add(Chase);
+        } else {
+            setContentView(R.layout.activity_maps);
+            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
+        }
+
+        if (setUpMap()) {
+            mLocationClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
+            mLocationClient.connect();
+            // Toast.makeText(this, "Ready to Map", Toast.LENGTH_SHORT).show();
+
+        } else {
+            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
+        }
+        handler = new Handler();
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);/* FOR DESIGN TRADE OFF********************************************************************/
+        accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);/* FOR DESIGN TRADE OFF********************************************************************/
+
+        mMarkerPoints = new ArrayList<LatLng>();
+        mMarkerPoints.add(new LatLng(0, 0));
+
+        options = (Button) findViewById(R.id.optionsButton);
+        editProfileButton = (Button) findViewById(R.id.editProfile);
+        logoutButton = (Button) findViewById(R.id.logout);
+        manageButton = (Button) findViewById(R.id.manage);
+        buildingButton = (Button) findViewById(R.id.buildings);
+        routeButton = (Button) findViewById(R.id.routeToButton);
+        cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
+        SensorManager sensorManager;
+        Sensor sen;
+
+
+        editProfileButton.setOnClickListener(new buttonListener());
+        logoutButton.setOnClickListener(new buttonListener());
+        manageButton.setOnClickListener(new buttonListener());
+        buildingButton.setOnClickListener(new buttonListener());
+        routeButton.setOnClickListener(new buttonListener());
+        cancelViewButton.setOnClickListener(new buttonListener());
+
+
+        NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
+    }
+
+    private void getFriendData() {
+        if(!retreivingFriendData) {
+            yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    firstRun = true;
-                    while (true) {
-                        Looper.prepare();
-                        if (firstRun) {
-                            DatagramSocket socket;
+                    retreivingFriendData = true;
+                    Looper.prepare();
+                    DatagramSocket socket;
+                    try {
+                        InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                        int servPort = 3020; //server port
+                        Log.d("UDP", "Connection...");
+                        socket = new DatagramSocket(); //client socket
+                        int localPort = socket.getLocalPort();
+                        //getfriends,email.uncg.edu,
+                        String output = "getFriends," + yourEmail + ",";
+                        byte[] buffer = output.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                        socket.send(packet);
+
+                        packet.setData(new byte[2000]); //this needs to be set to some other value probably
+                        String incomingData2 = "";
+                        String incomingData = "";
+                        //response 1
+                        while (true) {
+                            //Thread.sleep(1000);
                             try {
-                                InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
-                                int servPort = 3020; //server port
-                                Log.d("UDP", "Connection...");
-                                socket = new DatagramSocket(); //client socket
-                                int localPort = socket.getLocalPort();
-                                //getfriends,email.uncg.edu,
-                                String output = "getFriends," + yourEmail + ",";
-                                byte[] buffer = output.getBytes();
-                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
-                                socket.send(packet);
-
-                                packet.setData(new byte[2000]); //this needs to be set to some other value probably
-                                String incomingData2 = "";
-                                String incomingData = "";
-                                //response 1
-                                while (true) {
-                                    //Thread.sleep(1000);
-                                    try {
-                                        socket.receive(packet);
-                                        incomingData = new String(packet.getData());
-                                        if (incomingData.compareTo(output) != 0) {
-                                            Log.d("UDP", incomingData); //might not be right
-                                            break;
-                                        } else {
-                                            Log.d("UDP", "No Reply so far.");
-                                        }
-                                    } catch (Exception e) {
-                                        Log.d("UDP", "Socket Receive Error");
-                                    }
-                                    //we might need to start some sort of counter to break out of this loop if a response is not received
-                                    //by a certain amount of time
+                                socket.receive(packet);
+                                incomingData = new String(packet.getData());
+                                if (incomingData.compareTo(output) != 0) {
+                                    Log.d("UDP", incomingData); //might not be right
+                                    break;
+                                } else {
+                                    Log.d("UDP", "No Reply so far.");
                                 }
-                                socket.close();
-                                //response 2
-                                socket = new DatagramSocket(localPort);
-                                String port = incomingData.substring(0, 4);
-                                packet.setPort(Integer.parseInt(port));
-                                socket.send(packet);
-                                while (true) {
-                                    try {
-                                        //wait(2000);
-                                        socket.receive(packet);
-                                        incomingData2 = new String(packet.getData());
-                                        if (incomingData2.compareTo(incomingData) != 0) {
-                                            Log.d("UDP loop 2", incomingData2);
-                                            //do something with incomingData2
-                                            for (int i = 0; i < incomingData2.length(); i++) {
-                                                //when the null char is found
-                                                if (incomingData2.charAt(i) == 0) {
-                                                    break;
-                                                }
-                                                friendData += incomingData2.charAt(i);
-                                            }
-                                            friendsRetreived = true;
-                                            break;
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                socket.close();
-                                Log.d("UDP", "COMPLETED!");
-
                             } catch (Exception e) {
+                                Log.d("UDP", "Socket Receive Error");
+                            }
+                            //we might need to start some sort of counter to break out of this loop if a response is not received
+                            //by a certain amount of time
+                        }
+                        socket.close();
+                        //response 2
+                        socket = new DatagramSocket(localPort);
+                        String port = incomingData.substring(0, 4);
+                        packet.setPort(Integer.parseInt(port));
+                        socket.send(packet);
+                        while (true) {
+                            try {
+                                //wait(2000);
+                                socket.receive(packet);
+                                incomingData2 = new String(packet.getData());
+                                if (incomingData2.compareTo(incomingData) != 0) {
+                                    Log.d("UDP loop 2", incomingData2);
+                                    //do something with incomingData2
+                                    for (int i = 0; i < incomingData2.length(); i++) {
+                                        //when the null char is found
+                                        if (incomingData2.charAt(i) == 0) {
+                                            break;
+                                        }
+                                        friendData += incomingData2.charAt(i);
+                                    }
+                                    friendsRetreived = true;
+                                    break;
+                                }
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            firstRun = false;
-                        }//end firstRun
+                        }
+                        socket.close();
+                        Log.d("UDP", "COMPLETED!");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                    retreivingFriendData = false;
                 }
+
             });
             friendDataThread.start();
             //How long does this handler need to wait for a response from the server?
@@ -233,8 +270,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         //Bitmap friendImage;
                         int endOfLast = 0;
                         boolean finishedParsing = false;
+                        int i = 0;
                         while (!finishedParsing) {
-                            for (int i = 0; i < friendData.length(); i++) {
+                            for (; i < friendData.length(); i++) {
                                 if (friendData.charAt(i) == ',') {
                                     friendStuff.add(friendData.substring(endOfLast, i));
                                     endOfLast = i + 1;
@@ -247,6 +285,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                 if (friendData.charAt(i) == '|') {
                                     friendStuff.add(friendData.substring(endOfLast, i));
                                     endOfLast = i + 1;
+                                    i++;
                                     break;
                                 }
                             }
@@ -289,55 +328,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     }
                 }
             }, 1000);
-            //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
-            //        R.drawable.mypic));
-            //FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
-            //yourFriends.add(Adam);
-            //yourFriends.add(Chase);
-        } else {
-            setContentView(R.layout.activity_maps);
-            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
         }
 
-        if (setUpMap()) {
-            mLocationClient = new GoogleApiClient.Builder(this).addApi(LocationServices.API).addConnectionCallbacks(this).addOnConnectionFailedListener(this).build();
-            mLocationClient.connect();
-            // Toast.makeText(this, "Ready to Map", Toast.LENGTH_SHORT).show();
-
-        } else {
-            Toast.makeText(this, "Map not Available", Toast.LENGTH_SHORT).show();
-        }
-        handler = new Handler();
-        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);/* FOR DESIGN TRADE OFF********************************************************************/
-        accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);/* FOR DESIGN TRADE OFF********************************************************************/
-
-
-        mMarkerPoints = new ArrayList<LatLng>();
-        mMarkerPoints.add(new LatLng(0, 0));
-
-        options = (Button) findViewById(R.id.optionsButton);
-        editProfileButton = (Button) findViewById(R.id.editProfile);
-        logoutButton = (Button) findViewById(R.id.logout);
-        manageButton = (Button) findViewById(R.id.manage);
-        buildingButton = (Button) findViewById(R.id.buildings);
-        routeButton = (Button) findViewById(R.id.routeToButton);
-        cancelViewButton = (Button) findViewById(R.id.cancelFriendButton);
-        SensorManager sensorManager;
-        Sensor sen;
-
-
-        editProfileButton.setOnClickListener(new buttonListener());
-        logoutButton.setOnClickListener(new buttonListener());
-        manageButton.setOnClickListener(new buttonListener());
-        buildingButton.setOnClickListener(new buttonListener());
-        routeButton.setOnClickListener(new buttonListener());
-        cancelViewButton.setOnClickListener(new buttonListener());
-
-
-        NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
-        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
     }
-
 
     public boolean servicesOK() {
         int isAvailable = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
