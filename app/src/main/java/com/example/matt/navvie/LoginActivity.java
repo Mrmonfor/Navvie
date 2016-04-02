@@ -54,8 +54,8 @@ public class LoginActivity extends Activity {
 
                 while (true) {
                     //maybe sleep(100)
-                    DatagramSocket socket;
                     if (send) {
+                        DatagramSocket socket;
                         threadIsFinished = false;
                         try {
                             InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip

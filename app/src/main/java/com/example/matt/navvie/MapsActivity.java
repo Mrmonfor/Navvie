@@ -126,7 +126,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             setContentView(R.layout.activity_maps);
             Intent i = getIntent();
             yourEmail = i.getStringExtra("key");
-            getFriendData();
+            //getFriendData();
             //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
             //        R.drawable.mypic));
             //FriendObject Chase = new FriendObject("Chase", "Patton", "scpatton@uncg.edu", 36.070280, -79.813256, "MHRA?", "doing stuff", "i graduate this semester", true, BitmapFactory.decodeResource(this.getResources(), R.drawable.mypic2));
@@ -176,7 +176,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void getFriendData() {
-        if(!retreivingFriendData) {
+        if (!retreivingFriendData) {
             yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
@@ -350,6 +350,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     protected void onResume() {
         super.onResume();
+        //getFriendData();
         setUpMap();
         if (designTrade == true) {
             sm.registerListener(this, accel,/* FOR DESIGN TRADE OFF********************************************************************/
@@ -714,32 +715,34 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             PolylineOptions lineOptions = null;
 
             // Traversing through all the routes
-            for (int i = 0; i < result.size(); i++) {
-                points = new ArrayList<LatLng>();
-                lineOptions = new PolylineOptions();
+            if (result!=null) {
+                for (int i = 0; i < result.size(); i++) {
+                    points = new ArrayList<LatLng>();
+                    lineOptions = new PolylineOptions();
 
-                // Fetching i-th route
-                List<HashMap<String, String>> path = result.get(i);
+                    // Fetching i-th route
+                    List<HashMap<String, String>> path = result.get(i);
 
-                // Fetching all the points in i-th route
-                for (int j = 0; j < path.size(); j++) {
-                    HashMap<String, String> point = path.get(j);
+                    // Fetching all the points in i-th route
+                    for (int j = 0; j < path.size(); j++) {
+                        HashMap<String, String> point = path.get(j);
 
-                    double lat = Double.parseDouble(point.get("lat"));
-                    double lng = Double.parseDouble(point.get("lng"));
-                    LatLng position = new LatLng(lat, lng);
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
 
-                    points.add(position);
+                        points.add(position);
+                    }
+
+                    // Adding all the points in the route to LineOptions
+                    lineOptions.addAll(points);
+                    lineOptions.width(4);
+                    lineOptions.color(Color.BLUE);
                 }
-
-                // Adding all the points in the route to LineOptions
-                lineOptions.addAll(points);
-                lineOptions.width(4);
-                lineOptions.color(Color.BLUE);
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0) {
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0 && lineOptions!=null) {
                 mMap.addPolyline(lineOptions);
             }
         }
@@ -932,7 +935,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     public void onLocationChanged(Location location) {
-
+        updateSelfLocation(location);
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                getFriendData();
+            }
+        }, 2500);
+        refreshFriendArray();
         String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         curLocation = location;
@@ -1011,6 +1021,74 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 bundleFlag = false;
             }
         }
+    }
+
+    private void updateSelfLocation(final Location loc) {
+        final Thread updateLocationThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                DatagramSocket socket;
+                try {
+                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                    int servPort = 3020; //server port
+                    Log.d("UDP", "Connection...");
+                    socket = new DatagramSocket(); //client socket
+                    int localPort = socket.getLocalPort();
+                    String output = "updateLocation," + yourEmail + "," + loc.getLatitude() + "," + loc.getLongitude() + ",";
+                    byte[] buffer = output.getBytes();
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                    socket.send(packet);
+
+                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                    String incomingData2 = "";
+                    String incomingData = "";
+                    //response 1
+                    while (true) {
+                        //Thread.sleep(1000);
+                        try {
+                            socket.receive(packet);
+                            incomingData = new String(packet.getData());
+                            if (incomingData.compareTo(output) != 0) {
+                                Log.d("UDP", incomingData); //might not be right
+                                break;
+                            } else {
+                                Log.d("UDP", "No Reply so far.");
+                            }
+                        } catch (Exception e) {
+                            Log.d("UDP", "Socket Receive Error");
+                        }
+                        //we might need to start some sort of counter to break out of this loop if a response is not received
+                        //by a certain amount of time
+                    }
+                    socket.close();
+                    //response 2
+                    socket = new DatagramSocket(localPort);
+                    String port = incomingData.substring(0, 4);
+                    packet.setPort(Integer.parseInt(port));
+                    socket.send(packet);
+                    while (true) {
+                        try {
+                            socket.receive(packet);
+                            incomingData2 = new String(packet.getData());
+                            if (incomingData2.compareTo(incomingData) != 0) {
+                                break;
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    socket.close();
+                    Log.d("UDP", "COMPLETED!");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        });
+        updateLocationThread.start();
     }
 
 
