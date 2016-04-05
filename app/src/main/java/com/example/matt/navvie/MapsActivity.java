@@ -321,8 +321,17 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                             //bitmap is incorrect.
                             FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, null);
-                            yourFriends.add(friend);
-
+                            if (yourFriends.size() > 0) {
+                                for (int p = 0; p < yourFriends.size(); p++) {
+                                    if (yourFriends.get(p).getFname().equalsIgnoreCase(friendFirst)) {
+                                        yourFriends.set(p, friend);
+                                    } else {
+                                        yourFriends.add(friend);
+                                    }
+                                }
+                            } else {
+                                yourFriends.add(friend);
+                            }
                             friendStuff = new ArrayList();
                         }
                     }
@@ -715,7 +724,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             PolylineOptions lineOptions = null;
 
             // Traversing through all the routes
-            if (result!=null) {
+            if (result != null) {
                 for (int i = 0; i < result.size(); i++) {
                     points = new ArrayList<LatLng>();
                     lineOptions = new PolylineOptions();
@@ -742,7 +751,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             }
 
             // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0 && lineOptions!=null) {
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0 && lineOptions != null) {
                 mMap.addPolyline(lineOptions);
             }
         }
@@ -902,6 +911,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     public void refreshFriendArray() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                getFriendData();
+            }
+        }, 5000);
         View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
         for (int z = 0; z < yourFriends.size(); z++) {
             MarkerOptions options = new MarkerOptions();
@@ -936,14 +951,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     public void onLocationChanged(Location location) {
         updateSelfLocation(location);
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                getFriendData();
-            }
-        }, 5000);
-        refreshFriendArray();
-        String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
+
+        //String msg = "Location: " + location.getLatitude() + "," + location.getLongitude();
         //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         curLocation = location;
         //View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
@@ -956,6 +965,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             // Creating MarkerOptions
             MarkerOptions options = new MarkerOptions();
 
+            boolean drop = true;
             // Setting the position of the marker
             options.position(mMarkerPoints.get(i));
 
@@ -967,7 +977,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 options.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
                 mMap.addMarker(options);
             } else {//dont drop new marker if dest is a friend
-                boolean drop = true;
                 for (int z = 0; z < yourFriends.size(); z++) {
                     LatLng temp = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
                     LatLng temp2 = new LatLng(mMarkerPoints.get(1).latitude, mMarkerPoints.get(1).longitude);

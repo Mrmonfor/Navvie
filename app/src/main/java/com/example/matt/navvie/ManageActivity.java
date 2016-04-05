@@ -191,7 +191,7 @@ public class ManageActivity extends FragmentActivity implements ViewProfileFrag.
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-        
+
     }
 
     private class buttonListener implements View.OnClickListener {
@@ -218,6 +218,7 @@ public class ManageActivity extends FragmentActivity implements ViewProfileFrag.
             mObjects = objects;
             layout = resource;
         }
+
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             ViewHolder mainViewholder = null;
