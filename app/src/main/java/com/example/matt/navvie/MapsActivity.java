@@ -108,6 +108,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private boolean friendsRetreived = false;
     private String friendData = "";
     private boolean retreivingFriendData;
+    private boolean logout = false;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -176,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void getFriendData() {
-        if (!retreivingFriendData) {
+        if (!retreivingFriendData && !logout) {
             yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
@@ -187,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     try {
                         InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
                         int servPort = 3020; //server port
-                        Log.d("UDP", "Connection...");
+                        Log.d("UDP", "Connection for FriendData...");
                         socket = new DatagramSocket(); //client socket
                         int localPort = socket.getLocalPort();
                         //getfriends,email.uncg.edu,
@@ -223,12 +224,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);
+                        friendData = "";
                         while (true) {
                             try {
                                 //wait(2000);
                                 socket.receive(packet);
                                 incomingData2 = new String(packet.getData());
-                                if (incomingData2.compareTo(incomingData) != 0) {
+                                if (!incomingData2.substring(0,5).equals(port)) {
                                     Log.d("UDP loop 2", incomingData2);
                                     //do something with incomingData2
                                     for (int i = 0; i < incomingData2.length(); i++) {
@@ -359,6 +361,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     protected void onResume() {
         super.onResume();
+        logout=false;
         //getFriendData();
         setUpMap();
         if (designTrade == true) {
@@ -377,6 +380,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     protected void onStop() {
+        logout=true;
         super.onStop();
         request.setInterval(60000);
     }
@@ -775,6 +779,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     finish();
                     break;
                 case R.id.logout:
+                    logout = true;
                     Intent intent2 = new Intent(MapsActivity.this, MainActivity.class);
                     startActivity(intent2);
                     finish();
@@ -1036,65 +1041,66 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         final Thread updateLocationThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Looper.prepare();
-                DatagramSocket socket;
-                try {
-                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
-                    int servPort = 3020; //server port
-                    Log.d("UDP", "Connection...");
-                    socket = new DatagramSocket(); //client socket
-                    int localPort = socket.getLocalPort();
-                    String output = "updateLocation," + yourEmail + "," + loc.getLatitude() + "," + loc.getLongitude() + ",";
-                    byte[] buffer = output.getBytes();
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
-                    socket.send(packet);
+                if (!logout) {
+                    Looper.prepare();
+                    DatagramSocket socket;
+                    try {
+                        InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                        int servPort = 3020; //server port
+                        Log.d("UDP", "Connection for update Self Location...");
+                        socket = new DatagramSocket(); //client socket
+                        int localPort = socket.getLocalPort();
+                        String output = "updateLocation," + yourEmail + "," + loc.getLatitude() + "," + loc.getLongitude() + ",";
+                        byte[] buffer = output.getBytes();
+                        DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                        socket.send(packet);
 
-                    packet.setData(new byte[50]); //this needs to be set to some other value probably
-                    String incomingData2 = "";
-                    String incomingData = "";
-                    //response 1
-                    while (true) {
-                        //Thread.sleep(1000);
-                        try {
-                            socket.receive(packet);
-                            incomingData = new String(packet.getData());
-                            if (incomingData.compareTo(output) != 0) {
-                                Log.d("UDP", incomingData); //might not be right
-                                break;
-                            } else {
-                                Log.d("UDP", "No Reply so far.");
+                        packet.setData(new byte[50]); //this needs to be set to some other value probably
+                        String incomingData2 = "";
+                        String incomingData = "";
+                        //response 1
+                        while (true) {
+                            //Thread.sleep(1000);
+                            try {
+                                socket.receive(packet);
+                                incomingData = new String(packet.getData());
+                                if (incomingData.compareTo(output) != 0) {
+                                    Log.d("UDP", incomingData); //might not be right
+                                    break;
+                                } else {
+                                    Log.d("UDP", "No Reply so far.");
+                                }
+                            } catch (Exception e) {
+                                Log.d("UDP", "Socket Receive Error");
                             }
-                        } catch (Exception e) {
-                            Log.d("UDP", "Socket Receive Error");
+                            //we might need to start some sort of counter to break out of this loop if a response is not received
+                            //by a certain amount of time
                         }
-                        //we might need to start some sort of counter to break out of this loop if a response is not received
-                        //by a certain amount of time
-                    }
-                    socket.close();
-                    //response 2
-                    socket = new DatagramSocket(localPort);
-                    String port = incomingData.substring(0, 5);
-                    packet.setPort(Integer.parseInt(port));
-                    socket.send(packet);
-                    while (true) {
-                        try {
-                            socket.receive(packet);
-                            incomingData2 = new String(packet.getData());
-                            if (incomingData2.compareTo(incomingData) != 0) {
-                                break;
+                        socket.close();
+                        //response 2
+                        socket = new DatagramSocket(localPort);
+                        String port = incomingData.substring(0, 5);
+                        packet.setPort(Integer.parseInt(port));
+                        socket.send(packet);
+                        while (true) {
+                            try {
+                                socket.receive(packet);
+                                incomingData2 = new String(packet.getData());
+                                if (incomingData2.compareTo(incomingData) != 0) {
+                                    break;
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
-                    }
-                    socket.close();
-                    Log.d("UDP", "COMPLETED!");
+                        socket.close();
+                        Log.d("UDP", "COMPLETED!");
 
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
-
 
         });
         updateLocationThread.start();
