@@ -8,35 +8,57 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.Switch;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.Random;
+import java.util.ArrayList;
 
 public class EditProfile extends AppCompatActivity {
+    public static final int IMAGE_GALLERY_REQUEST = 3;
+    boolean threadIsFinished = false;
+    boolean initThreadIsFinished = false;
     private Button subEditButton, cancelProfButton;
     private ImageView image;
-    public static final int IMAGE_GALLERY_REQUEST = 3;
     private TextView bioText;
     private Bitmap bitImage;
     private InputStream inputStream;
     private Uri imageUri;
     private Intent photoIntent;
-
+    private EditText statusInput, bioInput, oldPwInput, newPwInput;
+    private Switch locationToggle;
+    private String yourEmail;
+    private TextView firstandlastname, emailTextView, locationTextView;
+    private String realname;
+    private String LocationName;
+    private String bio;
+    private String status;
+    private int locationToggleint;
+    private boolean locationTogglebool;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -46,77 +68,147 @@ public class EditProfile extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ///LALALALALALAALLALALALALALAL
         setContentView(R.layout.activity_edit_profile);
-
-
-        subEditButton =(Button) findViewById(R.id.submitProfileButton);
+        subEditButton = (Button) findViewById(R.id.submitProfileButton);
         cancelProfButton = (Button) findViewById(R.id.cancelProfileButton);
         image = (ImageView) findViewById((R.id.profilePic));
         //image.getLayoutParams().width=150;
-         bioText = (TextView) findViewById(R.id.bioText);
+        bioText = (TextView) findViewById(R.id.bioText);
         bioText.setMovementMethod(new ScrollingMovementMethod());
         image.setOnClickListener(new buttonListener());
         subEditButton.setOnClickListener(new buttonListener());
         cancelProfButton.setOnClickListener(new buttonListener());
-
-    }
-    private class buttonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-
-            switch(v.getId()){
-                case R.id.submitProfileButton:
-                    Intent intent = new Intent(EditProfile.this, MapsActivity.class);
-                    startActivity(intent);
-                    finish();
-                    break;
-                case R.id.cancelProfileButton:
-                    Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
-                    startActivity(intent2);
-                   finish();
-                    break;
-                case R.id.profilePic:
-
-
-
-                    if (Build.VERSION.SDK_INT < 19){
-                        photoIntent = new Intent();
-                        photoIntent.setAction(Intent.ACTION_GET_CONTENT);
-                        photoIntent.setType("image/*");
-                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
-                    } else {
-                        photoIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        photoIntent.addCategory(Intent.CATEGORY_OPENABLE);
-                        photoIntent.setType("image/*");
-                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
-                    }
-
-
-
-                    /*
-
-                    //involk the image gallary
-                    Intent photoIntent = new Intent(Intent.ACTION_PICK);
-                    //place we want to store picture
-                    File photo = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    String photoPath = photo.getPath();
-                    //get URI representation
-                    Uri data = Uri.parse(photoPath);
-                    //set the picture and type
-                    photoIntent.setDataAndType(data, "image/*");
-                    //Invoke this activity and get photo back from it
-                    startActivityForResult(photoIntent, 3);
-                    */
-                    break;
-            }
-
-        }
+        Intent i = getIntent();
+        yourEmail = i.getStringExtra("key");
+        statusInput = (EditText) findViewById(R.id.statusText);
+        //bioInput = (EditText) findViewById(R.id.bioText);
+        oldPwInput = (EditText) findViewById(R.id.oldPassText);
+        newPwInput = (EditText) findViewById(R.id.newPassText);
+        locationToggle = (Switch) findViewById(R.id.toggleLocation);
+        firstandlastname = (TextView) findViewById(R.id.nameText);
+        emailTextView = (TextView) findViewById(R.id.emailText);
+        locationTextView = (TextView) findViewById(R.id.locationText);
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
-        if(keyCode == KeyEvent.KEYCODE_BACK)
-        {
+    protected void onResume(){
+        super.onResume();
+        initThreadIsFinished = false;
+        final Thread getMyProfileThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                //maybe sleep(100)
+                DatagramSocket socket;
+                try {
+                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                    int servPort = 3020; //server port
+                    Log.d("UDP", "Connection for Edit Profile...");
+                    socket = new DatagramSocket(); //client socket
+                    int localPort = socket.getLocalPort();
+
+                    //left out profile picture update.
+                    String output = "getProfile," + yourEmail;
+                    if (locationToggle.isChecked()) {
+                        output += ",1,";
+                    } else {
+                        output += ",0,";
+                    }
+                    byte[] buffer = output.getBytes();
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                    socket.send(packet);
+
+                    packet.setData(new byte[500]); //this needs to be set to some other value probably
+                    String incomingData2 = "";
+                    String incomingData = "";
+                    //response 1
+                    while (true) {
+                        //Thread.sleep(1000);
+                        try {
+                            socket.receive(packet);
+                            incomingData = new String(packet.getData());
+                            if (incomingData.compareTo(output) != 0) {
+                                Log.d("UDP", incomingData); //might not be right
+                                break;
+                            } else {
+                                Log.d("UDP", "No Reply so far.");
+                            }
+                        } catch (Exception e) {
+                            Log.d("UDP", "Socket Receive Error");
+                        }
+                        //we might need to start some sort of counter to break out of this loop if a response is not received
+                        //by a certain amount of time
+                    }
+                    socket.close();
+                    //response 2
+                    socket = new DatagramSocket(localPort);
+                    String port = incomingData.substring(0, 5);
+                    packet.setPort(Integer.parseInt(port));
+                    socket.send(packet);
+                    while (true) {
+                        try {
+                            //wait(2000);
+                            socket.receive(packet);
+                            incomingData2 = new String(packet.getData());
+                            if (incomingData2.compareTo(incomingData) != 0) {
+                                Log.d("UDP loop 2", incomingData2);
+                                //set textView and edittexts to saved data from server.
+                                ArrayList list = new ArrayList();
+                                int endOfLast = 0;
+                                for (int i = 0; incomingData2.charAt(i) != 0; i++) {
+                                    if (incomingData2.charAt(i) == '|') {
+                                        list.add(incomingData2.substring(endOfLast, i));
+                                        endOfLast = i + 1;
+                                    }
+                                }
+                                realname = (String) list.get(0);
+                                LocationName = (String) list.get(1);
+                                bio = (String) list.get(2);
+                                status = (String) list.get(3);
+                                int locationToggleint = (int) list.get(4);
+                                if (locationToggleint == 1) {
+                                    locationTogglebool = true;
+                                } else {
+                                    locationTogglebool = false;
+                                }
+                                break;
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    socket.close();
+                    Log.d("UDP", "COMPLETED!");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                initThreadIsFinished = true;
+            }
+
+        });
+        getMyProfileThread.start();
+        while(!initThreadIsFinished){
+
+        }
+        firstandlastname.setText(realname);
+        emailTextView.setText(yourEmail);
+        if (!LocationName.equals(" ")) {
+            locationTextView.setText(LocationName);
+        }
+        if (LocationName.equals(" ")) {
+            locationTextView.setText("Between Buildings");
+        }
+        if (!bio.equals(" ")) {
+            bioText.setText(bio);
+        }
+        if (!status.equals(" ")) {
+            statusInput.setText(status);
+        }
+        locationToggle.setChecked(locationTogglebool);
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -155,7 +247,7 @@ public class EditProfile extends AppCompatActivity {
                 //if here, everything processes succesfully
 
                 // address of the photo in memory
-                 imageUri = data.getData();
+                imageUri = data.getData();
                 // declare a stream to read image data from memory
 
                 //getting input stream based on Uri of image
@@ -168,10 +260,147 @@ public class EditProfile extends AppCompatActivity {
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    Toast.makeText(this, "Unable to open image",Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
                 }
 
             }
+        }
+    }
+
+    private class buttonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+
+            switch (v.getId()) {
+                case R.id.submitProfileButton:
+                    final Thread updateProfileThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            //maybe sleep(100)
+                            threadIsFinished = false;
+                            DatagramSocket socket;
+                            try {
+                                InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                                int servPort = 3020; //server port
+                                Log.d("UDP", "Connection for Edit Profile...");
+                                socket = new DatagramSocket(); //client socket
+                                int localPort = socket.getLocalPort();
+
+                                //left out profile picture update.
+                                String output = "updateProfile," + yourEmail + ","
+                                        + statusInput.getText().toString() + ","
+                                        + bioText.getText().toString() + ","
+                                        + oldPwInput.getText().toString() + ","
+                                        + newPwInput.getText().toString() + ",";
+                                if (locationToggle.isChecked()) {
+                                    output += ",1,";
+                                } else {
+                                    output += ",0,";
+                                }
+                                byte[] buffer = output.getBytes();
+                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                                socket.send(packet);
+
+                                packet.setData(new byte[50]); //this needs to be set to some other value probably
+                                String incomingData2 = "";
+                                String incomingData = "";
+                                //response 1
+                                while (true) {
+                                    //Thread.sleep(1000);
+                                    try {
+                                        socket.receive(packet);
+                                        incomingData = new String(packet.getData());
+                                        if (incomingData.compareTo(output) != 0) {
+                                            Log.d("UDP", incomingData); //might not be right
+                                            break;
+                                        } else {
+                                            Log.d("UDP", "No Reply so far.");
+                                        }
+                                    } catch (Exception e) {
+                                        Log.d("UDP", "Socket Receive Error");
+                                    }
+                                    //we might need to start some sort of counter to break out of this loop if a response is not received
+                                    //by a certain amount of time
+                                }
+                                socket.close();
+                                //response 2
+                                socket = new DatagramSocket(localPort);
+                                String port = incomingData.substring(0, 5);
+                                packet.setPort(Integer.parseInt(port));
+                                socket.send(packet);
+                                while (true) {
+                                    try {
+                                        //wait(2000);
+                                        socket.receive(packet);
+                                        incomingData2 = new String(packet.getData());
+                                        if (incomingData2.compareTo(incomingData) != 0) {
+                                            Log.d("UDP loop 2", incomingData2.substring(0, 7));
+                                            break;
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                socket.close();
+                                Log.d("UDP", "COMPLETED!");
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            threadIsFinished = true;
+                        }
+
+                    });
+                    updateProfileThread.start();
+                    while (!threadIsFinished) {
+
+                    }
+                    Intent intent = new Intent(EditProfile.this, MapsActivity.class);
+                    intent.putExtra("key", yourEmail);
+                    startActivity(intent);
+                    finish();
+                    break;
+                case R.id.cancelProfileButton:
+                    Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
+                    intent2.putExtra("key", yourEmail);
+                    startActivity(intent2);
+                    finish();
+                    break;
+                case R.id.profilePic:
+
+
+                    if (Build.VERSION.SDK_INT < 19) {
+                        photoIntent = new Intent();
+                        photoIntent.setAction(Intent.ACTION_GET_CONTENT);
+                        photoIntent.setType("image/*");
+                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
+                    } else {
+                        photoIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                        photoIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                        photoIntent.setType("image/*");
+                        startActivityForResult(photoIntent, IMAGE_GALLERY_REQUEST);
+                    }
+
+
+
+                    /*
+
+                    //involk the image gallary
+                    Intent photoIntent = new Intent(Intent.ACTION_PICK);
+                    //place we want to store picture
+                    File photo = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                    String photoPath = photo.getPath();
+                    //get URI representation
+                    Uri data = Uri.parse(photoPath);
+                    //set the picture and type
+                    photoIntent.setDataAndType(data, "image/*");
+                    //Invoke this activity and get photo back from it
+                    startActivityForResult(photoIntent, 3);
+                    */
+                    break;
+            }
+
         }
     }
 }

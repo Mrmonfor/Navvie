@@ -108,7 +108,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private boolean friendsRetreived = false;
     private String friendData = "";
     private boolean retreivingFriendData;
-    private boolean logout = false;
+    private boolean endThreads = false;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -177,7 +177,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void getFriendData() {
-        if (!retreivingFriendData && !logout) {
+        if (!retreivingFriendData && !endThreads) {
             yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
@@ -262,7 +262,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 public void run() {
-                    if (friendsRetreived) {
+                    if (friendsRetreived && !endThreads) {
                         //if friendData.equals("failure"){ dont set any friends}
                         //take friendData and make friendObjects from that.
                         String friendFirst, friendLast, friendemail, friendLocationName, friendStatus, friendBio, friendToggle;
@@ -361,7 +361,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     protected void onResume() {
         super.onResume();
-        logout=false;
+        endThreads=false;
         //getFriendData();
         setUpMap();
         if (designTrade == true) {
@@ -380,7 +380,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     protected void onStop() {
-        logout=true;
+        endThreads=true;
         super.onStop();
         request.setInterval(60000);
     }
@@ -400,7 +400,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
-                    if (!marker1.getPosition().equals(mMarkerPoints.get(0)) && marker1.getTitle() != null) {
+                    //!marker1.getPosition().equals(mMarkerPoints.get(0)) &&
+                    if ( marker1.getTitle() != null) {
                         marker = marker1;
                         if (!state) {
                             Bundle bundle = new Bundle();
@@ -774,22 +775,26 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.editProfile:
+                    endThreads = true;
                     Intent intent = new Intent(MapsActivity.this, EditProfile.class);
+                    intent.putExtra("key", yourEmail);
                     startActivity(intent);
                     finish();
                     break;
                 case R.id.logout:
-                    logout = true;
+                    endThreads = true;
                     Intent intent2 = new Intent(MapsActivity.this, MainActivity.class);
                     startActivity(intent2);
                     finish();
                     break;
                 case R.id.buildings:
+                    endThreads = true;
                     Intent intent3 = new Intent(MapsActivity.this, BuildingActivity.class);
                     startActivity(intent3);
                     finish();
                     break;
                 case R.id.manage:
+                    endThreads = true;
                     Intent intent4 = new Intent(MapsActivity.this, ManageActivity.class);
                     startActivity(intent4);
                     finish();
@@ -1041,7 +1046,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         final Thread updateLocationThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (!logout) {
+                if (!endThreads) {
                     Looper.prepare();
                     DatagramSocket socket;
                     try {
