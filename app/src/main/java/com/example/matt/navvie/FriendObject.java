@@ -9,13 +9,13 @@ import android.os.Parcelable;
  * Created by Matt on 3/18/2016.
  */
 public class FriendObject implements Parcelable {
-    private String fname,lname,email,locname,bio,status;
+    private String fname,lname,email,locname,bio,status, type;
     private double longc, latc;
     private Boolean toggle;
     private Bitmap picture;
 
     public FriendObject(String FN, String LN,String e,double latCord, double longCord
-                        ,String locName, String s, String b, Boolean locToggle,Bitmap pic){
+                        ,String locName, String s, String b, Boolean locToggle,String personType, Bitmap pic){
         fname=FN;
         lname=LN;
         status=s;
@@ -25,6 +25,7 @@ public class FriendObject implements Parcelable {
         bio=b;
         locname=locName;
         toggle=locToggle;
+        type = personType;
         picture=pic;
 
 
@@ -39,6 +40,7 @@ public class FriendObject implements Parcelable {
         status = in.readString();
         longc = in.readDouble();
         latc = in.readDouble();
+        type = in.readString();
 
     }
 
@@ -82,6 +84,10 @@ public class FriendObject implements Parcelable {
         toggle =t;
     }
 
+    public void setType(String t){
+        type=t;
+    }
+
     public void setPicture(Bitmap i){
         picture=i;
     }
@@ -114,6 +120,10 @@ public class FriendObject implements Parcelable {
         return locname;
     }
 
+    public String getType(){
+        return type;
+    }
+
     public Bitmap getPicture(){
         return picture;
     }
@@ -142,6 +152,7 @@ public class FriendObject implements Parcelable {
         dest.writeString(status);
         dest.writeDouble(longc);
         dest.writeDouble(latc);
+        dest.writeString(type);
     }
 
 

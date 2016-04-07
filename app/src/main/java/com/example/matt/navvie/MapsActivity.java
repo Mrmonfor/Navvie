@@ -109,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private String friendData = "";
     private boolean retreivingFriendData;
     private boolean endThreads = false;
+    private FriendObject track;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -230,7 +231,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                 //wait(2000);
                                 socket.receive(packet);
                                 incomingData2 = new String(packet.getData());
-                                if (!incomingData2.substring(0,5).equals(port)) {
+                                if (!incomingData2.substring(0, 5).equals(port)) {
                                     Log.d("UDP loop 2", incomingData2);
                                     //do something with incomingData2
                                     for (int i = 0; i < incomingData2.length(); i++) {
@@ -268,6 +269,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         String friendFirst, friendLast, friendemail, friendLocationName, friendStatus, friendBio, friendToggle;
                         Double friendlat, friendlong;
                         boolean friendLocationToggle;
+                        String friendType;
                         ArrayList friendStuff = new ArrayList();
                         //Bitmap friendImage;
                         int endOfLast = 0;
@@ -291,39 +293,41 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                     break;
                                 }
                             }
-                            friendFirst = (String) friendStuff.get(0);
-                            friendLast = (String) friendStuff.get(1);
-                            friendemail = (String) friendStuff.get(2);
-                            String friendlatstring = (String) friendStuff.get(3);
-                            if (!friendlatstring.equals(" ")) {
-                                friendlat = Double.parseDouble(friendlatstring);
-                            } else {
-                                friendlat = 0.0;
-                            }
-                            String friendlongstring = (String) friendStuff.get(4);
+                            if (friendStuff.size() != 0) {
+                                friendFirst = (String) friendStuff.get(0);
+                                friendLast = (String) friendStuff.get(1);
+                                friendemail = (String) friendStuff.get(2);
+                                String friendlatstring = (String) friendStuff.get(3);
+                                if (!friendlatstring.equals(" ")) {
+                                    friendlat = Double.parseDouble(friendlatstring);
+                                } else {
+                                    friendlat = 0.0;
+                                }
+                                String friendlongstring = (String) friendStuff.get(4);
 
-                            if (!friendlongstring.equals(" ")) {
-                                friendlong = Double.parseDouble(friendlongstring);
-                            } else {
-                                friendlong = 0.0;
-                            }
-                            friendLocationName = (String) friendStuff.get(5);
-                            friendStatus = (String) friendStuff.get(6);
-                            friendBio = (String) friendStuff.get(7);
-                            String friendLocationToggleint = (String) friendStuff.get(8);
-                            if (Integer.parseInt(friendLocationToggleint) == 1) {
-                                friendLocationToggle = true;
-                            } else {
-                                friendLocationToggle = false;
-                            }
-                            String friendImageString = (String) friendStuff.get(9);
+                                if (!friendlongstring.equals(" ")) {
+                                    friendlong = Double.parseDouble(friendlongstring);
+                                } else {
+                                    friendlong = 0.0;
+                                }
+                                friendLocationName = (String) friendStuff.get(5);
+                                friendStatus = (String) friendStuff.get(6);
+                                friendBio = (String) friendStuff.get(7);
+                                friendToggle = (String) friendStuff.get(8);
+                                if (Integer.parseInt(friendToggle) == 1) {
+                                    friendLocationToggle = true;
+                                } else {
+                                    friendLocationToggle = false;
+                                }
+                                friendType = (String) friendStuff.get(9);
+                                String friendImageString = (String) friendStuff.get(10);
                             /*
                                 Transform friendImageString into bitmap
                              */
 
-                            //bitmap is incorrect.
-                            FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, null);
-                            if (yourFriends.size() > 0) {
+                                //bitmap is incorrect.
+                                FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType,null);
+                            /*if (yourFriends.size() > 0) {
                                 for (int p = 0; p < yourFriends.size(); p++) {
                                     if (yourFriends.get(p).getFname().equalsIgnoreCase(friendFirst)) {
                                         yourFriends.set(p, friend);
@@ -331,8 +335,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                         yourFriends.add(friend);
                                     }
                                 }
-                            } else {
+                            } else {*/
                                 yourFriends.add(friend);
+                                //}
                             }
                             friendStuff = new ArrayList();
                         }
@@ -361,7 +366,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     @Override
     protected void onResume() {
         super.onResume();
-        endThreads=false;
+        endThreads = false;
         //getFriendData();
         setUpMap();
         if (designTrade == true) {
@@ -380,7 +385,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     @Override
     protected void onStop() {
-        endThreads=true;
+        endThreads = true;
         super.onStop();
         request.setInterval(60000);
     }
@@ -401,7 +406,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 @Override
                 public boolean onMarkerClick(Marker marker1) {
                     //!marker1.getPosition().equals(mMarkerPoints.get(0)) &&
-                    if ( marker1.getTitle() != null) {
+                    if (marker1.getTitle() != null) {
                         marker = marker1;
                         if (!state) {
                             Bundle bundle = new Bundle();
@@ -435,7 +440,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 @Override
                 public void onMapLongClick(LatLng point) {
                     if (point.longitude > MAXLEFT && point.longitude < MAXRIGHT && point.latitude > MAXDOWN && point.latitude < MAXUP) {//longitude/latitudes may be reversed
-
+                        track = null;
 
                         // Already map contain destination location
                         if (mMarkerPoints.size() > 1) {
@@ -806,6 +811,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         //drawMarker(marker.getPosition());
                         origin = mMarkerPoints.get(0);
                         dest = mMarkerPoints.get(1);
+                        if (yourFriends.size() > 0) {
+                            for (int p = 0; p < yourFriends.size(); p++) {
+                                String fullName = yourFriends.get(p).getFname() + yourFriends.get(p).getLname();
+                                if (fullName.equalsIgnoreCase(marker.getTitle())) {
+                                    track = yourFriends.get(p);
+                                }
+                            }
+                        }
 
                         // Getting URL to the Google Directions API
                         String url = getDirectionsUrl(origin, dest);
@@ -932,7 +945,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
 
-            if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && yourFriends.get(z).getToggle()) {
+            if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && !yourFriends.get(z).getToggle()) {
 
 
                 // Setting the position of the marker
@@ -954,6 +967,20 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 options.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, marker)));
                 // Add new marker to the Google Map Android API V2
                 mMap.addMarker(options);
+                if (track != null) {
+                    mMarkerPoints.set(1, new LatLng(track.getLatc(), track.getLongc()));
+                    origin = mMarkerPoints.get(0);
+                    dest = mMarkerPoints.get(1);
+
+                    // Getting URL to the Google Directions API
+                    String url = getDirectionsUrl(origin, dest);
+
+                    DownloadTask downloadTask = new DownloadTask();
+
+                    // Start downloading json data from Google Directions API
+                    downloadTask.execute(url);
+                    //mMarkerPoints.set(2,null);
+                }
             }
         }
     }
@@ -1020,7 +1047,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         if (bundleFlag == true) {
             Bundle extras = getIntent().getExtras();
             if (extras != null) {
-
+                track = null;
                 double lon = extras.getDouble("long");
                 double lat = extras.getDouble("lat");
                 refreshMap();
