@@ -1,15 +1,11 @@
 package com.example.matt.navvie;
 
-import android.app.ActionBar;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Looper;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -26,16 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Switch;
 
-import org.w3c.dom.Text;
-
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.Random;
 import java.util.ArrayList;
 
 public class EditProfile extends AppCompatActivity {
@@ -58,7 +50,7 @@ public class EditProfile extends AppCompatActivity {
     private String bio;
     private String status;
     private int locationToggleint;
-    private boolean locationTogglebool;
+    private boolean hideLocation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -166,9 +158,9 @@ public class EditProfile extends AppCompatActivity {
                                 status = (String) list.get(3);
                                 int locationToggleint = (int) list.get(4);
                                 if (locationToggleint == 1) {
-                                    locationTogglebool = true;
+                                    hideLocation = true;
                                 } else {
-                                    locationTogglebool = false;
+                                    hideLocation = false;
                                 }
                                 break;
                             }
@@ -204,7 +196,7 @@ public class EditProfile extends AppCompatActivity {
         if (!status.equals(" ")) {
             statusInput.setText(status);
         }
-        locationToggle.setChecked(locationTogglebool);
+        locationToggle.setChecked(hideLocation);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
