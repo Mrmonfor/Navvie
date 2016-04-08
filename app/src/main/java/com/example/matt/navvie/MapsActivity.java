@@ -376,7 +376,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     SensorManager.SENSOR_DELAY_UI);/* FOR DESIGN TRADE OFF********************************************************************/
             handler.post(processSensor);/* FOR DESIGN TRADE OFF********************************************************************/
         }
-        Toast.makeText(this, "Loading friend locations...", Toast.LENGTH_SHORT).show();
+
 
     }
 
@@ -615,6 +615,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         } else {
             Toast.makeText(this, "Current Location is available", Toast.LENGTH_SHORT).show();
             LatLng ll = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+            Toast.makeText(this, "Loading friend locations...", Toast.LENGTH_SHORT).show();
 
             request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -949,6 +950,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         for (int z = 0; z < yourFriends.size(); z++) {
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
+            if(yourFriends.get(z).getType().equalsIgnoreCase("faculty")){
+                marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout2, null);
+            }else{
+                 marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
+            }
 
             if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && !yourFriends.get(z).getToggle()) {
 
