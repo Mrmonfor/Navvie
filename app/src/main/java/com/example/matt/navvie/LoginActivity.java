@@ -56,12 +56,14 @@ public class LoginActivity extends Activity {
                     //maybe sleep(100)
                     if (send) {
                         DatagramSocket socket;
+
                         threadIsFinished = false;
                         try {
                             InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
                             int servPort = 3020; //server port
                             Log.d("UDP", "Connection...");
                             socket = new DatagramSocket(); //client socket
+                            socket.setSoTimeout(1000);
                             int localPort = socket.getLocalPort();
                             String output = "login," + emailInput.getText().toString() + ","
                                     + passInput.getText().toString() + ",";
@@ -93,6 +95,7 @@ public class LoginActivity extends Activity {
                             socket.close();
                             //response 2
                             socket = new DatagramSocket(localPort);
+                            socket.setSoTimeout(1000);
                             String port = incomingData.substring(0, 5);
                             packet.setPort(Integer.parseInt(port));
                             socket.send(packet);

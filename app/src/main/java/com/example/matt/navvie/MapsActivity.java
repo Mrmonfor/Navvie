@@ -191,6 +191,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         int servPort = 3020; //server port
                         Log.d("UDP", "Connection for FriendData...");
                         socket = new DatagramSocket(); //client socket
+                        socket.setSoTimeout(1000);
                         int localPort = socket.getLocalPort();
                         //getfriends,email.uncg.edu,
                         String output = "getFriends," + yourEmail + ",";
@@ -222,6 +223,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         socket.close();
                         //response 2
                         socket = new DatagramSocket(localPort);
+                        socket.setSoTimeout(1000);
                         String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);
@@ -1081,6 +1083,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         int servPort = 3020; //server port
                         Log.d("UDP", "Connection for update Self Location...");
                         socket = new DatagramSocket(); //client socket
+                        socket.setSoTimeout(1000);
                         int localPort = socket.getLocalPort();
                         String output = "updateLocation," + yourEmail + "," + loc.getLatitude() + "," + loc.getLongitude() + ",";
                         byte[] buffer = output.getBytes();
@@ -1111,6 +1114,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         socket.close();
                         //response 2
                         socket = new DatagramSocket(localPort);
+                        socket.setSoTimeout(1000);
                         String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);

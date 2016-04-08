@@ -63,6 +63,7 @@ public class CreateAccount extends Activity {
                             int servPort = 3020; //server port
                             Log.d("UDP", "Connection...");
                             socket = new DatagramSocket(); //client socket
+                            socket.setSoTimeout(1000);
                             //createuser -> test
                             int localPort = socket.getLocalPort();
                             String output = "createuser," + fName.getText().toString() + "," +
@@ -103,6 +104,7 @@ public class CreateAccount extends Activity {
                             socket.close();
                             //response 2
                             socket = new DatagramSocket(localPort);
+                            socket.setSoTimeout(1000);
                             String port = incomingData.substring(0, 5);
                             packet.setPort(Integer.parseInt(port));
                             socket.send(packet);
