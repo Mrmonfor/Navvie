@@ -2,6 +2,7 @@ package com.example.matt.navvie;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -29,8 +31,12 @@ public class LoginActivity extends Activity {
     private boolean send = false;
     private boolean threadIsFinished = false;
     private EditText emailInput, passInput;
+    private CheckBox rememberMe;
     private boolean correctCredentials;
     private boolean finishThread = false;
+    public static final String PREFS_NAME = "MyPrefsFile";
+    private static final String PREF_USERNAME = "username";
+    private static final String PREF_PASSWORD = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,9 +49,9 @@ public class LoginActivity extends Activity {
         passInput = (EditText) findViewById(R.id.LoginPass);
         Login2 = (Button) findViewById(R.id.Login2);
         CancelButton = (Button) findViewById(R.id.CancelButton);
-
         Login2.setOnClickListener(new buttonListener());
         CancelButton.setOnClickListener(new buttonListener());
+        rememberMe = (CheckBox) findViewById(R.id.checkBox);
 
         final Thread udpThread = new Thread(new Runnable() {
             @Override
@@ -135,13 +141,41 @@ public class LoginActivity extends Activity {
         });
         udpThread.start();
     }
-
+    @Override
+    protected void onResume(){
+        super.onResume();
+        //get saved login info if it exists
+        SharedPreferences pref = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        emailInput.setText(pref.getString(PREF_USERNAME, null));
+        passInput.setText(pref.getString(PREF_PASSWORD, null));
+        if(!emailInput.getText().toString().equals("")){
+            rememberMe.setChecked(true);
+        }
+        else{
+            rememberMe.setChecked(false);
+        }
+    }
     private class buttonListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.Login2:
+                    //save password
+                    if(rememberMe.isChecked()) {
+                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                                .edit()
+                                .putString(PREF_USERNAME, emailInput.getText().toString())
+                                .putString(PREF_PASSWORD, passInput.getText().toString())
+                                .commit();
+                    }
+                    else{
+                        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                                .edit()
+                                .remove(PREF_USERNAME)
+                                .remove(PREF_PASSWORD)
+                                .commit();
+                    }
                     send = true;
                     while (!threadIsFinished) ;
 
