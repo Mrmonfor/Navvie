@@ -78,20 +78,21 @@ public class ViewProfileFrag extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_view_profile, container, false);
         //info = (FriendObject) b.get("myData");
-        localities =this.getArguments().getParcelableArrayList("myData");
+        localities = this.getArguments().getParcelableArrayList("myData");
         int i = this.getArguments().getInt("index");
-        fnameText = (TextView)view.findViewById(R.id.friendNameText);
-        emailText = (TextView)view.findViewById(R.id.friendEmailText);
-        locText = (TextView)view.findViewById(R.id.friendLocationText);
-        stateText = (TextView)view.findViewById(R.id.friendStatusText);
-        bioText = (TextView)view.findViewById(R.id.friendBioText);
-        if(localities.size() !=0){
-        info = localities.get(i);
-        fnameText.setText(info.getFname() + " " + info.getLname());
-        locText.setText("Location:" +info.getLocname());
-        emailText.setText(info.getEmail());
-        stateText.setText("Status:" +info.getStatus());
-        bioText.setText(info.getBio());}
+        fnameText = (TextView) view.findViewById(R.id.friendNameText);
+        emailText = (TextView) view.findViewById(R.id.friendEmailText);
+        locText = (TextView) view.findViewById(R.id.friendLocationText);
+        stateText = (TextView) view.findViewById(R.id.friendStatusText);
+        bioText = (TextView) view.findViewById(R.id.friendBioText);
+        if (localities.get(i) != null) {
+            info = localities.get(i);
+            fnameText.setText(info.getFname() + " " + info.getLname());
+            locText.setText("Location:" + info.getLocname());
+            emailText.setText(info.getEmail());
+            stateText.setText("Status:" + info.getStatus());
+            bioText.setText(info.getBio());
+        }
         return view;
     }
 
