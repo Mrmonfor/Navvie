@@ -37,10 +37,13 @@ public class BuildingActivity extends AppCompatActivity {
     private ArrayAdapter<Integer> buildingPicsAdapter;
     private Intent buildingIntent;
     private static int searchNum = -1;
+    private String yourEmail;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_building);
+        Intent i = getIntent();
+        yourEmail = i.getStringExtra("key");
         cancelBuildButton = (Button) findViewById(R.id.cancelBuildingButton);
         cancelBuildButton.setOnClickListener(new buttonListener());
 
@@ -107,6 +110,7 @@ public class BuildingActivity extends AppCompatActivity {
             switch (v.getId()) {
                 case R.id.cancelBuildingButton:
                     Intent intent = new Intent(BuildingActivity.this, MapsActivity.class);
+                    intent.putExtra("key",yourEmail);
                     startActivity(intent);
                     finish();
                     break;
@@ -188,6 +192,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.066510);
                             buildingIntent.putExtra("long", -79.811846);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -195,6 +200,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.065742);
                             buildingIntent.putExtra("long", -79.808544);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -202,6 +208,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.0688775);
                             buildingIntent.putExtra("long", -79.806691);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -209,6 +216,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.067503);
                             buildingIntent.putExtra("long", -79.810162);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -216,6 +224,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.067085);
                             buildingIntent.putExtra("long", -79.807923);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -223,6 +232,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.065897);
                             buildingIntent.putExtra("long", -79.807604);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -230,6 +240,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.066084);
                             buildingIntent.putExtra("long", -79.806734);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -237,6 +248,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.068200);
                             buildingIntent.putExtra("long", -79.809213);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -244,6 +256,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.067568);
                             buildingIntent.putExtra("long", -79.807299);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -251,6 +264,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.069298);
                             buildingIntent.putExtra("long", -79.807192);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -258,6 +272,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.065683);
                             buildingIntent.putExtra("long", -79.809808);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -265,6 +280,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.066558);
                             buildingIntent.putExtra("long", -79.810786);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -272,6 +288,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.072603);
                             buildingIntent.putExtra("long", -79.807034);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -279,6 +296,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.069273);
                             buildingIntent.putExtra("long", -79.807826);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -286,6 +304,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.065985);
                             buildingIntent.putExtra("long", -79.811724);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -293,6 +312,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.068365);
                             buildingIntent.putExtra("long", -79.807697);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -300,6 +320,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.069878);
                             buildingIntent.putExtra("long", -79.806560);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;
@@ -307,6 +328,7 @@ public class BuildingActivity extends AppCompatActivity {
                             buildingIntent = new Intent(BuildingActivity.this, MapsActivity.class);
                             buildingIntent.putExtra("lat", 36.066189);
                             buildingIntent.putExtra("long", -79.805842);
+                            buildingIntent.putExtra("key",yourEmail);
                             startActivity(buildingIntent);
                             finish();
                             break;

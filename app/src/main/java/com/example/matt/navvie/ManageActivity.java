@@ -39,11 +39,15 @@ public class ManageActivity extends FragmentActivity implements ViewProfileFrag.
     private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     private ViewProfileFrag f1 = new ViewProfileFrag();
     private boolean lock= true;
+    private String yourEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage);
+
+        Intent i = getIntent();
+        yourEmail = i.getStringExtra("key");
 
         cancelManageButton = (Button) findViewById(R.id.cancelManageButton);
 
@@ -200,6 +204,7 @@ public class ManageActivity extends FragmentActivity implements ViewProfileFrag.
             switch(v.getId()) {
                 case R.id.cancelManageButton:
                     Intent intent = new Intent(ManageActivity.this, MapsActivity.class);
+                    intent.putExtra("key",yourEmail);
                     startActivity(intent);
                     finish();
                     break;

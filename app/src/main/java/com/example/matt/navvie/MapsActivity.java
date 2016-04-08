@@ -374,6 +374,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     SensorManager.SENSOR_DELAY_UI);/* FOR DESIGN TRADE OFF********************************************************************/
             handler.post(processSensor);/* FOR DESIGN TRADE OFF********************************************************************/
         }
+        Toast.makeText(this, "Loading friend locations...", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -615,8 +616,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
             request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            request.setInterval(10000); //updates location every 10 secs.
-            request.setFastestInterval(10000);
+            request.setInterval(5000); //updates location every 10 secs.
+            request.setFastestInterval(5000);
             LocationServices.FusedLocationApi.requestLocationUpdates(mLocationClient, request, this);
         }
     }
@@ -795,12 +796,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 case R.id.buildings:
                     endThreads = true;
                     Intent intent3 = new Intent(MapsActivity.this, BuildingActivity.class);
+                    intent3.putExtra("key", yourEmail);
                     startActivity(intent3);
                     finish();
                     break;
                 case R.id.manage:
                     endThreads = true;
                     Intent intent4 = new Intent(MapsActivity.this, ManageActivity.class);
+                    intent4.putExtra("key", yourEmail);
                     startActivity(intent4);
                     finish();
                     break;
@@ -939,7 +942,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             public void run() {
                 getFriendData();
             }
-        }, 5000);
+        }, 2500);
         View marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
         for (int z = 0; z < yourFriends.size(); z++) {
             MarkerOptions options = new MarkerOptions();
@@ -968,6 +971,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 // Add new marker to the Google Map Android API V2
                 mMap.addMarker(options);
                 if (track != null) {
+                    if (yourFriends.size() > 0) {
+                        for (int p = 0; p < yourFriends.size(); p++) {
+                            if (track.getFname().equalsIgnoreCase(yourFriends.get(p).getFname())&& track.getLname().equalsIgnoreCase(yourFriends.get(p).getLname())) {
+                                track = yourFriends.get(p);
+                            }
+                        }
+                    }
                     mMarkerPoints.set(1, new LatLng(track.getLatc(), track.getLongc()));
                     origin = mMarkerPoints.get(0);
                     dest = mMarkerPoints.get(1);
