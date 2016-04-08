@@ -88,7 +88,13 @@ public class ViewProfileFrag extends Fragment {
         if (localities.get(i) != null) {
             info = localities.get(i);
             fnameText.setText(info.getFname() + " " + info.getLname());
-            locText.setText("Location:" + info.getLocname());
+            if (info.getLocname().equals("")) {
+                locText.setText("Location:" + info.getLocname());
+            } else {
+                locText.setText("Location:On Campus");
+                //always on campus at the moment, seems as we cannot view profiles from
+                //the manageFriends activity they will never be offline
+            }
             emailText.setText(info.getEmail());
             stateText.setText("Status:" + info.getStatus());
             bioText.setText(info.getBio());

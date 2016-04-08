@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.Switch;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -249,6 +251,23 @@ public class EditProfile extends AppCompatActivity {
                     bitImage = BitmapFactory.decodeStream(inputStream);
                     //show image to user.
                     image.setImageBitmap(bitImage);
+
+                    //******************IMAGE ENCODING EXAMPLE FOLLOWS******************************
+                    //encodes the image that you upload
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    bitImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    byte[] byteArray = byteArrayOutputStream .toByteArray();
+                    String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+                    //decodes the string from the image you uploaded
+                    byte[] decodedBytes = Base64.decode(encoded, 0);
+                    Bitmap b1 =  BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+
+                    //display the image you uploaded, should be same as original bitImage
+                    image.setImageBitmap(b1);
+                    //****************IMAGE EXAMPLE ENDS*********************************************
+
+
 
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
