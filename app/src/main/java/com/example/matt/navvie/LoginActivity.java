@@ -162,7 +162,7 @@ public class LoginActivity extends Activity {
             switch (v.getId()) {
                 case R.id.Login2:
                     //save password
-                    if(rememberMe.isChecked()) {
+                    if(rememberMe.isChecked()){
                         getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
                                 .edit()
                                 .putString(PREF_USERNAME, emailInput.getText().toString())

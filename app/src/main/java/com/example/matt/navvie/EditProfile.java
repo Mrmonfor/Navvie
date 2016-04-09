@@ -43,7 +43,7 @@ public class EditProfile extends AppCompatActivity {
     private InputStream inputStream;
     private Uri imageUri;
     private Intent photoIntent;
-    private EditText statusInput, bioInput, oldPwInput, newPwInput;
+    private EditText statusInput, bioInput, oldPwInput, newPwInput, retypePWInput;
     private Switch locationToggle;
     private String yourEmail;
     private TextView firstandlastname, emailTextView, locationTextView;
@@ -53,6 +53,7 @@ public class EditProfile extends AppCompatActivity {
     private String status;
     private int locationToggleint;
     private boolean hideLocation;
+    private String updateResult="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -81,6 +82,7 @@ public class EditProfile extends AppCompatActivity {
         firstandlastname = (TextView) findViewById(R.id.nameText);
         emailTextView = (TextView) findViewById(R.id.emailText);
         locationTextView = (TextView) findViewById(R.id.locationText);
+        retypePWInput = (EditText) findViewById(R.id.retypeText);
     }
 
     @Override
@@ -284,93 +286,105 @@ public class EditProfile extends AppCompatActivity {
 
             switch (v.getId()) {
                 case R.id.submitProfileButton:
-                    final Thread updateProfileThread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Looper.prepare();
-                            //maybe sleep(100)
-                            threadIsFinished = false;
-                            DatagramSocket socket;
-                            try {
-                                InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
-                                int servPort = 3020; //server port
-                                Log.d("UDP", "Connection for Edit Profile...");
-                                socket = new DatagramSocket(); //client socket
-                                int localPort = socket.getLocalPort();
+                    if(newPwInput.getText().toString().equals(retypePWInput.getText().toString())) {
+                        final Thread updateProfileThread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Looper.prepare();
+                                //maybe sleep(100)
+                                threadIsFinished = false;
+                                DatagramSocket socket;
+                                try {
+                                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                                    int servPort = 3020; //server port
+                                    Log.d("UDP", "Connection for Edit Profile...");
+                                    socket = new DatagramSocket(); //client socket
+                                    int localPort = socket.getLocalPort();
 
-                                //left out profile picture update.
-                                String output = "updateProfile," + yourEmail + ","
-                                        + statusInput.getText().toString() + ","
-                                        + bioText.getText().toString() + ","
-                                        + oldPwInput.getText().toString() + ","
-                                        + newPwInput.getText().toString() + ",";
-                                if (locationToggle.isChecked()) {
-                                    output += ",1,";
-                                } else {
-                                    output += ",0,";
-                                }
-                                byte[] buffer = output.getBytes();
-                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
-                                socket.send(packet);
-
-                                packet.setData(new byte[50]); //this needs to be set to some other value probably
-                                String incomingData2 = "";
-                                String incomingData = "";
-                                //response 1
-                                while (true) {
-                                    //Thread.sleep(1000);
-                                    try {
-                                        socket.receive(packet);
-                                        incomingData = new String(packet.getData());
-                                        if (incomingData.compareTo(output) != 0) {
-                                            Log.d("UDP", incomingData); //might not be right
-                                            break;
-                                        } else {
-                                            Log.d("UDP", "No Reply so far.");
-                                        }
-                                    } catch (Exception e) {
-                                        Log.d("UDP", "Socket Receive Error");
+                                    //left out profile picture update.
+                                    String output = "updateProfile," + yourEmail + ","
+                                            + statusInput.getText().toString() + ","
+                                            + bioText.getText().toString() + ","
+                                            + oldPwInput.getText().toString() + ","
+                                            + newPwInput.getText().toString() + ",";
+                                    if (locationToggle.isChecked()) {
+                                        output += ",1,";
+                                    } else {
+                                        output += ",0,";
                                     }
-                                    //we might need to start some sort of counter to break out of this loop if a response is not received
-                                    //by a certain amount of time
-                                }
-                                socket.close();
-                                //response 2
-                                socket = new DatagramSocket(localPort);
-                                String port = incomingData.substring(0, 5);
-                                packet.setPort(Integer.parseInt(port));
-                                socket.send(packet);
-                                while (true) {
-                                    try {
-                                        //wait(2000);
-                                        socket.receive(packet);
-                                        incomingData2 = new String(packet.getData());
-                                        if (incomingData2.compareTo(incomingData) != 0) {
-                                            Log.d("UDP loop 2", incomingData2.substring(0, 7));
-                                            break;
-                                        }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                socket.close();
-                                Log.d("UDP", "COMPLETED!");
+                                    byte[] buffer = output.getBytes();
+                                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                                    socket.send(packet);
 
-                            } catch (Exception e) {
-                                e.printStackTrace();
+                                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                                    String incomingData2 = "";
+                                    String incomingData = "";
+                                    //response 1
+                                    while (true) {
+                                        //Thread.sleep(1000);
+                                        try {
+                                            socket.receive(packet);
+                                            incomingData = new String(packet.getData());
+                                            if (incomingData.compareTo(output) != 0) {
+                                                Log.d("UDP", incomingData); //might not be right
+                                                break;
+                                            } else {
+                                                Log.d("UDP", "No Reply so far.");
+                                            }
+                                        } catch (Exception e) {
+                                            Log.d("UDP", "Socket Receive Error");
+                                        }
+                                        //we might need to start some sort of counter to break out of this loop if a response is not received
+                                        //by a certain amount of time
+                                    }
+                                    socket.close();
+                                    //response 2
+                                    socket = new DatagramSocket(localPort);
+                                    String port = incomingData.substring(0, 5);
+                                    packet.setPort(Integer.parseInt(port));
+                                    socket.send(packet);
+                                    while (true) {
+                                        try {
+                                            //wait(2000);
+                                            socket.receive(packet);
+                                            incomingData2 = new String(packet.getData());
+                                            if (incomingData2.compareTo(incomingData) != 0) {
+                                                Log.d("UDP loop 2", incomingData2.substring(0, 7));
+                                                updateResult=incomingData2.substring(0, 7);
+                                                break;
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    socket.close();
+                                    Log.d("UDP", "COMPLETED!");
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                threadIsFinished = true;
                             }
-                            threadIsFinished = true;
-                        }
 
-                    });
-                    updateProfileThread.start();
-                    while (!threadIsFinished) {
+                        });
+                        updateProfileThread.start();
+                        while (!threadIsFinished) {
+
+                        }
+                        if(updateResult.equals("success")) {
+                            Intent intent = new Intent(EditProfile.this, MapsActivity.class);
+                            intent.putExtra("key", yourEmail);
+                            startActivity(intent);
+                            finish();
+                        }
+                        if(updateResult.equals("failure")){
+                            Toast.makeText(getApplicationContext(), "Check your details.", Toast.LENGTH_SHORT).show(); //check email?
+                        }
+                    }
+                    else{
+                        Toast.makeText(getApplicationContext(), "New passwords dont match.", Toast.LENGTH_SHORT).show(); //check email?
 
                     }
-                    Intent intent = new Intent(EditProfile.this, MapsActivity.class);
-                    intent.putExtra("key", yourEmail);
-                    startActivity(intent);
-                    finish();
                     break;
                 case R.id.cancelProfileButton:
                     Intent intent2 = new Intent(EditProfile.this, MapsActivity.class);
