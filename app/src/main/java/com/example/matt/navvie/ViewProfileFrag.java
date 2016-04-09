@@ -85,7 +85,7 @@ public class ViewProfileFrag extends Fragment {
         locText = (TextView) view.findViewById(R.id.friendLocationText);
         stateText = (TextView) view.findViewById(R.id.friendStatusText);
         bioText = (TextView) view.findViewById(R.id.friendBioText);
-        if (localities.get(i) != null) {
+        if (localities.size() !=0) {
             info = localities.get(i);
             fnameText.setText(info.getFname() + " " + info.getLname());
             if (info.getLocname().equals("")) {
