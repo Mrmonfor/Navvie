@@ -54,6 +54,7 @@ public class EditProfile extends AppCompatActivity {
     private int locationToggleint;
     private boolean hideLocation;
     private String updateResult="";
+    private String encodedPicture;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -257,12 +258,12 @@ public class EditProfile extends AppCompatActivity {
                     //******************IMAGE ENCODING EXAMPLE FOLLOWS******************************
                     //encodes the image that you upload
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    bitImage.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+                    bitImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
                     byte[] byteArray = byteArrayOutputStream .toByteArray();
-                    String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
                     //decodes the string from the image you uploaded
-                    byte[] decodedBytes = Base64.decode(encoded, 0);
+                    byte[] decodedBytes = Base64.decode(encodedPicture, 0);
                     Bitmap b1 =  BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
 
                     //display the image you uploaded, should be same as original bitImage
@@ -275,7 +276,6 @@ public class EditProfile extends AppCompatActivity {
                     e.printStackTrace();
                     Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();
                 }
-
             }
         }
     }
@@ -286,7 +286,10 @@ public class EditProfile extends AppCompatActivity {
 
             switch (v.getId()) {
                 case R.id.submitProfileButton:
-                    if(newPwInput.getText().toString().equals(retypePWInput.getText().toString())) {
+                    String x = newPwInput.getText().toString();
+                    String y = retypePWInput.getText().toString();
+                    if((newPwInput.getText().toString().equals("")&&retypePWInput.getText().toString().equals(""))
+                            ||newPwInput.getText().toString().equals(retypePWInput.getText().toString())) {
                         final Thread updateProfileThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -308,10 +311,11 @@ public class EditProfile extends AppCompatActivity {
                                             + oldPwInput.getText().toString() + ","
                                             + newPwInput.getText().toString() + ",";
                                     if (locationToggle.isChecked()) {
-                                        output += ",1,";
+                                        output += "1,";
                                     } else {
-                                        output += ",0,";
+                                        output += "0,";
                                     }
+
                                     byte[] buffer = output.getBytes();
                                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
                                     socket.send(packet);
