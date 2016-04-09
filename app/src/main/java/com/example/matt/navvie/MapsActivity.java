@@ -615,7 +615,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         } else {
             Toast.makeText(this, "Current Location is available", Toast.LENGTH_SHORT).show();
             LatLng ll = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-            Toast.makeText(this, "Loading friend locations...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Loading friend locations...", Toast.LENGTH_LONG).show();
             request = LocationRequest.create();
             request.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             request.setInterval(5000); //updates location every 10 secs.
