@@ -84,11 +84,7 @@ public class EditProfile extends AppCompatActivity {
         emailTextView = (TextView) findViewById(R.id.emailText);
         locationTextView = (TextView) findViewById(R.id.locationText);
         retypePWInput = (EditText) findViewById(R.id.retypeText);
-    }
-
-    @Override
-    protected void onResume(){
-        super.onResume();
+        
         initThreadIsFinished = false;
         final Thread getMyProfileThread = new Thread(new Runnable() {
             @Override
@@ -203,6 +199,11 @@ public class EditProfile extends AppCompatActivity {
         }
         locationToggle.setChecked(hideLocation);
     }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -265,11 +266,89 @@ public class EditProfile extends AppCompatActivity {
                     //decodes the string from the image you uploaded
                     byte[] decodedBytes = Base64.decode(encodedPicture, 0);
                     Bitmap b1 =  BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    //send image in chunks
+                    final Thread sendPicThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Looper.prepare();
+                            //maybe sleep(100)
+                            threadIsFinished = false;
+                            DatagramSocket socket;
+                            try {
+                                InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                                int servPort = 3020; //server port
+                                Log.d("UDP", "Connection for Edit Profile...");
+                                socket = new DatagramSocket(); //client socket
+                                int localPort = socket.getLocalPort();
 
+                                //left out profile picture update.
+                                String output = "updatePicture," + yourEmail + ",";
+                                byte[] buffer = output.getBytes();
+                                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                                socket.send(packet);
+
+                                packet.setData(new byte[50]); //this needs to be set to some other value probably
+                                String incomingData2 = "";
+                                String incomingData = "";
+                                //response 1
+                                while (true) {
+                                    //Thread.sleep(1000);
+                                    try {
+                                        socket.receive(packet);
+                                        incomingData = new String(packet.getData());
+                                        if (incomingData.compareTo(output) != 0) {
+                                            Log.d("UDP", incomingData); //might not be right
+                                            break;
+                                        } else {
+                                            Log.d("UDP", "No Reply so far.");
+                                        }
+                                    } catch (Exception e) {
+                                        Log.d("UDP", "Socket Receive Error");
+                                    }
+                                    //we might need to start some sort of counter to break out of this loop if a response is not received
+                                    //by a certain amount of time
+                                }
+                                socket.close();
+                                //response 2
+                                socket = new DatagramSocket(localPort);
+                                String port = incomingData.substring(0, 5);
+                                packet.setPort(Integer.parseInt(port));
+                                socket.send(packet);
+                                boolean finishedSendingPic = false;
+                                int endOfLast=0;
+                                while (!finishedSendingPic) {
+                                    packet.setData(new byte[100]); //this needs to be set to some other value probably
+                                    if(encodedPicture.length()-endOfLast>=100){
+                                        output = encodedPicture.substring(endOfLast, endOfLast + 100);
+                                        endOfLast+=100;
+                                    }
+                                    else{
+                                        output = encodedPicture.substring(endOfLast);
+                                        finishedSendingPic=true;
+                                    }
+                                    buffer = output.getBytes();
+                                    packet.setData(buffer);
+                                    socket.send(packet);
+                                    Log.d("UDP", "sent: "+output);
+
+                                }
+                                socket.close();
+                                Log.d("UDP", "COMPLETED!");
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            threadIsFinished = true;
+                        }
+
+                    });
+                    sendPicThread.start();
                     //display the image you uploaded, should be same as original bitImage
                     image.setImageBitmap(b1);
                     //****************IMAGE EXAMPLE ENDS*********************************************
-
+                    while(!threadIsFinished){
+                        //wait for thread to finish. Might not need to be here.
+                    }
 
 
                 } catch (FileNotFoundException e) {

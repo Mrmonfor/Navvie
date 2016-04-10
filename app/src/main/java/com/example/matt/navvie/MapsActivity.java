@@ -422,7 +422,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                 }
                             }
 
-
                             bundle.putInt("index", index);
                             f1.setArguments(bundle);
                             //fragmentTransaction.add(R.id.map, f1);
