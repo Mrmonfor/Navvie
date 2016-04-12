@@ -199,6 +199,7 @@ public class LoginActivity extends Activity {
                                     finishThread = true;
                                     Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
                                     intent.putExtra("key", emailInput.getText().toString());
+                                    intent.putExtra("source", "login");
                                     startActivity(intent);
                                     finish();
                                 } else {

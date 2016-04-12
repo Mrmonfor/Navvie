@@ -73,43 +73,39 @@ import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements SensorEventListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener, GoogleMap.OnMarkerClickListener, ViewProfileFrag.OnFragmentInteractionListener {
 
+    static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
+    private static final int GPS_ERRORDIALOG_REQUEST = 9001;
+    private static final double SHAKES = .0000009;
+    static Location location;
+    private static float logicalDensity;
+    final LatLng campus = new LatLng(36.066311, -79.808892);
+    LatLng origin, dest;
+    ArrayList<FriendObject> yourFriends = new ArrayList<>();
+    boolean state = false, bundleFlag = true;
+    LatLng campus2 = new LatLng(36.071407, -79.811010);
+    LocationRequest request;
+    //private boolean getFriendPictures = false;
+    ArrayList friendsPics;
+    ArrayList friendPicsIndex;
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
     private String yourEmail = "Matt Monfort";
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
-    LatLng origin, dest;
-    static final double MAXLEFT = -79.816136, MAXRIGHT = -79.804061, MAXUP = 36.074605, MAXDOWN = 36.060645;
-    static Location location;
     private Location curLocation;
-    ArrayList<FriendObject> yourFriends = new ArrayList<>();
-    boolean state = false, bundleFlag = true;
     private Marker marker;
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
     private ViewProfileFrag f1 = new ViewProfileFrag();
-    private static final int GPS_ERRORDIALOG_REQUEST = 9001;
     private GoogleApiClient mLocationClient;
-    final LatLng campus = new LatLng(36.066311, -79.808892);
-    LatLng campus2 = new LatLng(36.071407, -79.811010);
-    LocationRequest request;
-    private static float logicalDensity;
     private float[] mGravity;
     private float mAccel;
     private float mAccelCurrent;
     private float mAccelLast;
     private SensorManager sm;
     private Sensor accel;
-    private static final double SHAKES = .0000009;
     private float previousX = 0;
     private Handler handler;
     private boolean flg = false;
-    private boolean isHandlerLive = false;
-    private boolean designTrade = false;
-    private boolean friendsRetreived = false;
-    private String friendData = "";
-    private boolean retreivingFriendData;
-    private boolean endThreads = false;
-    private FriendObject track;
     /* FOR DESIGN TRADE OFF********************************************************************/
     private final Runnable processSensor = new Runnable() {
         @Override
@@ -118,7 +114,29 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             handler.postDelayed(this, 20000);
         }
     };
+    private boolean isHandlerLive = false;
+    private boolean designTrade = false;
+    private boolean friendsRetreived = false;
+    private String friendData = "";
+    private boolean retreivingFriendData;
+    private boolean endThreads = false;
+    private FriendObject track;
     /* FOR DESIGN TRADE OFF********************************************************************/
+
+    public static Bitmap createDrawableFromView(Context context, View view) {
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        view.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
+        view.buildDrawingCache();
+        //Bitmap bitmap = Bitmap.createScaledBitmap()
+        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+
+        return bitmap;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +146,139 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             setContentView(R.layout.activity_maps);
             Intent i = getIntent();
             yourEmail = i.getStringExtra("key");
+
+            //get friend pictures if coming from login activity
+            if (i.getStringExtra("source") != null) {
+                String source = i.getStringExtra("source");
+                if (source.equals("login")) {
+                    //getFriendPictures = true;
+                    final Thread friendPicturesThread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!endThreads) {
+                                Looper.prepare();
+                                DatagramSocket socket;
+                                try {
+                                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                                    int servPort = 3020; //server port
+                                    Log.d("UDP", "Connection for update Self Location...");
+                                    socket = new DatagramSocket(); //client socket
+                                    socket.setSoTimeout(1000);
+                                    int localPort = socket.getLocalPort();
+                                    String output = "getPictures," + yourEmail + ",";
+                                    byte[] buffer = output.getBytes();
+                                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                                    socket.send(packet);
+
+                                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                                    String incomingData2 = "";
+                                    String incomingData = "";
+                                    //response 1
+                                    while (true) {
+                                        //Thread.sleep(1000);
+                                        try {
+                                            socket.receive(packet);
+                                            incomingData = new String(packet.getData());
+                                            if (incomingData.compareTo(output) != 0) {
+                                                Log.d("UDP", incomingData); //might not be right
+                                                break;
+                                            } else {
+                                                Log.d("UDP", "No Reply so far.");
+                                            }
+                                        } catch (Exception e) {
+                                            Log.d("UDP", "Socket Receive Error");
+                                        }
+                                        //we might need to start some sort of counter to break out of this loop if a response is not received
+                                        //by a certain amount of time
+                                    }
+                                    socket.close();
+                                    //response 2
+                                    socket = new DatagramSocket(localPort);
+                                    socket.setSoTimeout(1000);
+                                    String port = incomingData.substring(0, 5);
+                                    packet.setPort(Integer.parseInt(port));
+                                    socket.send(packet);
+                                    //get friends and add them to friendPicsIndex
+                                    while (true) {
+                                        try {
+                                            socket.receive(packet);
+                                            incomingData2 = new String(packet.getData());
+                                            if (incomingData2.compareTo(incomingData) != 0) {
+                                                String friendsString = "";
+                                                //remove empty bytes
+                                                for (int i = 0; i < incomingData2.length(); i++) {
+                                                    if (incomingData2.charAt(i) != 0) {
+                                                        friendsString += incomingData2.charAt(i);
+                                                    } else {
+                                                        break;
+                                                    }
+                                                }
+
+                                                friendPicsIndex = new ArrayList();
+                                                String[] friends = friendsString.split("|");
+                                                for (int i = 0; i < friends.length; i++) {
+                                                    friendPicsIndex.add(friends[i]);
+                                                }
+                                                break;
+                                            }
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    //reset packet
+                                    packet.setData(new byte[100]);
+                                    friendsPics = new ArrayList();
+                                    //request a picture for each friend.
+                                    for (int i = 0; i < friendPicsIndex.size(); i++) { //condition might need to be one less.
+                                        try {
+                                            //send email of the person you want the picture for
+                                            output = (String) friendPicsIndex.get(i);
+                                            packet.setData(output.getBytes());
+                                            socket.send(packet);
+                                            //wait half a second
+                                            wait(500);
+                                            Boolean received = false;
+                                            String incomingData3 = "";
+                                            //receive the picture in chunks
+                                            while (!received) {
+                                                try {
+                                                    socket.receive(packet);
+                                                    String temp = new String(packet.getData());
+                                                    //if still sending picture chunks
+                                                    if (!temp.equals("done")) {
+                                                        incomingData3 += temp;
+                                                    //add string picture to friendPics.
+                                                    } else {
+                                                        received = true;
+                                                        friendsPics.add(incomingData3);
+                                                    }
+                                                } catch (Exception e) {
+
+                                                }
+                                            }
+
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+
+                                    socket.close();
+                                    Log.d("UDP", "COMPLETED!");
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+
+                    });
+                    friendPicturesThread.start();
+                    //get friends string from db
+                    //get a picture for each friend
+                    //store in a friend pic array
+                }
+            }
+
             //getFriendData();
             //FriendObject Adam = new FriendObject("Adam", "Southgate", "alsouthgate@uncg.edu", 36.068321, -79.807677, "Stone/STN", "in Class", "i have 3 classes this semester", true, BitmapFactory.decodeResource(this.getResources(),
             //        R.drawable.mypic));
@@ -175,6 +326,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         NavigationDrawerFragment drawerFragment = (NavigationDrawerFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), options);
+
     }
 
     private void getFriendData() {
@@ -328,7 +480,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                              */
 
                                 //bitmap is incorrect.
-                                FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType,null);
+                                FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType, null);
                             /*if (yourFriends.size() > 0) {
                                 for (int p = 0; p < yourFriends.size(); p++) {
                                     if (yourFriends.get(p).getFname().equalsIgnoreCase(friendFirst)) {
@@ -346,6 +498,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                     }
                 }
             }, 1000);
+
         }
 
     }
@@ -363,7 +516,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
         return false;
     }
-
 
     @Override
     protected void onResume() {
@@ -506,7 +658,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
     }
 
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -518,7 +669,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         }
         return false;
     }
-
 
     private String getDirectionsUrl(LatLng origin, LatLng dest) {
 
@@ -668,189 +818,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
     }
 
-
-    /**
-     * A class to download data from Google Directions URL
-     */
-    private class DownloadTask extends AsyncTask<String, Void, String> {
-
-        // Downloading data in non-ui thread
-        @Override
-        protected String doInBackground(String... url) {
-
-            // For storing data from web service
-            String data = "";
-
-            try {
-                // Fetching the data from web service
-                data = downloadUrl(url[0]);
-            } catch (Exception e) {
-                Log.d("Background Task", e.toString());
-            }
-            return data;
-        }
-
-        // Executes in UI thread, after the execution of
-        // doInBackground()
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            ParserTask parserTask = new ParserTask();
-
-            // Invokes the thread for parsing the JSON data
-            parserTask.execute(result);
-        }
-
-    }
-
-    /**
-     * A class to parse the Google Directions in JSON format
-     */
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
-
-        // Parsing the data in non-ui thread
-        @Override
-        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
-
-            JSONObject jObject;
-            List<List<HashMap<String, String>>> routes = null;
-
-            try {
-                jObject = new JSONObject(jsonData[0]);
-                DirectionsJSONParser parser = new DirectionsJSONParser();
-
-                // Starts parsing data
-                routes = parser.parse(jObject);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return routes;
-        }
-
-
-        // Executes in UI thread, after the parsing process
-        @Override
-        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
-            ArrayList<LatLng> points = null;
-            PolylineOptions lineOptions = null;
-
-            // Traversing through all the routes
-            if (result != null) {
-                for (int i = 0; i < result.size(); i++) {
-                    points = new ArrayList<LatLng>();
-                    lineOptions = new PolylineOptions();
-
-                    // Fetching i-th route
-                    List<HashMap<String, String>> path = result.get(i);
-
-                    // Fetching all the points in i-th route
-                    for (int j = 0; j < path.size(); j++) {
-                        HashMap<String, String> point = path.get(j);
-
-                        double lat = Double.parseDouble(point.get("lat"));
-                        double lng = Double.parseDouble(point.get("lng"));
-                        LatLng position = new LatLng(lat, lng);
-
-                        points.add(position);
-                    }
-
-                    // Adding all the points in the route to LineOptions
-                    lineOptions.addAll(points);
-                    lineOptions.width(4);
-                    lineOptions.color(Color.BLUE);
-                }
-            }
-
-            // Drawing polyline in the Google Map for the i-th route
-            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0 && lineOptions != null) {
-                mMap.addPolyline(lineOptions);
-            }
-        }
-
-
-    }
-
     public void onCameraChange(CameraPosition position) {
         float maxZoom = 15.0f;
         if (position.zoom > maxZoom)
             mMap.animateCamera(CameraUpdateFactory.zoomTo(maxZoom));
-    }
-
-    private class buttonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.editProfile:
-                    endThreads = true;
-                    Intent intent = new Intent(MapsActivity.this, EditProfile.class);
-                    intent.putExtra("key", yourEmail);
-                    startActivity(intent);
-                    finish();
-                    break;
-                case R.id.logout:
-                    endThreads = true;
-                    Intent intent2 = new Intent(MapsActivity.this, MainActivity.class);
-                    startActivity(intent2);
-                    finish();
-                    break;
-                case R.id.buildings:
-                    endThreads = true;
-                    Intent intent3 = new Intent(MapsActivity.this, BuildingActivity.class);
-                    intent3.putExtra("key", yourEmail);
-                    startActivity(intent3);
-                    finish();
-                    break;
-                case R.id.manage:
-                    endThreads = true;
-                    Intent intent4 = new Intent(MapsActivity.this, ManageActivity.class);
-                    intent4.putExtra("key", yourEmail);
-                    startActivity(intent4);
-                    finish();
-                    break;
-                case R.id.routeToButton:
-                    if (marker.getPosition() != mMarkerPoints.get(0)) {
-                        refreshMap2();
-                        mMarkerPoints.set(1, marker.getPosition());
-                        //drawMarker(marker.getPosition());
-                        origin = mMarkerPoints.get(0);
-                        dest = mMarkerPoints.get(1);
-                        if (yourFriends.size() > 0) {
-                            for (int p = 0; p < yourFriends.size(); p++) {
-                                String fullName = yourFriends.get(p).getFname() + yourFriends.get(p).getLname();
-                                if (fullName.equalsIgnoreCase(marker.getTitle())) {
-                                    track = yourFriends.get(p);
-                                }
-                            }
-                        }
-
-                        // Getting URL to the Google Directions API
-                        String url = getDirectionsUrl(origin, dest);
-
-                        DownloadTask downloadTask = new DownloadTask();
-
-                        // Start downloading json data from Google Directions API
-                        downloadTask.execute(url);
-                    }
-                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
-                    routeButton.setVisibility(View.INVISIBLE);
-                    cancelViewButton.setVisibility(View.INVISIBLE);
-                    state = false;
-
-                    break;
-                case R.id.cancelFriendButton:
-                    //fragmentTransaction.remove(f1).commit();
-                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
-                    routeButton.setVisibility(View.INVISIBLE);
-                    cancelViewButton.setVisibility(View.INVISIBLE);
-                    state = false;
-
-
-                    break;
-
-            }
-        }
-
     }
 
     public void refreshMap() {
@@ -922,21 +893,6 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         mMap.addMarker(options);
     }
 
-    public static Bitmap createDrawableFromView(Context context, View view) {
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        view.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
-        view.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
-        view.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
-        view.buildDrawingCache();
-        //Bitmap bitmap = Bitmap.createScaledBitmap()
-        Bitmap bitmap = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        view.draw(canvas);
-
-        return bitmap;
-    }
-
     public void refreshFriendArray() {
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -948,10 +904,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         for (int z = 0; z < yourFriends.size(); z++) {
             MarkerOptions options = new MarkerOptions();
             LatLng loc = new LatLng(yourFriends.get(z).getLatc(), yourFriends.get(z).getLongc());
-            if(yourFriends.get(z).getType().equalsIgnoreCase("faculty")){
+            if (yourFriends.get(z).getType().equalsIgnoreCase("faculty")) {
                 marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout2, null);
-            }else{
-                 marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
+            } else {
+                marker = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker_layout, null);
             }
 
             if (loc.longitude > MAXLEFT && loc.longitude < MAXRIGHT && loc.latitude > MAXDOWN && loc.latitude < MAXUP && !yourFriends.get(z).getToggle()) {
@@ -979,7 +935,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 if (track != null) {
                     if (yourFriends.size() > 0) {
                         for (int p = 0; p < yourFriends.size(); p++) {
-                            if (track.getFname().equalsIgnoreCase(yourFriends.get(p).getFname())&& track.getLname().equalsIgnoreCase(yourFriends.get(p).getLname())) {
+                            if (track.getFname().equalsIgnoreCase(yourFriends.get(p).getFname()) && track.getLname().equalsIgnoreCase(yourFriends.get(p).getLname())) {
                                 track = yourFriends.get(p);
                             }
                         }
@@ -1154,6 +1110,184 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
         });
         updateLocationThread.start();
+    }
+
+    /**
+     * A class to download data from Google Directions URL
+     */
+    private class DownloadTask extends AsyncTask<String, Void, String> {
+
+        // Downloading data in non-ui thread
+        @Override
+        protected String doInBackground(String... url) {
+
+            // For storing data from web service
+            String data = "";
+
+            try {
+                // Fetching the data from web service
+                data = downloadUrl(url[0]);
+            } catch (Exception e) {
+                Log.d("Background Task", e.toString());
+            }
+            return data;
+        }
+
+        // Executes in UI thread, after the execution of
+        // doInBackground()
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            ParserTask parserTask = new ParserTask();
+
+            // Invokes the thread for parsing the JSON data
+            parserTask.execute(result);
+        }
+
+    }
+
+    /**
+     * A class to parse the Google Directions in JSON format
+     */
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
+
+        // Parsing the data in non-ui thread
+        @Override
+        protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
+
+            JSONObject jObject;
+            List<List<HashMap<String, String>>> routes = null;
+
+            try {
+                jObject = new JSONObject(jsonData[0]);
+                DirectionsJSONParser parser = new DirectionsJSONParser();
+
+                // Starts parsing data
+                routes = parser.parse(jObject);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+
+        // Executes in UI thread, after the parsing process
+        @Override
+        protected void onPostExecute(List<List<HashMap<String, String>>> result) {
+            ArrayList<LatLng> points = null;
+            PolylineOptions lineOptions = null;
+
+            // Traversing through all the routes
+            if (result != null) {
+                for (int i = 0; i < result.size(); i++) {
+                    points = new ArrayList<LatLng>();
+                    lineOptions = new PolylineOptions();
+
+                    // Fetching i-th route
+                    List<HashMap<String, String>> path = result.get(i);
+
+                    // Fetching all the points in i-th route
+                    for (int j = 0; j < path.size(); j++) {
+                        HashMap<String, String> point = path.get(j);
+
+                        double lat = Double.parseDouble(point.get("lat"));
+                        double lng = Double.parseDouble(point.get("lng"));
+                        LatLng position = new LatLng(lat, lng);
+
+                        points.add(position);
+                    }
+
+                    // Adding all the points in the route to LineOptions
+                    lineOptions.addAll(points);
+                    lineOptions.width(4);
+                    lineOptions.color(Color.BLUE);
+                }
+            }
+
+            // Drawing polyline in the Google Map for the i-th route
+            if (mMarkerPoints.size() > 1 && mMarkerPoints.get(1).latitude != 0 && lineOptions != null) {
+                mMap.addPolyline(lineOptions);
+            }
+        }
+
+
+    }
+
+    private class buttonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.editProfile:
+                    endThreads = true;
+                    Intent intent = new Intent(MapsActivity.this, EditProfile.class);
+                    intent.putExtra("key", yourEmail);
+                    startActivity(intent);
+                    finish();
+                    break;
+                case R.id.logout:
+                    endThreads = true;
+                    Intent intent2 = new Intent(MapsActivity.this, MainActivity.class);
+                    startActivity(intent2);
+                    finish();
+                    break;
+                case R.id.buildings:
+                    endThreads = true;
+                    Intent intent3 = new Intent(MapsActivity.this, BuildingActivity.class);
+                    intent3.putExtra("key", yourEmail);
+                    startActivity(intent3);
+                    finish();
+                    break;
+                case R.id.manage:
+                    endThreads = true;
+                    Intent intent4 = new Intent(MapsActivity.this, ManageActivity.class);
+                    intent4.putExtra("key", yourEmail);
+                    startActivity(intent4);
+                    finish();
+                    break;
+                case R.id.routeToButton:
+                    if (marker.getPosition() != mMarkerPoints.get(0)) {
+                        refreshMap2();
+                        mMarkerPoints.set(1, marker.getPosition());
+                        //drawMarker(marker.getPosition());
+                        origin = mMarkerPoints.get(0);
+                        dest = mMarkerPoints.get(1);
+                        if (yourFriends.size() > 0) {
+                            for (int p = 0; p < yourFriends.size(); p++) {
+                                String fullName = yourFriends.get(p).getFname() + yourFriends.get(p).getLname();
+                                if (fullName.equalsIgnoreCase(marker.getTitle())) {
+                                    track = yourFriends.get(p);
+                                }
+                            }
+                        }
+
+                        // Getting URL to the Google Directions API
+                        String url = getDirectionsUrl(origin, dest);
+
+                        DownloadTask downloadTask = new DownloadTask();
+
+                        // Start downloading json data from Google Directions API
+                        downloadTask.execute(url);
+                    }
+                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
+                    routeButton.setVisibility(View.INVISIBLE);
+                    cancelViewButton.setVisibility(View.INVISIBLE);
+                    state = false;
+
+                    break;
+                case R.id.cancelFriendButton:
+                    //fragmentTransaction.remove(f1).commit();
+                    getSupportFragmentManager().beginTransaction().remove(f1).commit();
+                    routeButton.setVisibility(View.INVISIBLE);
+                    cancelViewButton.setVisibility(View.INVISIBLE);
+                    state = false;
+
+
+                    break;
+
+            }
+        }
+
     }
 
 

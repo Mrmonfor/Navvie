@@ -84,7 +84,7 @@ public class EditProfile extends AppCompatActivity {
         emailTextView = (TextView) findViewById(R.id.emailText);
         locationTextView = (TextView) findViewById(R.id.locationText);
         retypePWInput = (EditText) findViewById(R.id.retypeText);
-        
+
         initThreadIsFinished = false;
         final Thread getMyProfileThread = new Thread(new Runnable() {
             @Override
