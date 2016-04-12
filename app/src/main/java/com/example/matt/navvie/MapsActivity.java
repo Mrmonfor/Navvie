@@ -170,7 +170,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
                                     socket.send(packet);
 
-                                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                                    packet.setData(new byte[200]); //this needs to be set to some other value probably
                                     String incomingData2 = "";
                                     String incomingData = "";
                                     //response 1
@@ -215,9 +215,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                                 }
 
                                                 friendPicsIndex = new ArrayList();
-                                                String[] friends = friendsString.split("|");
+                                                String[] friends = friendsString.split("\\|");
                                                 for (int i = 0; i < friends.length; i++) {
                                                     friendPicsIndex.add(friends[i]);
+                                                    Log.d("UDP", "Added :"+friends[i]+ " to friendPicsIndex");
                                                 }
                                                 break;
                                             }
