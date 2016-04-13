@@ -53,8 +53,9 @@ public class EditProfile extends AppCompatActivity {
     private String status;
     private int locationToggleint;
     private boolean hideLocation;
-    private String updateResult="";
+    private String updateResult = "";
     private String encodedPicture;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -180,7 +181,7 @@ public class EditProfile extends AppCompatActivity {
 
         });
         getMyProfileThread.start();
-        while(!initThreadIsFinished){
+        while (!initThreadIsFinished) {
 
         }
         firstandlastname.setText(realname);
@@ -198,12 +199,80 @@ public class EditProfile extends AppCompatActivity {
             statusInput.setText(status);
         }
         locationToggle.setChecked(hideLocation);
+        final Thread getMyPictureThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Looper.prepare();
+                DatagramSocket socket;
+                try {
+                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                    int servPort = 3020; //server port
+                    Log.d("UDP", "Connection for update Self Location...");
+                    socket = new DatagramSocket(); //client socket
+                    socket.setSoTimeout(2000);
+                    int localPort = socket.getLocalPort();
+                    String output = "getPicture," + yourEmail + ",";
+                    byte[] buffer = output.getBytes();
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                    socket.send(packet);
+
+                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                    String incomingData2 = "";
+                    String incomingData = "";
+                    //response 1
+                    while (true) {
+                        //Thread.sleep(1000);
+                        try {
+                            socket.receive(packet);
+                            incomingData = new String(packet.getData());
+                            if (incomingData.compareTo(output) != 0) {
+                                Log.d("UDP", incomingData); //might not be right
+                                break;
+                            } else {
+                                Log.d("UDP", "No Reply so far.");
+                            }
+
+                        } catch (Exception e) {
+                            Log.d("UDP", "Socket Receive Error");
+                        }
+                        //we might need to start some sort of counter to break out of this loop if a response is not received
+                        //by a certain amount of time
+                    }
+                    socket.close();
+                    //response 2
+                    socket = new DatagramSocket(localPort);
+                    socket.setSoTimeout(2000);
+                    String port = incomingData.substring(0, 5);
+                    packet.setPort(Integer.parseInt(port));
+                    socket.send(packet);
+                    boolean finishedReceivingPicture=false;
+                    //get the picture in chunks
+                    while (!finishedReceivingPicture) {
+                        try {
+                            socket.receive(packet);
+                            incomingData2 = new String(packet.getData());
+
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    socket.close();
+                    Log.d("UDP", "COMPLETED!");
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+        });
+        getMyPictureThread.start();
     }
 
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
@@ -260,12 +329,12 @@ public class EditProfile extends AppCompatActivity {
                     //encodes the image that you upload
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     bitImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-                    byte[] byteArray = byteArrayOutputStream .toByteArray();
+                    byte[] byteArray = byteArrayOutputStream.toByteArray();
                     encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
 
                     //decodes the string from the image you uploaded
                     byte[] decodedBytes = Base64.decode(encodedPicture, 0);
-                    Bitmap b1 =  BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    Bitmap b1 = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                     //send image in chunks
                     final Thread sendPicThread = new Thread(new Runnable() {
                         @Override
@@ -316,16 +385,15 @@ public class EditProfile extends AppCompatActivity {
                                 socket.send(packet);
                                 Thread.sleep(100);
                                 boolean finishedSendingPic = false;
-                                int endOfLast=0;
+                                int endOfLast = 0;
                                 while (!finishedSendingPic) {
                                     packet.setData(new byte[2000]); //this needs to be set to some other value probably
-                                    if(encodedPicture.length()-endOfLast>=2000){
+                                    if (encodedPicture.length() - endOfLast >= 2000) {
                                         output = encodedPicture.substring(endOfLast, endOfLast + 2000);
-                                        endOfLast+=2000;
-                                    }
-                                    else{
+                                        endOfLast += 2000;
+                                    } else {
                                         output = encodedPicture.substring(endOfLast);
-                                        finishedSendingPic=true;
+                                        finishedSendingPic = true;
                                     }
                                     buffer = output.getBytes();
                                     packet.setData(buffer);
@@ -347,7 +415,7 @@ public class EditProfile extends AppCompatActivity {
                     //display the image you uploaded, should be same as original bitImage
                     image.setImageBitmap(b1);
                     //****************IMAGE EXAMPLE ENDS*********************************************
-                    while(!threadIsFinished){
+                    while (!threadIsFinished) {
                         //wait for thread to finish. Might not need to be here.
                     }
 
@@ -368,8 +436,8 @@ public class EditProfile extends AppCompatActivity {
                 case R.id.submitProfileButton:
                     String x = newPwInput.getText().toString();
                     String y = retypePWInput.getText().toString();
-                    if((newPwInput.getText().toString().equals("")&&retypePWInput.getText().toString().equals(""))
-                            ||newPwInput.getText().toString().equals(retypePWInput.getText().toString())) {
+                    if ((newPwInput.getText().toString().equals("") && retypePWInput.getText().toString().equals(""))
+                            || newPwInput.getText().toString().equals(retypePWInput.getText().toString())) {
                         final Thread updateProfileThread = new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -434,7 +502,7 @@ public class EditProfile extends AppCompatActivity {
                                             incomingData2 = new String(packet.getData());
                                             if (incomingData2.compareTo(incomingData) != 0) {
                                                 Log.d("UDP loop 2", incomingData2.substring(0, 7));
-                                                updateResult=incomingData2.substring(0, 7);
+                                                updateResult = incomingData2.substring(0, 7);
                                                 break;
                                             }
                                         } catch (IOException e) {
@@ -455,17 +523,16 @@ public class EditProfile extends AppCompatActivity {
                         while (!threadIsFinished) {
 
                         }
-                        if(updateResult.equals("success")) {
+                        if (updateResult.equals("success")) {
                             Intent intent = new Intent(EditProfile.this, MapsActivity.class);
                             intent.putExtra("key", yourEmail);
                             startActivity(intent);
                             finish();
                         }
-                        if(updateResult.equals("failure")){
+                        if (updateResult.equals("failure")) {
                             Toast.makeText(getApplicationContext(), "Check your details.", Toast.LENGTH_SHORT).show(); //check email?
                         }
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getApplicationContext(), "New passwords dont match.", Toast.LENGTH_SHORT).show(); //check email?
 
                     }

@@ -153,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (i.getStringExtra("source") != null) {
                 String source = i.getStringExtra("source");
                 if (source.equals("login")) {
-                    /*
+
                     final Thread friendPicturesThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -243,8 +243,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                             packet.setData(output.getBytes());
                                             socket.send(packet);
                                             packet.setData(new byte[2000]);
-                                            //wait half a second
-                                            //wait(500);
+                                            //Thread.sleep(100);
                                             Boolean received = false;
                                             incomingData3 = new StringBuilder();
                                             //receive the picture in chunks
@@ -288,7 +287,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         }
                     });
                     friendPicturesThread.start();
-                    */
+
                     //get friends string from db
                     //get a picture for each friend
                     //store in a friend pic array
