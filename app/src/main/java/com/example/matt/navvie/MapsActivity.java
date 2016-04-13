@@ -68,6 +68,7 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -228,8 +229,10 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                         }
                                     }
                                     //reset packet
-                                    packet.setData(new byte[10000]);
+                                    packet.setData(new byte[2000]);
                                     friendsPics = new ArrayList();
+
+                                    StringBuilder incomingData3;
                                     //request a picture for each friend.
                                     for (int i = 0; i < friendPicsIndex.size(); i++) { //condition might need to be one less.
                                         try {
@@ -238,11 +241,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                             Log.d("UDP2", "Requested: "+output);
                                             packet.setData(output.getBytes());
                                             socket.send(packet);
-                                            packet.setData(new byte[10000]);
+                                            packet.setData(new byte[2000]);
                                             //wait half a second
                                             //wait(500);
                                             Boolean received = false;
-                                            String incomingData3 = "";
+                                            incomingData3 = new StringBuilder();
                                             //receive the picture in chunks
                                             while (!received) {
                                                 try {
@@ -250,14 +253,18 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                                     String temp = new String(packet.getData());
                                                     //if still sending picture chunks
                                                     if (!temp.substring(0,4).equals("done")) {
-                                                        incomingData3 += temp;
+                                                        /*if(temp.indexOf(0)!=-1){
+                                                            temp=temp.substring(0,temp.indexOf(0));
+                                                        }*/
+                                                        incomingData3.append(new String(packet.getData()));
                                                         //add string picture to friendPics.
                                                     } else {
                                                         received = true;
-                                                        friendsPics.add(incomingData3);
+                                                        friendsPics.add(incomingData3.toString());
+                                                        Log.d("UDP2", "done with friend");
                                                     }
                                                     Log.d("UDP2", "Received "+temp);
-                                                    packet.setData(new byte[10000]);
+                                                    packet.setData(new byte[2000]);
                                                 } catch (SocketTimeoutException e) {
                                                     received = true;
                                                 }

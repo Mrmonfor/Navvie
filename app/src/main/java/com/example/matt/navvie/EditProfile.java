@@ -318,10 +318,10 @@ public class EditProfile extends AppCompatActivity {
                                 boolean finishedSendingPic = false;
                                 int endOfLast=0;
                                 while (!finishedSendingPic) {
-                                    packet.setData(new byte[10000]); //this needs to be set to some other value probably
-                                    if(encodedPicture.length()-endOfLast>=10000){
-                                        output = encodedPicture.substring(endOfLast, endOfLast + 10000);
-                                        endOfLast+=10000;
+                                    packet.setData(new byte[2000]); //this needs to be set to some other value probably
+                                    if(encodedPicture.length()-endOfLast>=2000){
+                                        output = encodedPicture.substring(endOfLast, endOfLast + 2000);
+                                        endOfLast+=2000;
                                     }
                                     else{
                                         output = encodedPicture.substring(endOfLast);
@@ -331,7 +331,6 @@ public class EditProfile extends AppCompatActivity {
                                     packet.setData(buffer);
                                     socket.send(packet);
                                     Log.d("UDP", "sent: "+output);
-
                                 }
                                 socket.close();
                                 Log.d("UDP", "COMPLETED!");
