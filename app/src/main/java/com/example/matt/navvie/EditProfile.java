@@ -314,13 +314,14 @@ public class EditProfile extends AppCompatActivity {
                                 String port = incomingData.substring(0, 5);
                                 packet.setPort(Integer.parseInt(port));
                                 socket.send(packet);
+                                //wait(100);
                                 boolean finishedSendingPic = false;
                                 int endOfLast=0;
                                 while (!finishedSendingPic) {
-                                    packet.setData(new byte[100]); //this needs to be set to some other value probably
-                                    if(encodedPicture.length()-endOfLast>=100){
-                                        output = encodedPicture.substring(endOfLast, endOfLast + 100);
-                                        endOfLast+=100;
+                                    packet.setData(new byte[10000]); //this needs to be set to some other value probably
+                                    if(encodedPicture.length()-endOfLast>=10000){
+                                        output = encodedPicture.substring(endOfLast, endOfLast + 10000);
+                                        endOfLast+=10000;
                                     }
                                     else{
                                         output = encodedPicture.substring(endOfLast);

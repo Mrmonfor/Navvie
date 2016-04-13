@@ -65,6 +65,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -84,7 +85,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     boolean state = false, bundleFlag = true;
     LatLng campus2 = new LatLng(36.071407, -79.811010);
     LocationRequest request;
-    //private boolean getFriendPictures = false;
+    private boolean getFriendPictures;
     ArrayList friendsPics;
     ArrayList friendPicsIndex;
     private GoogleMap mMap;
@@ -151,11 +152,11 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             if (i.getStringExtra("source") != null) {
                 String source = i.getStringExtra("source");
                 if (source.equals("login")) {
-                    //getFriendPictures = true;
                     final Thread friendPicturesThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             if (!endThreads) {
+                                getFriendPictures = true;
                                 Looper.prepare();
                                 DatagramSocket socket;
                                 try {
@@ -163,7 +164,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                     int servPort = 3020; //server port
                                     Log.d("UDP", "Connection for update Self Location...");
                                     socket = new DatagramSocket(); //client socket
-                                    socket.setSoTimeout(1000);
+                                    socket.setSoTimeout(2000);
                                     int localPort = socket.getLocalPort();
                                     String output = "getPictures," + yourEmail + ",";
                                     byte[] buffer = output.getBytes();
@@ -194,7 +195,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                     socket.close();
                                     //response 2
                                     socket = new DatagramSocket(localPort);
-                                    socket.setSoTimeout(1000);
+                                    socket.setSoTimeout(3000);
                                     String port = incomingData.substring(0, 5);
                                     packet.setPort(Integer.parseInt(port));
                                     socket.send(packet);
@@ -218,7 +219,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                                 String[] friends = friendsString.split("\\|");
                                                 for (int i = 0; i < friends.length; i++) {
                                                     friendPicsIndex.add(friends[i]);
-                                                    Log.d("UDP", "Added :"+friends[i]+ " to friendPicsIndex");
+                                                    Log.d("UDP2", "Added :"+friends[i]+ " to friendPicsIndex");
                                                 }
                                                 break;
                                             }
@@ -227,17 +228,19 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                         }
                                     }
                                     //reset packet
-                                    packet.setData(new byte[100]);
+                                    packet.setData(new byte[10000]);
                                     friendsPics = new ArrayList();
                                     //request a picture for each friend.
                                     for (int i = 0; i < friendPicsIndex.size(); i++) { //condition might need to be one less.
                                         try {
                                             //send email of the person you want the picture for
                                             output = (String) friendPicsIndex.get(i);
+                                            Log.d("UDP2", "Requested: "+output);
                                             packet.setData(output.getBytes());
                                             socket.send(packet);
+                                            packet.setData(new byte[10000]);
                                             //wait half a second
-                                            wait(500);
+                                            //wait(500);
                                             Boolean received = false;
                                             String incomingData3 = "";
                                             //receive the picture in chunks
@@ -246,17 +249,20 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                                     socket.receive(packet);
                                                     String temp = new String(packet.getData());
                                                     //if still sending picture chunks
-                                                    if (!temp.equals("done")) {
+                                                    if (!temp.substring(0,4).equals("done")) {
                                                         incomingData3 += temp;
-                                                    //add string picture to friendPics.
+                                                        //add string picture to friendPics.
                                                     } else {
                                                         received = true;
                                                         friendsPics.add(incomingData3);
                                                     }
-                                                } catch (Exception e) {
-
+                                                    Log.d("UDP2", "Received "+temp);
+                                                    packet.setData(new byte[10000]);
+                                                } catch (SocketTimeoutException e) {
+                                                    received = true;
                                                 }
                                             }
+
 
                                         } catch (IOException e) {
                                             e.printStackTrace();
@@ -269,9 +275,9 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
+                                getFriendPictures=false;
                             }
                         }
-
                     });
                     friendPicturesThread.start();
                     //get friends string from db
@@ -331,7 +337,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void getFriendData() {
-        if (!retreivingFriendData && !endThreads) {
+        if (!retreivingFriendData && !endThreads && !getFriendPictures) {
             yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
@@ -344,7 +350,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         int servPort = 3020; //server port
                         Log.d("UDP", "Connection for FriendData...");
                         socket = new DatagramSocket(); //client socket
-                        socket.setSoTimeout(1000);
+                        socket.setSoTimeout(2000);
                         int localPort = socket.getLocalPort();
                         //getfriends,email.uncg.edu,
                         String output = "getFriends," + yourEmail + ",";
@@ -376,7 +382,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         socket.close();
                         //response 2
                         socket = new DatagramSocket(localPort);
-                        socket.setSoTimeout(1000);
+                        socket.setSoTimeout(2000);
                         String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);
@@ -1046,7 +1052,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         final Thread updateLocationThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (!endThreads) {
+                if (!endThreads && !getFriendPictures) {
                     Looper.prepare();
                     DatagramSocket socket;
                     try {
@@ -1054,7 +1060,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         int servPort = 3020; //server port
                         Log.d("UDP", "Connection for update Self Location...");
                         socket = new DatagramSocket(); //client socket
-                        socket.setSoTimeout(1000);
+                        socket.setSoTimeout(2000);
                         int localPort = socket.getLocalPort();
                         String output = "updateLocation," + yourEmail + "," + loc.getLatitude() + "," + loc.getLongitude() + ",";
                         byte[] buffer = output.getBytes();
@@ -1076,6 +1082,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                 } else {
                                     Log.d("UDP", "No Reply so far.");
                                 }
+
                             } catch (Exception e) {
                                 Log.d("UDP", "Socket Receive Error");
                             }
@@ -1085,7 +1092,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         socket.close();
                         //response 2
                         socket = new DatagramSocket(localPort);
-                        socket.setSoTimeout(1000);
+                        socket.setSoTimeout(2000);
                         String port = incomingData.substring(0, 5);
                         packet.setPort(Integer.parseInt(port));
                         socket.send(packet);
