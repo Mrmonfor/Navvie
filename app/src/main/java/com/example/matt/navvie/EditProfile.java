@@ -314,7 +314,7 @@ public class EditProfile extends AppCompatActivity {
                                 String port = incomingData.substring(0, 5);
                                 packet.setPort(Integer.parseInt(port));
                                 socket.send(packet);
-                                //wait(100);
+                                Thread.sleep(100);
                                 boolean finishedSendingPic = false;
                                 int endOfLast=0;
                                 while (!finishedSendingPic) {
@@ -330,7 +330,8 @@ public class EditProfile extends AppCompatActivity {
                                     buffer = output.getBytes();
                                     packet.setData(buffer);
                                     socket.send(packet);
-                                    Log.d("UDP", "sent: "+output);
+                                    Log.d("UDP", "sent: " + output);
+                                    Thread.sleep(100);
                                 }
                                 socket.close();
                                 Log.d("UDP", "COMPLETED!");
