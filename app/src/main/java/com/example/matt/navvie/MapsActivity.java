@@ -154,7 +154,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 String source = i.getStringExtra("source");
                 if (source.equals("login")) {
 
-                    final Thread friendPicturesThread = new Thread(new Runnable() {
+                    /*final Thread friendPicturesThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             if (!endThreads) {
@@ -290,7 +290,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                     //get friends string from db
                     //get a picture for each friend
-                    //store in a friend pic array
+                    //store in a friend pic array*/
                 }
             }
 

@@ -55,6 +55,7 @@ public class EditProfile extends AppCompatActivity {
     private boolean hideLocation;
     private String updateResult = "";
     private String encodedPicture;
+    private boolean retrievingPicture;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,6 +203,7 @@ public class EditProfile extends AppCompatActivity {
         final Thread getMyPictureThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                retrievingPicture=true;
                 Looper.prepare();
                 DatagramSocket socket;
                 try {
@@ -216,7 +218,7 @@ public class EditProfile extends AppCompatActivity {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
                     socket.send(packet);
 
-                    packet.setData(new byte[50]); //this needs to be set to some other value probably
+                    packet.setData(new byte[2000]); //this needs to be set to some other value probably
                     String incomingData2 = "";
                     String incomingData = "";
                     //response 1
@@ -245,17 +247,31 @@ public class EditProfile extends AppCompatActivity {
                     String port = incomingData.substring(0, 5);
                     packet.setPort(Integer.parseInt(port));
                     socket.send(packet);
-                    boolean finishedReceivingPicture=false;
+                    boolean finishedReceivingPicture = false;
                     //get the picture in chunks
+                    StringBuilder sb = new StringBuilder();
+                    Character ch='\0';
                     while (!finishedReceivingPicture) {
                         try {
                             socket.receive(packet);
                             incomingData2 = new String(packet.getData());
+                            if (incomingData2.indexOf(ch) == -1) {
+                                sb.append(incomingData2);
+                            }
+                            else{
+                                sb.append(incomingData2.substring(0,incomingData2.indexOf(ch)));
+                                finishedReceivingPicture=true;
+                                byte[] decodedBytes = Base64.decode(sb.toString(), 0);
+                                Bitmap b1 = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                                image.setImageBitmap(b1);
+                            }
+                            packet.setData(new byte[2000]);
 
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
+                    retrievingPicture=false;
                     socket.close();
                     Log.d("UDP", "COMPLETED!");
 
@@ -266,6 +282,9 @@ public class EditProfile extends AppCompatActivity {
 
         });
         getMyPictureThread.start();
+        while(!retrievingPicture){
+
+        }
     }
 
     @Override
@@ -330,7 +349,7 @@ public class EditProfile extends AppCompatActivity {
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     bitImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
                     byte[] byteArray = byteArrayOutputStream.toByteArray();
-                    encodedPicture = Base64.encodeToString(byteArray, Base64.DEFAULT);
+                    encodedPicture = Base64.encodeToString(byteArray, Base64.NO_WRAP);
 
                     //decodes the string from the image you uploaded
                     byte[] decodedBytes = Base64.decode(encodedPicture, 0);
