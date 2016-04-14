@@ -56,6 +56,7 @@ public class EditProfile extends AppCompatActivity {
     private String updateResult = "";
     private String encodedPicture;
     private boolean retrievingPicture;
+    private Bitmap PictureMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,10 +201,10 @@ public class EditProfile extends AppCompatActivity {
             statusInput.setText(status);
         }
         locationToggle.setChecked(hideLocation);
+        retrievingPicture=true;
         final Thread getMyPictureThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                retrievingPicture=true;
                 Looper.prepare();
                 DatagramSocket socket;
                 try {
@@ -251,21 +252,27 @@ public class EditProfile extends AppCompatActivity {
                     //get the picture in chunks
                     StringBuilder sb = new StringBuilder();
                     Character ch='\0';
+                    String previous="";
                     while (!finishedReceivingPicture) {
                         try {
                             socket.receive(packet);
                             incomingData2 = new String(packet.getData());
-                            if (incomingData2.indexOf(ch) == -1) {
-                                sb.append(incomingData2);
+                            //guard against duplicate data incoming.
+                            if(!incomingData2.equals(previous)) {
+                                Log.d("UDP", "Using: "+incomingData2);
+                                if (incomingData2.indexOf(ch) == -1) {
+                                    sb.append(incomingData2);
+                                } else {
+                                    sb.append(incomingData2.substring(0, incomingData2.indexOf(ch)));
+                                    finishedReceivingPicture = true;
+                                    byte[] decodedBytes = Base64.decode(sb.toString(), Base64.DEFAULT);
+                                    PictureMap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                                    //Thread.sleep(1000);
+                                }
                             }
-                            else{
-                                sb.append(incomingData2.substring(0,incomingData2.indexOf(ch)));
-                                finishedReceivingPicture=true;
-                                byte[] decodedBytes = Base64.decode(sb.toString(), 0);
-                                Bitmap b1 = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                                image.setImageBitmap(b1);
-                            }
+                            previous = incomingData2;
                             packet.setData(new byte[2000]);
+                            Log.d("UDP", "Retreived: " + incomingData2);
 
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -282,9 +289,10 @@ public class EditProfile extends AppCompatActivity {
 
         });
         getMyPictureThread.start();
-        while(!retrievingPicture){
+        while(retrievingPicture){
 
         }
+        image.setImageBitmap(PictureMap);
     }
 
     @Override
@@ -342,7 +350,7 @@ public class EditProfile extends AppCompatActivity {
                     //get bitmap from stream
                     bitImage = BitmapFactory.decodeStream(inputStream);
                     //show image to user.
-                    image.setImageBitmap(bitImage);
+                    //image.setImageBitmap(bitImage);
 
                     //******************IMAGE ENCODING EXAMPLE FOLLOWS******************************
                     //encodes the image that you upload
@@ -432,11 +440,11 @@ public class EditProfile extends AppCompatActivity {
                     });
                     sendPicThread.start();
                     //display the image you uploaded, should be same as original bitImage
-                    image.setImageBitmap(b1);
                     //****************IMAGE EXAMPLE ENDS*********************************************
                     while (!threadIsFinished) {
                         //wait for thread to finish. Might not need to be here.
                     }
+                    //image.setImageBitmap(b1);
 
 
                 } catch (FileNotFoundException e) {

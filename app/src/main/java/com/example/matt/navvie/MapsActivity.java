@@ -345,7 +345,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     }
 
     private void getFriendData() {
-        if (!retreivingFriendData && !endThreads && !getFriendPictures) {
+        if (!retreivingFriendData || !endThreads || !getFriendPictures) {
             yourFriends.clear();
             final Thread friendDataThread = new Thread(new Runnable() {
                 @Override
@@ -432,7 +432,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 public void run() {
-                    if (friendsRetreived && !endThreads) {
+                    if (friendsRetreived || !endThreads) {
                         //if friendData.equals("failure"){ dont set any friends}
                         //take friendData and make friendObjects from that.
                         String friendFirst, friendLast, friendemail, friendLocationName, friendStatus, friendBio, friendToggle;
@@ -1060,7 +1060,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
         final Thread updateLocationThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (!endThreads && !getFriendPictures) {
+                if (!endThreads || !getFriendPictures) {
                     Looper.prepare();
                     DatagramSocket socket;
                     try {
