@@ -27,6 +27,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -92,6 +93,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private GoogleMap mMap;
     private ArrayList<LatLng> mMarkerPoints;
     private String yourEmail = "Matt Monfort";
+    private String curEmail;
     private Button options, editProfileButton, logoutButton, manageButton, buildingButton, routeButton, cancelViewButton;
     private Location curLocation;
     private Marker marker;
@@ -119,6 +121,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
     private boolean isHandlerLive = false;
     private boolean designTrade = false;
     private boolean friendsRetreived = false;
+    private boolean receivedPics;
     private String friendData = "";
     private boolean retreivingFriendData;
     private boolean endThreads = false;
@@ -148,149 +151,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             setContentView(R.layout.activity_maps);
             Intent i = getIntent();
             yourEmail = i.getStringExtra("key");
-
-            //get friend pictures if coming from login activity
             if (i.getStringExtra("source") != null) {
                 String source = i.getStringExtra("source");
                 if (source.equals("login")) {
-
-                    /*final Thread friendPicturesThread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!endThreads) {
-                                getFriendPictures = true;
-                                Looper.prepare();
-                                DatagramSocket socket;
-                                try {
-                                    InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
-                                    int servPort = 3020; //server port
-                                    Log.d("UDP", "Connection for update Self Location...");
-                                    socket = new DatagramSocket(); //client socket
-                                    socket.setSoTimeout(2000);
-                                    int localPort = socket.getLocalPort();
-                                    String output = "getPictures," + yourEmail + ",";
-                                    byte[] buffer = output.getBytes();
-                                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
-                                    socket.send(packet);
-
-                                    packet.setData(new byte[200]); //this needs to be set to some other value probably
-                                    String incomingData2 = "";
-                                    String incomingData = "";
-                                    //response 1
-                                    while (true) {
-                                        //Thread.sleep(1000);
-                                        try {
-                                            socket.receive(packet);
-                                            incomingData = new String(packet.getData());
-                                            if (incomingData.compareTo(output) != 0) {
-                                                Log.d("UDP", incomingData); //might not be right
-                                                break;
-                                            } else {
-                                                Log.d("UDP", "No Reply so far.");
-                                            }
-                                        } catch (Exception e) {
-                                            Log.d("UDP", "Socket Receive Error");
-                                        }
-                                        //we might need to start some sort of counter to break out of this loop if a response is not received
-                                        //by a certain amount of time
-                                    }
-                                    socket.close();
-                                    //response 2
-                                    socket = new DatagramSocket(localPort);
-                                    socket.setSoTimeout(3000);
-                                    String port = incomingData.substring(0, 5);
-                                    packet.setPort(Integer.parseInt(port));
-                                    socket.send(packet);
-                                    //get friends and add them to friendPicsIndex
-                                    while (true) {
-                                        try {
-                                            socket.receive(packet);
-                                            incomingData2 = new String(packet.getData());
-                                            if (incomingData2.compareTo(incomingData) != 0) {
-                                                String friendsString = "";
-                                                //remove empty bytes
-                                                for (int i = 0; i < incomingData2.length(); i++) {
-                                                    if (incomingData2.charAt(i) != 0) {
-                                                        friendsString += incomingData2.charAt(i);
-                                                    } else {
-                                                        break;
-                                                    }
-                                                }
-
-                                                friendPicsIndex = new ArrayList();
-                                                String[] friends = friendsString.split("\\|");
-                                                for (int i = 0; i < friends.length; i++) {
-                                                    friendPicsIndex.add(friends[i]);
-                                                    Log.d("UDP2", "Added :"+friends[i]+ " to friendPicsIndex");
-                                                }
-                                                break;
-                                            }
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    //reset packet
-                                    packet.setData(new byte[2000]);
-                                    friendsPics = new ArrayList();
-
-                                    StringBuilder incomingData3;
-                                    //request a picture for each friend.
-                                    for (int i = 0; i < friendPicsIndex.size(); i++) { //condition might need to be one less.
-                                        try {
-                                            //send email of the person you want the picture for
-                                            output = (String) friendPicsIndex.get(i);
-                                            Log.d("UDP2", "Requested: "+output);
-                                            packet.setData(output.getBytes());
-                                            socket.send(packet);
-                                            packet.setData(new byte[2000]);
-                                            //Thread.sleep(100);
-                                            Boolean received = false;
-                                            incomingData3 = new StringBuilder();
-                                            //receive the picture in chunks
-                                            while (!received) {
-                                                try {
-                                                    socket.receive(packet);
-                                                    String temp = new String(packet.getData());
-                                                    //if still sending picture chunks
-                                                    if (!temp.substring(0,4).equals("done")) {
-                                                        if(temp.indexOf(0)!=-1){
-                                                            temp=temp.substring(0,temp.indexOf(0));
-                                                        }
-                                                        incomingData3.append(new String(packet.getData()));
-                                                        //add string picture to friendPics.
-                                                    } else {
-                                                        received = true;
-                                                        friendsPics.add(incomingData3.toString());
-                                                        Log.d("UDP2", "done with friend");
-                                                    }
-                                                    Log.d("UDP2", "Received "+temp);
-                                                    packet.setData(new byte[2000]);
-                                                } catch (SocketTimeoutException e) {
-                                                    received = true;
-                                                }
-                                            }
-
-
-                                        } catch (IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-
-                                    socket.close();
-                                    Log.d("UDP", "COMPLETED!");
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                getFriendPictures=false;
-                            }
-                        }
-                    });
-                    friendPicturesThread.start();
-
-                    //get friends string from db
-                    //get a picture for each friend
-                    //store in a friend pic array*/
+                    receivedPics = false;
+                } else {
+                    receivedPics = true;
                 }
             }
 
@@ -497,7 +363,8 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
 
                                     //bitmap is incorrect.
                                     FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType, null);
-                            /*if (yourFriends.size() > 0) {
+
+                                    /*if (yourFriends.size() > 0) {
                                 for (int p = 0; p < yourFriends.size(); p++) {
                                     if (yourFriends.get(p).getFname().equalsIgnoreCase(friendFirst)) {
                                         yourFriends.set(p, friend);
@@ -518,7 +385,101 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
             }, 1000);
 
         }
+        if (!receivedPics) {
+            friendsPics = new ArrayList();
+            for (int k = 0; k < yourFriends.size(); k++) {
 
+                curEmail = (String) yourFriends.get(k).getEmail();
+                final Thread getMyPictureThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Looper.prepare();
+                        DatagramSocket socket;
+                        try {
+                            InetAddress server = InetAddress.getByName("162.243.203.154"); //server ip
+                            int servPort = 3020; //server port
+                            Log.d("UDP", "Connection for update Self Location...");
+                            socket = new DatagramSocket(); //client socket
+                            socket.setSoTimeout(2000);
+                            int localPort = socket.getLocalPort();
+                            String output = "getPicture," + curEmail + ",";
+                            byte[] buffer = output.getBytes();
+                            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, server, servPort);
+                            socket.send(packet);
+
+                            packet.setData(new byte[2000]); //this needs to be set to some other value probably
+                            String incomingData2 = "";
+                            String incomingData = "";
+                            //response 1
+                            while (true) {
+                                //Thread.sleep(1000);
+                                try {
+                                    socket.receive(packet);
+                                    incomingData = new String(packet.getData());
+                                    if (incomingData.compareTo(output) != 0) {
+                                        Log.d("UDP", incomingData); //might not be right
+                                        break;
+                                    } else {
+                                        Log.d("UDP", "No Reply so far.");
+                                    }
+
+                                } catch (Exception e) {
+                                    Log.d("UDP", "Socket Receive Error");
+                                }
+                                //we might need to start some sort of counter to break out of this loop if a response is not received
+                                //by a certain amount of time
+                            }
+                            socket.close();
+                            //response 2
+                            socket = new DatagramSocket(localPort);
+                            socket.setSoTimeout(2000);
+                            String port = incomingData.substring(0, 5);
+                            packet.setPort(Integer.parseInt(port));
+                            socket.send(packet);
+                            boolean finishedReceivingPicture = false;
+                            //get the picture in chunks
+                            StringBuilder sb = new StringBuilder();
+                            Character ch = '\0';
+                            String previous = "";
+                            packet.setData(new byte[2000]);
+                            while (!finishedReceivingPicture) {
+                                try {
+                                    socket.receive(packet);
+                                    incomingData2 = new String(packet.getData());
+                                    //guard against duplicate data incoming.
+                                    if (!incomingData2.equals(previous)) {
+                                        Log.d("UDP", "Using: " + incomingData2);
+                                        if (incomingData2.indexOf(ch) == -1) {
+                                            sb.append(incomingData2);
+                                        } else {
+                                            sb.append(incomingData2.substring(0, incomingData2.indexOf(ch)));
+                                            finishedReceivingPicture = true;
+                                            byte[] decodedBytes = Base64.decode(sb.toString(), Base64.DEFAULT);
+                                            friendsPics.add(BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length));
+                                            //Thread.sleep(1000);
+                                        }
+                                    }
+                                    previous = incomingData2;
+                                    packet.setData(new byte[2000]);
+                                    Log.d("UDP", "Retreived: " + incomingData2);
+
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            //retrievingPicture=false;
+                            socket.close();
+                            Log.d("UDP", "COMPLETED!");
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                });
+                getMyPictureThread.start();
+            }
+        }
     }
 
     public boolean servicesOK() {
@@ -935,13 +896,14 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 options.position(loc);
                 options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
                 ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
-                Bitmap bitmap;
-                if (yourFriends.get(z).getPicture() != null) {
-                    bitmap = yourFriends.get(z).getPicture();
+                Bitmap bitmap=null;
+                if (friendsPics != null && friendsPics.size()>z) {
+                    if (friendsPics.get(z) != null) {
+                        bitmap = (Bitmap) friendsPics.get(z);
 
+                    }
                 } else {
                     bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
-                    ;
                 }
                 int px = (int) Math.ceil(34 * logicalDensity);
                 int px2 = (int) Math.ceil(23 * logicalDensity);

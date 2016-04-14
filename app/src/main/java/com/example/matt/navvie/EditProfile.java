@@ -201,7 +201,7 @@ public class EditProfile extends AppCompatActivity {
             statusInput.setText(status);
         }
         locationToggle.setChecked(hideLocation);
-        retrievingPicture=true;
+        retrievingPicture = true;
         final Thread getMyPictureThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -251,15 +251,20 @@ public class EditProfile extends AppCompatActivity {
                     boolean finishedReceivingPicture = false;
                     //get the picture in chunks
                     StringBuilder sb = new StringBuilder();
-                    Character ch='\0';
-                    String previous="";
+                    Character ch = '\0';
+                    String previous = "";
+                    packet.setData(new byte[2000]);
                     while (!finishedReceivingPicture) {
                         try {
                             socket.receive(packet);
                             incomingData2 = new String(packet.getData());
+                            if (incomingData2.charAt(0) == ch) {
+                                retrievingPicture = true;
+                                break;
+                            }
                             //guard against duplicate data incoming.
-                            if(!incomingData2.equals(previous)) {
-                                Log.d("UDP", "Using: "+incomingData2);
+                            if (!incomingData2.equals(previous)) {
+                                Log.d("UDP", "Using: " + incomingData2);
                                 if (incomingData2.indexOf(ch) == -1) {
                                     sb.append(incomingData2);
                                 } else {
@@ -278,7 +283,7 @@ public class EditProfile extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    retrievingPicture=false;
+                    retrievingPicture = false;
                     socket.close();
                     Log.d("UDP", "COMPLETED!");
 
@@ -289,10 +294,12 @@ public class EditProfile extends AppCompatActivity {
 
         });
         getMyPictureThread.start();
-        while(retrievingPicture){
+        while (retrievingPicture) {
 
         }
-        image.setImageBitmap(PictureMap);
+        if (PictureMap != null) {
+            image.setImageBitmap(PictureMap);
+        }
     }
 
     @Override
