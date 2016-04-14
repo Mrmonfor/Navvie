@@ -445,57 +445,58 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                         boolean finishedParsing = false;
                         int i = 0;
                         while (!finishedParsing) {
-                            for (; i < friendData.length(); i++) {
-                                if (friendData.charAt(i) == ',') {
-                                    friendStuff.add(friendData.substring(endOfLast, i));
-                                    endOfLast = i + 1;
+                            try {
+                                for (; i < friendData.length(); i++) {
+                                    if (friendData.charAt(i) == ',') {
+                                        friendStuff.add(friendData.substring(endOfLast, i));
+                                        endOfLast = i + 1;
+                                    }
+                                    if (i == friendData.length() - 1) {
+                                        friendStuff.add(friendData.substring(endOfLast, i));
+                                        finishedParsing = true;
+                                        break;
+                                    }
+                                    if (friendData.charAt(i) == '|') {
+                                        friendStuff.add(friendData.substring(endOfLast, i));
+                                        endOfLast = i + 1;
+                                        i++;
+                                        break;
+                                    }
                                 }
-                                if (i == friendData.length() - 1) {
-                                    friendStuff.add(friendData.substring(endOfLast, i));
-                                    finishedParsing = true;
-                                    break;
-                                }
-                                if (friendData.charAt(i) == '|') {
-                                    friendStuff.add(friendData.substring(endOfLast, i));
-                                    endOfLast = i + 1;
-                                    i++;
-                                    break;
-                                }
-                            }
-                            if (friendStuff.size() != 0) {
-                                friendFirst = (String) friendStuff.get(0);
-                                friendLast = (String) friendStuff.get(1);
-                                friendemail = (String) friendStuff.get(2);
-                                String friendlatstring = (String) friendStuff.get(3);
-                                if (!friendlatstring.equals(" ")) {
-                                    friendlat = Double.parseDouble(friendlatstring);
-                                } else {
-                                    friendlat = 0.0;
-                                }
-                                String friendlongstring = (String) friendStuff.get(4);
+                                if (friendStuff.size() != 0) {
+                                    friendFirst = (String) friendStuff.get(0);
+                                    friendLast = (String) friendStuff.get(1);
+                                    friendemail = (String) friendStuff.get(2);
+                                    String friendlatstring = (String) friendStuff.get(3);
+                                    if (!friendlatstring.equals(" ")) {
+                                        friendlat = Double.parseDouble(friendlatstring);
+                                    } else {
+                                        friendlat = 0.0;
+                                    }
+                                    String friendlongstring = (String) friendStuff.get(4);
 
-                                if (!friendlongstring.equals(" ")) {
-                                    friendlong = Double.parseDouble(friendlongstring);
-                                } else {
-                                    friendlong = 0.0;
-                                }
-                                friendLocationName = (String) friendStuff.get(5);
-                                friendStatus = (String) friendStuff.get(6);
-                                friendBio = (String) friendStuff.get(7);
-                                friendToggle = (String) friendStuff.get(8);
-                                if (Integer.parseInt(friendToggle) == 1) {
-                                    friendLocationToggle = true;
-                                } else {
-                                    friendLocationToggle = false;
-                                }
-                                friendType = (String) friendStuff.get(9);
-                                String friendImageString = (String) friendStuff.get(10);
+                                    if (!friendlongstring.equals(" ")) {
+                                        friendlong = Double.parseDouble(friendlongstring);
+                                    } else {
+                                        friendlong = 0.0;
+                                    }
+                                    friendLocationName = (String) friendStuff.get(5);
+                                    friendStatus = (String) friendStuff.get(6);
+                                    friendBio = (String) friendStuff.get(7);
+                                    friendToggle = (String) friendStuff.get(8);
+                                    if (Integer.parseInt(friendToggle) == 1) {
+                                        friendLocationToggle = true;
+                                    } else {
+                                        friendLocationToggle = false;
+                                    }
+                                    friendType = (String) friendStuff.get(9);
+                                    String friendImageString = (String) friendStuff.get(10);
                             /*
                                 Transform friendImageString into bitmap
                              */
 
-                                //bitmap is incorrect.
-                                FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType, null);
+                                    //bitmap is incorrect.
+                                    FriendObject friend = new FriendObject(friendFirst, friendLast, friendemail, friendlat, friendlong, friendLocationName, friendStatus, friendBio, friendLocationToggle, friendType, null);
                             /*if (yourFriends.size() > 0) {
                                 for (int p = 0; p < yourFriends.size(); p++) {
                                     if (yourFriends.get(p).getFname().equalsIgnoreCase(friendFirst)) {
@@ -505,10 +506,12 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                                     }
                                 }
                             } else {*/
-                                yourFriends.add(friend);
-                                //}
+                                    yourFriends.add(friend);
+                                    //}
+                                }
+                                friendStuff = new ArrayList();
+                            } catch (Exception e2) {
                             }
-                            friendStuff = new ArrayList();
                         }
                     }
                 }
