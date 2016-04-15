@@ -2,12 +2,15 @@ package com.example.matt.navvie;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -32,6 +35,7 @@ public class ViewProfileFrag extends Fragment {
     private String mParam2;
     private TextView fnameText, emailText, locText, stateText, bioText;
     private FriendObject info;
+    private ImageView pic;
 
     private ArrayList<FriendObject> localities = new ArrayList<FriendObject>();
 
@@ -85,6 +89,8 @@ public class ViewProfileFrag extends Fragment {
         locText = (TextView) view.findViewById(R.id.friendLocationText);
         stateText = (TextView) view.findViewById(R.id.friendStatusText);
         bioText = (TextView) view.findViewById(R.id.friendBioText);
+        pic = (ImageView) view.findViewById(R.id.friendPic);
+        Bitmap bitmap=null;
         if (localities.size() !=0) {
             info = localities.get(i);
             fnameText.setText(info.getFname() + " " + info.getLname());
@@ -98,6 +104,17 @@ public class ViewProfileFrag extends Fragment {
             emailText.setText(info.getEmail());
             stateText.setText("Status:" + info.getStatus());
             bioText.setText(info.getBio());
+            if(info.getFname().equalsIgnoreCase("Matt")){
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.matt);
+            }else if(info.getFname().equalsIgnoreCase("Steven")){
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chase);
+            }else if(info.getFname().equalsIgnoreCase("Adam")){
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.adam);
+            }else{
+                bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
+            }
+            pic.setImageBitmap(bitmap);
+
         }
         return view;
     }

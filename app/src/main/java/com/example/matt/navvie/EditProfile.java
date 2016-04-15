@@ -88,6 +88,18 @@ public class EditProfile extends AppCompatActivity {
         locationTextView = (TextView) findViewById(R.id.locationText);
         retypePWInput = (EditText) findViewById(R.id.retypeText);
 
+        Bitmap bitm= null;
+        if(yourEmail.equalsIgnoreCase("mrmonfor@uncg.edu")){
+            bitm = BitmapFactory.decodeResource(getResources(), R.drawable.matt);
+        }else if(yourEmail.equalsIgnoreCase("scpatton@uncg.edu")){
+            bitm = BitmapFactory.decodeResource(getResources(), R.drawable.chase);
+        }else if(yourEmail.equalsIgnoreCase("alsouthg@uncg.edu")){
+            bitm = BitmapFactory.decodeResource(getResources(), R.drawable.adam);
+        }else{
+            bitm = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
+        }
+        image.setImageBitmap(bitm);
+
         initThreadIsFinished = false;
         final Thread getMyProfileThread = new Thread(new Runnable() {
             @Override
@@ -192,7 +204,7 @@ public class EditProfile extends AppCompatActivity {
             locationTextView.setText(LocationName);
         }
         if (LocationName.equals(" ")) {
-            locationTextView.setText("Between Buildings");
+            locationTextView.setText("Location:Between Buildings");
         }
         if (!bio.equals(" ")) {
             bioText.setText(bio);
@@ -202,7 +214,7 @@ public class EditProfile extends AppCompatActivity {
         }
         locationToggle.setChecked(hideLocation);
         retrievingPicture = true;
-        final Thread getMyPictureThread = new Thread(new Runnable() {
+        /*  final Thread getMyPictureThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Looper.prepare();
@@ -299,7 +311,7 @@ public class EditProfile extends AppCompatActivity {
         }
         if (PictureMap != null) {
             image.setImageBitmap(PictureMap);
-        }
+        }*/
     }
 
     @Override
@@ -369,8 +381,9 @@ public class EditProfile extends AppCompatActivity {
                     //decodes the string from the image you uploaded
                     byte[] decodedBytes = Base64.decode(encodedPicture, 0);
                     Bitmap b1 = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                    image.setImageBitmap(b1);
                     //send image in chunks
-                    final Thread sendPicThread = new Thread(new Runnable() {
+                  /*  final Thread sendPicThread = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             Looper.prepare();
@@ -453,7 +466,7 @@ public class EditProfile extends AppCompatActivity {
                     }
                     //image.setImageBitmap(b1);
 
-
+                    */
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                     Toast.makeText(this, "Unable to open image", Toast.LENGTH_LONG).show();

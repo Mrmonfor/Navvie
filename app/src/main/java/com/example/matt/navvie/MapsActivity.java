@@ -384,7 +384,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 }
             }, 1000);
 
-        }
+        }/*
         if (!receivedPics) {
             friendsPics = new ArrayList();
             for (int k = 0; k < yourFriends.size(); k++) {
@@ -479,7 +479,7 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 });
                 getMyPictureThread.start();
             }
-        }
+        } */
     }
 
     public boolean servicesOK() {
@@ -897,12 +897,13 @@ public class MapsActivity extends FragmentActivity implements SensorEventListene
                 options.title(yourFriends.get(z).getFname() + yourFriends.get(z).getLname());
                 ImageView profile = (ImageView) marker.findViewById(R.id.profile_pic);
                 Bitmap bitmap=null;
-                if (friendsPics != null && friendsPics.size()>z) {
-                    if (friendsPics.get(z) != null) {
-                        bitmap = (Bitmap) friendsPics.get(z);
-
-                    }
-                } else {
+                if (yourFriends.get(z).getFname().equalsIgnoreCase("Matt")) {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.matt);
+                } else if(yourFriends.get(z).getFname().equalsIgnoreCase("Adam")) {
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.adam);
+                }else if (yourFriends.get(z).getFname().equalsIgnoreCase("Steven")){
+                    bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.chase);
+                }else{
                     bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.anonymous);
                 }
                 int px = (int) Math.ceil(34 * logicalDensity);
